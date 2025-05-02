@@ -1,0 +1,188 @@
+const axios = require('axios');
+
+// In-memory storage for vocabulary, favorites, and history (would be replaced with a database in production)
+let vocabularyList = [];
+let favorites = [];
+let searchHistory = [];
+
+// DeepSeek Chat API configuration
+const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
+
+// Define a word using DeepSeek Chat API
+exports.defineWord = async (req, res) => {
+  try {
+    const { word, avoidWords = [] } = req.body;
+    
+    if (!word) {
+      return res.status(400).json({ error: 'Word is required' });
+    }
+    
+    let prompt = `Define the English word '${word}' in one clear, concise sentence of explanation. `;
+    
+    if (avoidWords.length > 0) {
+      prompt += `Please avoid using these words in your explanation: ${avoidWords.join(', ')}. `;
+    }
+    
+    prompt += "The explanation should be suitable for English language learners and avoid overly complex vocabulary unless necessary.";
+    
+    const response = await axios.post(
+      DEEPSEEK_API_URL,
+      {
+        model: "deepseek-chat",
+        messages: [
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.3,
+        max_tokens: 100
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+        }
+      }
+    );
+    
+    const definition = response.data.choices[0].message.content.trim();
+    
+    const result = {
+      term: word,
+      definition: definition,
+      timestamp: new Date()
+    };
+    
+    // Add to search history
+    addToHistory(result);
+    
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error('Error defining word:', error);
+    return res.status(500).json({ 
+      error: 'Error defining word',
+      message: error.message
+    });
+  }
+};
+
+// Add word to vocabulary list
+exports.addToVocabulary = (req, res) => {
+  try {
+    const { term, definition } = req.body;
+    
+    if (!term || !definition) {
+      return res.status(400).json({ error: 'Term and definition are required' });
+    }
+    
+    const word = {
+      term,
+      definition,
+      timestamp: new Date()
+    };
+    
+    // Check if word already exists
+    const existingIndex = vocabularyList.findIndex(item => item.term === term);
+    if (existingIndex >= 0) {
+      return res.status(200).json({ message: 'Word already in vocabulary', word });
+    }
+    
+    vocabularyList.push(word);
+    return res.status(201).json(word);
+  } catch (error) {
+    console.error('Error adding to vocabulary:', error);
+    return res.status(500).json({ error: 'Error adding to vocabulary' });
+  }
+};
+
+// Get vocabulary list
+exports.getVocabulary = (req, res) => {
+  return res.status(200).json(vocabularyList);
+};
+
+// Remove word from vocabulary
+exports.removeFromVocabulary = (req, res) => {
+  try {
+    const { term } = req.params;
+    
+    const initialLength = vocabularyList.length;
+    vocabularyList = vocabularyList.filter(word => word.term !== term);
+    
+    if (vocabularyList.length === initialLength) {
+      return res.status(404).json({ error: 'Word not found in vocabulary' });
+    }
+    
+    return res.status(200).json({ message: 'Word removed from vocabulary' });
+  } catch (error) {
+    console.error('Error removing from vocabulary:', error);
+    return res.status(500).json({ error: 'Error removing from vocabulary' });
+  }
+};
+
+// Toggle favorite status
+exports.toggleFavorite = (req, res) => {
+  try {
+    const { term, definition } = req.body;
+    
+    if (!term || !definition) {
+      return res.status(400).json({ error: 'Term and definition are required' });
+    }
+    
+    const word = {
+      term,
+      definition,
+      timestamp: new Date()
+    };
+    
+    // Check if word is already a favorite
+    const existingIndex = favorites.findIndex(item => item.term === term);
+    
+    if (existingIndex >= 0) {
+      // Remove from favorites
+      favorites.splice(existingIndex, 1);
+      return res.status(200).json({ 
+        message: 'Word removed from favorites', 
+        isFavorite: false
+      });
+    } else {
+      // Add to favorites
+      favorites.push(word);
+      return res.status(200).json({ 
+        message: 'Word added to favorites', 
+        isFavorite: true
+      });
+    }
+  } catch (error) {
+    console.error('Error toggling favorite:', error);
+    return res.status(500).json({ error: 'Error toggling favorite' });
+  }
+};
+
+// Get favorites
+exports.getFavorites = (req, res) => {
+  return res.status(200).json(favorites);
+};
+
+// Add to search history
+function addToHistory(word) {
+  // Remove if exists to avoid duplicates
+  searchHistory = searchHistory.filter(item => item.term !== word.term);
+  
+  // Add to the beginning
+  searchHistory.unshift(word);
+  
+  // Limit history size
+  if (searchHistory.length > 100) {
+    searchHistory = searchHistory.slice(0, 100);
+  }
+}
+
+// Get search history
+exports.getHistory = (req, res) => {
+  return res.status(200).json(searchHistory);
+};
+
+// Clear search history
+exports.clearHistory = (req, res) => {
+  searchHistory = [];
+  return res.status(200).json({ message: 'Search history cleared' });
+}; 
