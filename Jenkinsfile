@@ -44,14 +44,14 @@ pipeline {
                     steps {
                         dir(SERVER_DIR) {
                             // Replace nodejs step with direct npm commands
-                            sh '''
+                            sh """
                                 export NVM_DIR="$HOME/.nvm"
-                                [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+                                [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
                                 nvm install ${NODE_VERSION}
                                 nvm use ${NODE_VERSION}
                                 npm ci
                                 npm run test
-                            '''
+                            """
                         }
                     }
                 }
@@ -105,13 +105,13 @@ pipeline {
                     steps {
                         dir(SERVER_DIR) {
                             // Replace nodejs step with direct npm commands
-                            sh '''
+                            sh """
                                 export NVM_DIR="$HOME/.nvm"
-                                [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+                                [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
                                 nvm install ${NODE_VERSION}
                                 nvm use ${NODE_VERSION}
                                 npm ci --production
-                            '''
+                            """
                             // Add deployment steps (e.g., to cloud platform)
                         }
                     }
