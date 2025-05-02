@@ -4,10 +4,10 @@ pipeline {
     environment {
         MACOS_APP_DIR = 'ai-dic-mac'
         SERVER_DIR = 'ai-dic-server'
-        NODE_VERSION_18 = '18.x'
-        NODE_VERSION_20 = '20.x'
-        NODE_VERSION_21 = '21.x'
-        NVM_DIR = "$HOME/.nvm"  // Define NVM_DIR in environment
+        NODE_VERSION_18 = '18.20.2'  // Changed to specific LTS version
+        NODE_VERSION_20 = '20.13.1'  // Changed to specific LTS version
+        NVM_DIR = "$HOME/.nvm"
+        // Removed NODE_VERSION_21 as it's not stable yet
     }
 
     stages {
@@ -127,43 +127,7 @@ pipeline {
                     }
                 }
 
-                stage('Server Node 21') {
-                    steps {
-                        dir(SERVER_DIR) {
-                            sh '''
-                                set +e
-                                source $NVM_DIR/nvm.sh
-                                echo "Installing Node.js ${NODE_VERSION_21}"
-                                nvm install ${NODE_VERSION_21}
-                                INSTALL_STATUS=$?
-                                if [ $INSTALL_STATUS -ne 0 ]; then
-                                    echo "Failed to install Node.js ${NODE_VERSION_21}"
-                                    exit $INSTALL_STATUS
-                                fi
-                                
-                                nvm use ${NODE_VERSION_21}
-                                node -v
-                                npm -v
-                                
-                                echo "Installing dependencies"
-                                npm ci
-                                CI_STATUS=$?
-                                if [ $CI_STATUS -ne 0 ]; then
-                                    echo "npm ci failed with status $CI_STATUS"
-                                    exit $CI_STATUS
-                                fi
-                                
-                                echo "Running tests"
-                                npm run test
-                                TEST_STATUS=$?
-                                if [ $TEST_STATUS -ne 0 ]; then
-                                    echo "Tests failed with status $TEST_STATUS"
-                                    exit $TEST_STATUS
-                                fi
-                            '''
-                        }
-                    }
-                }
+                // Then remove the entire 'Server Node 21' stage since it's not needed
             }
         }
 
