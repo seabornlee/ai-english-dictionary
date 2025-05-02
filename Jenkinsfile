@@ -5,6 +5,7 @@ pipeline {
         MACOS_APP_DIR = 'ai-dic-mac'
         SERVER_DIR = 'ai-dic-server'
         NODE_VERSION = '18.x'
+        NVM_DIR = "$HOME/.nvm"  // Define NVM_DIR in environment
     }
 
     stages {
@@ -44,14 +45,13 @@ pipeline {
                     steps {
                         dir(SERVER_DIR) {
                             // Replace nodejs step with direct npm commands
-                            sh """
-                                export NVM_DIR="$HOME/.nvm"
-                                [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                            sh '''
+                                source $NVM_DIR/nvm.sh
                                 nvm install ${NODE_VERSION}
                                 nvm use ${NODE_VERSION}
                                 npm ci
                                 npm run test
-                            """
+                            '''
                         }
                     }
                 }
@@ -105,13 +105,12 @@ pipeline {
                     steps {
                         dir(SERVER_DIR) {
                             // Replace nodejs step with direct npm commands
-                            sh """
-                                export NVM_DIR="$HOME/.nvm"
-                                [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                            sh '''
+                                source $NVM_DIR/nvm.sh
                                 nvm install ${NODE_VERSION}
                                 nvm use ${NODE_VERSION}
                                 npm ci --production
-                            """
+                            '''
                             // Add deployment steps (e.g., to cloud platform)
                         }
                     }
