@@ -7,9 +7,9 @@ pipeline {
         NODE_VERSION_18 = '18.20.2'  // Changed to specific LTS version
         NODE_VERSION_20 = '20.13.1'  // Changed to specific LTS version
         NVM_DIR = "$HOME/.nvm"
-        // Test report directories
-        NODE_TEST_REPORTS_DIR = 'test-reports'
-        XCODE_TEST_REPORTS_DIR = 'test-reports'
+        // Test report directories with workspace-relative paths
+        NODE_TEST_REPORTS_DIR = '${WORKSPACE}/test-reports/node'
+        XCODE_TEST_REPORTS_DIR = '${WORKSPACE}/test-reports/xcode'
     }
 
     stages {
@@ -37,11 +37,11 @@ pipeline {
                                 # Add error handling for Xcode build
 
                                 set +e
-                                mkdir -p ${XCODE_TEST_REPORTS_DIR}
+                                mkdir -p "${XCODE_TEST_REPORTS_DIR}"
                                 xcodebuild clean build test \
                                 -scheme AIDictionary \
                                 -destination 'platform=macOS' \
-                                -resultBundlePath ${XCODE_TEST_REPORTS_DIR}/TestResults.xcresult \
+                                -resultBundlePath "${XCODE_TEST_REPORTS_DIR}/TestResults.xcresult" \
                                 CODE_SIGN_IDENTITY="" \
                                 CODE_SIGNING_REQUIRED=NO | xcpretty --report junit --output "${XCODE_TEST_REPORTS_DIR}/test-results.xml"
                                 BUILD_STATUS=${PIPESTATUS[0]}
@@ -82,8 +82,8 @@ pipeline {
                                 fi
                                 
                                 echo "Running tests with coverage"
-                                mkdir -p ${NODE_TEST_REPORTS_DIR}
-                                JEST_JUNIT_OUTPUT_DIR=${NODE_TEST_REPORTS_DIR} npm run test -- --reporters=default --reporters=jest-junit --coverage
+                                mkdir -p "${NODE_TEST_REPORTS_DIR}"
+                                JEST_JUNIT_OUTPUT_DIR="${NODE_TEST_REPORTS_DIR}" npm run test -- --reporters=default --reporters=jest-junit --coverage
                                 TEST_STATUS=$?
                                 if [ $TEST_STATUS -ne 0 ]; then
                                     echo "Tests failed with status $TEST_STATUS"
@@ -121,8 +121,8 @@ pipeline {
                                 fi
                                 
                                 echo "Running tests with coverage"
-                                mkdir -p ${NODE_TEST_REPORTS_DIR}
-                                JEST_JUNIT_OUTPUT_DIR=${NODE_TEST_REPORTS_DIR} npm run test -- --reporters=default --reporters=jest-junit --coverage
+                                mkdir -p "${NODE_TEST_REPORTS_DIR}"
+                                JEST_JUNIT_OUTPUT_DIR="${NODE_TEST_REPORTS_DIR}" npm run test -- --reporters=default --reporters=jest-junit --coverage
                                 TEST_STATUS=$?
                                 if [ $TEST_STATUS -ne 0 ]; then
                                     echo "Tests failed with status $TEST_STATUS"
@@ -220,24 +220,25 @@ pipeline {
     post {
         always {
             script {
-                // Publish test results
-                junit '**/test-reports/*.xml'
+                // Create test report directories
+                sh "mkdir -p ${NODE_TEST_REPORTS_DIR} ${XCODE_TEST_REPORTS_DIR}"
+                
+                // Publish Node.js test results
+                junit allowEmptyResults: true, testResults: "${NODE_TEST_REPORTS_DIR}/*.xml"
                 
                 // Publish coverage reports
                 publishHTML([
-                    allowMissing: false,
+                    allowMissing: true,
                     alwaysLinkToLastBuild: true,
                     keepAll: true,
-                    reportDir: 'ai-dic-server/coverage/lcov-report',
+                    reportDir: "${SERVER_DIR}/coverage/lcov-report",
                     reportFiles: 'index.html',
                     reportName: 'Node.js Coverage Report',
                     reportTitles: 'Node.js Coverage Report'
                 ])
                 
-                // Publish XCode test results if available
-                if (fileExists('ai-dic-mac/test-reports')) {
-                    junit 'ai-dic-mac/test-reports/*.xml'
-                }
+                // Publish XCode test results
+                junit allowEmptyResults: true, testResults: "${XCODE_TEST_REPORTS_DIR}/*.xml"
                 // Preserve Xcode project files when cleaning workspace
                 if (fileExists('${MACOS_APP_DIR}/AIDictionary.xcodeproj')) {
                     sh "tar -czf xcode_project_backup.tar.gz ${MACOS_APP_DIR}/AIDictionary.xcodeproj"
