@@ -4,7 +4,7 @@ pipeline {
     environment {
         MACOS_APP_DIR = 'ai-dic-mac'
         SERVER_DIR = 'ai-dic-server'
-        NODE_VERSION = '18.x'
+        NODE_VERSIONS = ['18.x', '20.x', '21.x']
         NVM_DIR = "$HOME/.nvm"  // Define NVM_DIR in environment
     }
 
@@ -23,8 +23,15 @@ pipeline {
                     }
                     steps {
                         dir(MACOS_APP_DIR) {
-                            // Add error handling for Xcode build
+                            // Validate Xcode project before building
                             sh '''
+                                if [ ! -f "AIDictionary.xcodeproj/project.pbxproj" ]; then
+                                    echo "Error: project.pbxproj is missing!"
+                                    exit 1
+                                fi
+                                
+                                # Add error handling for Xcode build
+
                                 set +e
                                 xcodebuild clean build test \
                                 -scheme AIDictionary \
@@ -42,15 +49,47 @@ pipeline {
                 }
 
                 stage('Server') {
+                    matrix {
+                        axes {
+                            axis {
+                                name 'NODE_VERSION'
+                                values NODE_VERSIONS
+                            }
+                        }
+                    }
                     steps {
                         dir(SERVER_DIR) {
-                            // Replace nodejs step with direct npm commands
+                            // Enhanced Node.js setup with version validation
                             sh '''
+                                set +e
                                 source $NVM_DIR/nvm.sh
+                                echo "Installing Node.js ${NODE_VERSION}"
                                 nvm install ${NODE_VERSION}
+                                INSTALL_STATUS=$?
+                                if [ $INSTALL_STATUS -ne 0 ]; then
+                                    echo "Failed to install Node.js ${NODE_VERSION}"
+                                    exit $INSTALL_STATUS
+                                fi
+                                
                                 nvm use ${NODE_VERSION}
+                                node -v
+                                npm -v
+                                
+                                echo "Installing dependencies"
                                 npm ci
+                                CI_STATUS=$?
+                                if [ $CI_STATUS -ne 0 ]; then
+                                    echo "npm ci failed with status $CI_STATUS"
+                                    exit $CI_STATUS
+                                fi
+                                
+                                echo "Running tests"
                                 npm run test
+                                TEST_STATUS=$?
+                                if [ $TEST_STATUS -ne 0 ]; then
+                                    echo "Tests failed with status $TEST_STATUS"
+                                    exit $TEST_STATUS
+                                fi
                             '''
                         }
                     }
@@ -101,15 +140,34 @@ pipeline {
                 stage('Deploy Server') {
                     when {
                         branch 'main'
+                        // Deploy with the latest LTS version
+                        environment name: 'NODE_VERSION', value: '20.x'
                     }
                     steps {
                         dir(SERVER_DIR) {
-                            // Replace nodejs step with direct npm commands
+                            // Enhanced deployment setup with error handling
                             sh '''
+                                set +e
                                 source $NVM_DIR/nvm.sh
+                                echo "Installing Node.js ${NODE_VERSION} for deployment"
                                 nvm install ${NODE_VERSION}
+                                INSTALL_STATUS=$?
+                                if [ $INSTALL_STATUS -ne 0 ]; then
+                                    echo "Failed to install Node.js ${NODE_VERSION}"
+                                    exit $INSTALL_STATUS
+                                fi
+                                
                                 nvm use ${NODE_VERSION}
+                                node -v
+                                npm -v
+                                
+                                echo "Installing production dependencies"
                                 npm ci --production
+                                CI_STATUS=$?
+                                if [ $CI_STATUS -ne 0 ]; then
+                                    echo "npm ci failed with status $CI_STATUS"
+                                    exit $CI_STATUS
+                                fi
                             '''
                             // Add deployment steps (e.g., to cloud platform)
                         }
@@ -121,7 +179,17 @@ pipeline {
 
     post {
         always {
-            cleanWs()
+            script {
+                // Preserve Xcode project files when cleaning workspace
+                if (fileExists('${MACOS_APP_DIR}/AIDictionary.xcodeproj')) {
+                    sh "tar -czf xcode_project_backup.tar.gz ${MACOS_APP_DIR}/AIDictionary.xcodeproj"
+                }
+                cleanWs()
+                if (fileExists('xcode_project_backup.tar.gz')) {
+                    sh "tar -xzf xcode_project_backup.tar.gz"
+                    sh "rm xcode_project_backup.tar.gz"
+                }
+            }
         }
         success {
             echo 'Pipeline completed successfully!'
