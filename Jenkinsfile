@@ -231,7 +231,7 @@ pipeline {
                     allowMissing: true,
                     alwaysLinkToLastBuild: true,
                     keepAll: true,
-                    reportDir: "${SERVER_DIR}/coverage/lcov-report",
+                    reportDir: "${WORKSPACE}/${SERVER_DIR}/coverage/lcov-report",
                     reportFiles: 'index.html',
                     reportName: 'Node.js Coverage Report',
                     reportTitles: 'Node.js Coverage Report'
