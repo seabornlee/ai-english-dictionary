@@ -129,7 +129,6 @@ pipeline {
         }
         failure {
             echo 'Pipeline failed!'
-            // Add notification steps (e.g., email, Slack)
         }
     }
 }
