@@ -16,7 +16,7 @@ module.exports = {
   ],
   testResultsProcessor: 'jest-junit',
   'jest-junit': {
-    outputDirectory: 'test-reports/node',
+    outputDirectory: '.',
     outputName: 'junit.xml',
     classNameTemplate: '{classname}',
     titleTemplate: '{title}',
