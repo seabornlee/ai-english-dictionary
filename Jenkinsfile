@@ -97,12 +97,24 @@ pipeline {
                                 mkdir -p node_modules
                                 chmod -R 755 node_modules
 
-                                echo "Installing dependencies"
-                                cnpm install
-                                CI_STATUS=$?
-                                if [ $CI_STATUS -ne 0 ]; then
-                                    echo "cnpm install failed with status $CI_STATUS"
-                                    exit $CI_STATUS
+                                echo "Clearing npm cache and node_modules"
+                                npm cache clean --force
+                                rm -rf node_modules package-lock.json
+
+                                echo "Installing dependencies with retry mechanism"
+                                MAX_RETRIES=3
+                                RETRY_COUNT=0
+                                until [ $RETRY_COUNT -ge $MAX_RETRIES ]
+                                do
+                                    cnpm install --no-package-lock --registry=https://registry.npmmirror.com && break
+                                    RETRY_COUNT=$((RETRY_COUNT+1))
+                                    echo "Attempt $RETRY_COUNT failed, retrying..."
+                                    sleep 5
+                                done
+
+                                if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+                                    echo "Failed to install dependencies after $MAX_RETRIES attempts"
+                                    exit 1
                                 fi
                                 
                                 echo "Running tests with coverage"
@@ -144,12 +156,24 @@ pipeline {
                                 mkdir -p node_modules
                                 chmod -R 755 node_modules
 
-                                echo "Installing dependencies"
-                                cnpm install
-                                CI_STATUS=$?
-                                if [ $CI_STATUS -ne 0 ]; then
-                                    echo "cnpm install failed with status $CI_STATUS"
-                                    exit $CI_STATUS
+                                echo "Clearing npm cache and node_modules"
+                                npm cache clean --force
+                                rm -rf node_modules package-lock.json
+
+                                echo "Installing dependencies with retry mechanism"
+                                MAX_RETRIES=3
+                                RETRY_COUNT=0
+                                until [ $RETRY_COUNT -ge $MAX_RETRIES ]
+                                do
+                                    cnpm install --no-package-lock --registry=https://registry.npmmirror.com && break
+                                    RETRY_COUNT=$((RETRY_COUNT+1))
+                                    echo "Attempt $RETRY_COUNT failed, retrying..."
+                                    sleep 5
+                                done
+
+                                if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+                                    echo "Failed to install dependencies after $MAX_RETRIES attempts"
+                                    exit 1
                                 fi
                                 
                                 echo "Running tests with coverage"
