@@ -48,4 +48,23 @@ targets:
       path: AIDictionary/Info.plist
     entitlements:
       path: AIDictionary/AIDictionary.entitlements
-    dependencies: [] 
+    dependencies: []
+    scheme:
+      testTargets:
+        - AIDictionaryTests
+
+  AIDictionaryTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: 
+      - path: AIDictionaryTests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.aidictionary.AIDictionaryTests
+        INFOPLIST_FILE: AIDictionaryTests/Info.plist
+        MACOSX_DEPLOYMENT_TARGET: "13.0"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/AIDictionary.app/Contents/MacOS/AIDictionary"
+    info:
+      path: AIDictionaryTests/Info.plist
+    dependencies:
+      - target: AIDictionary 

@@ -7,11 +7,11 @@ struct FavoritesView: View {
     var body: some View {
         VStack {
             if wordStore.favorites.isEmpty {
-                ContentUnavailableView {
-                    Label("No Favorites", systemImage: "star.slash")
-                } description: {
-                    Text("Words you mark as favorites will appear here.")
-                }
+                EmptyStateView(
+                    title: "No Favorites",
+                    systemImage: "star.slash",
+                    description: "Words you mark as favorites will appear here."
+                )
             } else {
                 List {
                     ForEach(wordStore.favorites) { word in
@@ -31,11 +31,11 @@ struct VocabularyView: View {
     var body: some View {
         VStack {
             if wordStore.vocabularyList.isEmpty {
-                ContentUnavailableView {
-                    Label("No Vocabulary Words", systemImage: "text.book.closed")
-                } description: {
-                    Text("Words you add to your vocabulary will appear here.")
-                }
+                EmptyStateView(
+                    title: "No Vocabulary Words",
+                    systemImage: "text.book.closed",
+                    description: "Words you add to your vocabulary will appear here."
+                )
             } else {
                 List {
                     ForEach(wordStore.vocabularyList) { word in
@@ -62,11 +62,11 @@ struct HistoryView: View {
     var body: some View {
         VStack {
             if wordStore.searchHistory.isEmpty {
-                ContentUnavailableView {
-                    Label("No Search History", systemImage: "clock")
-                } description: {
-                    Text("Words you search for will appear here.")
-                }
+                EmptyStateView(
+                    title: "No Search History",
+                    systemImage: "clock",
+                    description: "Words you search for will appear here."
+                )
             } else {
                 VStack {
                     HStack {
@@ -96,15 +96,18 @@ struct EmptyStateView: View {
     let description: String
     
     var body: some View {
-        VStack {
+        VStack(spacing: 12) {
             Image(systemName: systemImage)
-                .font(.largeTitle)
+                .font(.system(size: 48))
+                .foregroundColor(.secondary)
             Text(title)
                 .font(.headline)
             Text(description)
                 .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
     }
 }
 
@@ -123,7 +126,7 @@ struct WordRow: View {
             
             Text(formattedDate(word.timestamp))
                 .font(.caption)
-                .foregroundColor(.tertiary)
+                .foregroundColor(.secondary.opacity(0.7))
         }
         .padding(.vertical, 4)
     }
