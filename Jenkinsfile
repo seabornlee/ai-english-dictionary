@@ -4,24 +4,12 @@ pipeline {
     environment {
         MACOS_APP_DIR = 'ai-dic-mac'
         SERVER_DIR = 'ai-dic-server'
-        NODE_VERSION_18 = '18.20.2'  // Changed to specific LTS version
-        NODE_VERSION_20 = '20.13.1'  // Changed to specific LTS version
+        NODE_VERSION_20 = '20.5.0'
         NVM_DIR = "$HOME/.nvm"
-        // Test report directories with workspace-relative paths
-        NODE_TEST_REPORTS_DIR = '${WORKSPACE}/test-reports/node'
-        XCODE_TEST_REPORTS_DIR = '${WORKSPACE}/test-reports/xcode'
+        XCODE_TEST_REPORTS_DIR = "${WORKSPACE}/${MACOS_APP_DIR}/test-reports"
     }
 
     stages {
-        stage('Prepare SSH') {
-            steps {
-                sh ''' # Use a shell script to add GitHub to known_hosts
-                mkdir -p ~/.ssh
-                ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-                '''
-            }
-        }
-        
         stage('Checkout') {
             steps {
                 checkout([
@@ -38,93 +26,21 @@ pipeline {
         stage('Build and Test') {
             parallel {
                 stage('macOS App') {
-                    agent {
-                        label 'macos'
-                    }
+                    agent { label 'macos' }
                     steps {
                         dir(MACOS_APP_DIR) {
-                            // Validate Xcode project before building
                             sh '''
-                                if [ ! -f "AIDictionary.xcodeproj/project.pbxproj" ]; then
-                                    echo "Error: project.pbxproj is missing!"
-                                    exit 1
-                                fi
+                                [ ! -f "AIDictionary.xcodeproj/project.pbxproj" ] && { echo "Error: project.pbxproj is missing!"; exit 1; }
                                 
-                                # Add error handling for Xcode build
-
                                 set +e
                                 mkdir -p "${XCODE_TEST_REPORTS_DIR}"
                                 xcodebuild clean build test \
-                                -scheme AIDictionary \
-                                -destination 'platform=macOS' \
-                                -resultBundlePath "${XCODE_TEST_REPORTS_DIR}/TestResults.xcresult" \
-                                CODE_SIGN_IDENTITY="" \
-                                CODE_SIGNING_REQUIRED=NO | xcpretty --report junit --output "${XCODE_TEST_REPORTS_DIR}/test-results.xml"
-                                BUILD_STATUS=${PIPESTATUS[0]}
-                                if [ $BUILD_STATUS -ne 0 ]; then
-                                    echo "Xcode build failed with status $BUILD_STATUS"
-                                    exit $BUILD_STATUS
-                                fi
-                            '''
-                        }
-                    }
-                }
-
-                stage('Server Node 18') {
-                    steps {
-                        dir(SERVER_DIR) {
-                            // Enhanced Node.js setup with version validation
-                            sh '''
-                                set +e
-                                source $NVM_DIR/nvm.sh
-                                echo "Installing Node.js ${NODE_VERSION_18}"
-                                nvm install ${NODE_VERSION_18}
-                                INSTALL_STATUS=$?
-                                if [ $INSTALL_STATUS -ne 0 ]; then
-                                    echo "Failed to install Node.js ${NODE_VERSION_18}"
-                                    exit $INSTALL_STATUS
-                                fi
-                                
-                                nvm use ${NODE_VERSION_18}
-                                node -v
-                                npm -v
-                                
-                                echo "Installing cnpm globally"
-                                npm install -g cnpm --registry=https://registry.npmmirror.com
-                                
-                                echo "Cleaning up node_modules directory"
-                                rm -rf node_modules
-                                mkdir -p node_modules
-                                chmod -R 755 node_modules
-
-                                echo "Clearing npm cache and node_modules"
-                                npm cache clean --force
-                                rm -rf node_modules package-lock.json
-
-                                echo "Installing dependencies with retry mechanism"
-                                MAX_RETRIES=3
-                                RETRY_COUNT=0
-                                until [ $RETRY_COUNT -ge $MAX_RETRIES ]
-                                do
-                                    cnpm install --no-package-lock --registry=https://registry.npmmirror.com && break
-                                    RETRY_COUNT=$((RETRY_COUNT+1))
-                                    echo "Attempt $RETRY_COUNT failed, retrying..."
-                                    sleep 5
-                                done
-
-                                if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
-                                    echo "Failed to install dependencies after $MAX_RETRIES attempts"
-                                    exit 1
-                                fi
-                                
-                                echo "Running tests with coverage"
-                                mkdir -p "${NODE_TEST_REPORTS_DIR}"
-                                JEST_JUNIT_OUTPUT_DIR="${NODE_TEST_REPORTS_DIR}" cnpm run test -- --reporters=default --reporters=jest-junit --coverage
-                                TEST_STATUS=$?
-                                if [ $TEST_STATUS -ne 0 ]; then
-                                    echo "Tests failed with status $TEST_STATUS"
-                                    exit $TEST_STATUS
-                                fi
+                                    -scheme AIDictionary \
+                                    -destination 'platform=macOS' \
+                                    -resultBundlePath "${XCODE_TEST_REPORTS_DIR}/TestResults.xcresult" \
+                                    CODE_SIGN_IDENTITY="" \
+                                    CODE_SIGNING_REQUIRED=NO | xcpretty --report junit --output "${XCODE_TEST_REPORTS_DIR}/test-results.xml"
+                                [ ${PIPESTATUS[0]} -ne 0 ] && { echo "Xcode build failed"; exit 1; }
                             '''
                         }
                     }
@@ -136,139 +52,67 @@ pipeline {
                             sh '''
                                 set +e
                                 source $NVM_DIR/nvm.sh
-                                echo "Installing Node.js ${NODE_VERSION_20}"
-                                nvm install ${NODE_VERSION_20}
-                                INSTALL_STATUS=$?
-                                if [ $INSTALL_STATUS -ne 0 ]; then
-                                    echo "Failed to install Node.js ${NODE_VERSION_20}"
-                                    exit $INSTALL_STATUS
-                                fi
-                                
+                                nvm install ${NODE_VERSION_20} || { echo "Failed to install Node.js"; exit 1; }
                                 nvm use ${NODE_VERSION_20}
-                                node -v
-                                npm -v
                                 
-                                echo "Installing cnpm globally"
                                 npm install -g cnpm --registry=https://registry.npmmirror.com
                                 
-                                echo "Cleaning up node_modules directory"
-                                rm -rf node_modules
-                                mkdir -p node_modules
-                                chmod -R 755 node_modules
-
-                                echo "Clearing npm cache and node_modules"
-                                npm cache clean --force
                                 rm -rf node_modules package-lock.json
-
-                                echo "Installing dependencies with retry mechanism"
-                                MAX_RETRIES=3
-                                RETRY_COUNT=0
-                                until [ $RETRY_COUNT -ge $MAX_RETRIES ]
-                                do
+                                npm cache clean --force
+                                
+                                for i in {1..3}; do
                                     cnpm install --no-package-lock --registry=https://registry.npmmirror.com && break
-                                    RETRY_COUNT=$((RETRY_COUNT+1))
-                                    echo "Attempt $RETRY_COUNT failed, retrying..."
+                                    [ $i -eq 3 ] && { echo "Failed to install dependencies"; exit 1; }
                                     sleep 5
                                 done
-
-                                if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
-                                    echo "Failed to install dependencies after $MAX_RETRIES attempts"
-                                    exit 1
-                                fi
                                 
-                                echo "Running tests with coverage"
-                                mkdir -p "${NODE_TEST_REPORTS_DIR}"
-                                JEST_JUNIT_OUTPUT_DIR="${NODE_TEST_REPORTS_DIR}" cnpm run test -- --reporters=default --reporters=jest-junit --coverage
-                                TEST_STATUS=$?
-                                if [ $TEST_STATUS -ne 0 ]; then
-                                    echo "Tests failed with status $TEST_STATUS"
-                                    exit $TEST_STATUS
-                                fi
+                                mkdir -p test-reports
+                                cnpm run test:ci || { echo "Tests failed"; exit 1; }
                             '''
                         }
                     }
                 }
-
-                // Then remove the entire 'Server Node 21' stage since it's not needed
             }
         }
 
         stage('Deploy') {
             parallel {
                 stage('Deploy macOS App') {
-                    when {
-                        branch 'main'
-                    }
-                    agent {
-                        label 'macos'
-                    }
+                    when { branch 'main' }
+                    agent { label 'macos' }
                     steps {
                         dir(MACOS_APP_DIR) {
-                            // Add error handling for archive and export
                             sh '''
                                 set +e
                                 xcodebuild archive \
-                                -scheme AIDictionary \
-                                -archivePath build/AIDictionary.xcarchive
-                                ARCHIVE_STATUS=$?
-                                
-                                if [ $ARCHIVE_STATUS -eq 0 ]; then
-                                    xcodebuild -exportArchive \
+                                    -scheme AIDictionary \
+                                    -archivePath build/AIDictionary.xcarchive || { echo "Archive failed"; exit 1; }
+                                    
+                                xcodebuild -exportArchive \
                                     -archivePath build/AIDictionary.xcarchive \
                                     -exportPath build/export \
-                                    -exportOptionsPlist exportOptions.plist
-                                    EXPORT_STATUS=$?
-                                    
-                                    if [ $EXPORT_STATUS -ne 0 ]; then
-                                        echo "Export archive failed with status $EXPORT_STATUS"
-                                        exit $EXPORT_STATUS
-                                    fi
-                                else
-                                    echo "Archive creation failed with status $ARCHIVE_STATUS"
-                                    exit $ARCHIVE_STATUS
-                                fi
+                                    -exportOptionsPlist exportOptions.plist || { echo "Export failed"; exit 1; }
                             '''
-                            // Add steps to upload to distribution platform
                         }
                     }
                 }
 
                 stage('Deploy Server') {
-                    when {
+                    when { 
                         branch 'main'
-                        // Deploy with the latest LTS version
                         environment name: 'NODE_VERSION', value: '20.x'
                     }
                     steps {
                         dir(SERVER_DIR) {
-                            // Enhanced deployment setup with error handling
                             sh '''
                                 set +e
                                 source $NVM_DIR/nvm.sh
-                                echo "Installing Node.js ${NODE_VERSION_20}"
-                                nvm install ${NODE_VERSION_20}
-                                INSTALL_STATUS=$?
-                                if [ $INSTALL_STATUS -ne 0 ]; then
-                                    echo "Failed to install Node.js ${NODE_VERSION_20}"
-                                    exit $INSTALL_STATUS
-                                fi
-                                
+                                nvm install ${NODE_VERSION_20} || { echo "Node.js install failed"; exit 1; }
                                 nvm use ${NODE_VERSION_20}
-                                node -v
-                                npm -v
                                 
-                                echo "Installing cnpm globally"
                                 npm install -g cnpm --registry=https://registry.npmmirror.com
-                                
-                                echo "Installing production dependencies"
-                                cnpm install --production
-                                CI_STATUS=$?
-                                if [ $CI_STATUS -ne 0 ]; then
-                                    echo "cnpm install failed with status $CI_STATUS"
-                                    exit $CI_STATUS
-                                fi
+                                cnpm install --production || { echo "Dependencies install failed"; exit 1; }
                             '''
-                            // Add deployment steps (e.g., to cloud platform)
                         }
                     }
                 }
@@ -279,13 +123,16 @@ pipeline {
     post {
         always {
             script {
-                // Create test report directories
-                sh "mkdir -p ${NODE_TEST_REPORTS_DIR} ${XCODE_TEST_REPORTS_DIR}"
+                publishHTML([
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: "${WORKSPACE}/${SERVER_DIR}/test-reports",
+                    reportFiles: 'test-report.html',
+                    reportName: 'Mocha Test Report',
+                    reportTitles: 'Mocha Test Report'
+                ])
                 
-                // Publish Node.js test results
-                junit allowEmptyResults: true, testResults: "${NODE_TEST_REPORTS_DIR}/*.xml"
-                
-                // Publish coverage reports
                 publishHTML([
                     allowMissing: true,
                     alwaysLinkToLastBuild: true,
@@ -295,25 +142,11 @@ pipeline {
                     reportName: 'Node.js Coverage Report',
                     reportTitles: 'Node.js Coverage Report'
                 ])
-                
-                // Publish XCode test results
-                junit allowEmptyResults: true, testResults: "${XCODE_TEST_REPORTS_DIR}/*.xml"
-                // Preserve Xcode project files when cleaning workspace
-                if (fileExists('${MACOS_APP_DIR}/AIDictionary.xcodeproj')) {
-                    sh "tar -czf xcode_project_backup.tar.gz ${MACOS_APP_DIR}/AIDictionary.xcodeproj"
-                }
+
                 cleanWs()
-                if (fileExists('xcode_project_backup.tar.gz')) {
-                    sh "tar -xzf xcode_project_backup.tar.gz"
-                    sh "rm xcode_project_backup.tar.gz"
-                }
             }
         }
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed!'
-        }
+        success { echo 'Pipeline completed successfully!' }
+        failure { echo 'Pipeline failed!' }
     }
 }
