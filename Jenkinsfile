@@ -89,11 +89,18 @@ pipeline {
                                 node -v
                                 npm -v
                                 
+                                echo "Cleaning up node_modules directory"
+                                rm -rf node_modules
+                                mkdir -p node_modules
+                                chmod -R 755 node_modules
+
                                 echo "Installing dependencies"
-                                npm ci
+                                npm cache clean --force
+                                npm ci --no-audit --no-optional
                                 CI_STATUS=$?
                                 if [ $CI_STATUS -ne 0 ]; then
                                     echo "npm ci failed with status $CI_STATUS"
+                                    npm cache verify
                                     exit $CI_STATUS
                                 fi
                                 
@@ -128,11 +135,18 @@ pipeline {
                                 node -v
                                 npm -v
                                 
+                                echo "Cleaning up node_modules directory"
+                                rm -rf node_modules
+                                mkdir -p node_modules
+                                chmod -R 755 node_modules
+
                                 echo "Installing dependencies"
-                                npm ci
+                                npm cache clean --force
+                                npm ci --no-audit --no-optional
                                 CI_STATUS=$?
                                 if [ $CI_STATUS -ne 0 ]; then
                                     echo "npm ci failed with status $CI_STATUS"
+                                    npm cache verify
                                     exit $CI_STATUS
                                 fi
                                 
