@@ -16,11 +16,14 @@ module.exports = {
   ],
   testResultsProcessor: 'jest-junit',
   'jest-junit': {
-    outputDirectory: '.',
-    outputName: 'junit.xml',
+    outputDirectory: process.env.JEST_JUNIT_OUTPUT_DIR || '.',
+    outputName: process.env.JEST_JUNIT_OUTPUT_NAME || 'junit.xml',
     classNameTemplate: '{classname}',
     titleTemplate: '{title}',
     ancestorSeparator: ' › ',
-    usePathForSuiteName: 'true'
+    usePathForSuiteName: 'true',
+    suiteNameTemplate: '{filename}',
+    includeConsoleOutput: true,
+    includeShortE2EOutput: true
   }
 };
