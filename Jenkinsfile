@@ -29,7 +29,7 @@ pipeline {
                     branches: [[name: '*/main']],
                     userRemoteConfigs: [[
                         credentialsId: 'mbp',
-                        url: scm.userRemoteConfigs[0].url
+                        url: 'git@github.com:seabornlee/ai-english-dictionary.git',
                     ]]
                 ])
             }
