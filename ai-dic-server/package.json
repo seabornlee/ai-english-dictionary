@@ -9,23 +9,7 @@
     "test": "jest --forceExit --coverage",
     "test:watch": "jest --watch"
   },
-  "jest": {
-    "testEnvironment": "node",
-    "coverageDirectory": "coverage",
-    "reporters": [
-      "default",
-      "jest-junit"
-    ],
-    "testResultsProcessor": "jest-junit"
-  },
-  "jest-junit": {
-    "outputDirectory": "test-reports/node",
-    "outputName": "junit.xml",
-    "classNameTemplate": "{classname}",
-    "titleTemplate": "{title}",
-    "ancestorSeparator": " › ",
-    "usePathForSuiteName": "true"
-  },
+
   "dependencies": {
     "axios": "^1.6.2",
     "cors": "^2.8.5",

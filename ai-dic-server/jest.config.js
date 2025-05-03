@@ -9,5 +9,18 @@ module.exports = {
   ],
   testMatch: [
     '**/tests/**/*.test.js'
-  ]
-}; 
+  ],
+  reporters: [
+    'default',
+    'jest-junit'
+  ],
+  testResultsProcessor: 'jest-junit',
+  'jest-junit': {
+    outputDirectory: 'test-reports/node',
+    outputName: 'junit.xml',
+    classNameTemplate: '{classname}',
+    titleTemplate: '{title}',
+    ancestorSeparator: ' › ',
+    usePathForSuiteName: 'true'
+  }
+};
