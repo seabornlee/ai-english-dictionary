@@ -3,3 +3,4 @@ ai-dic-server/node_modules
 ai-dic-server/junit.xml
 ai-dic-server
 ai-dic-mac/TestResults.xcresult
+.DS_Store
