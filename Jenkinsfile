@@ -13,6 +13,15 @@ pipeline {
     }
 
     stages {
+        stage('Prepare SSH') {
+            steps {
+                sh ''' # Use a shell script to add GitHub to known_hosts
+                mkdir -p ~/.ssh
+                ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+                '''
+            }
+        }
+        
         stage('Checkout') {
             steps {
                 checkout([
