@@ -89,24 +89,25 @@ pipeline {
                                 node -v
                                 npm -v
                                 
+                                echo "Installing cnpm globally"
+                                npm install -g cnpm --registry=https://registry.npmmirror.com
+                                
                                 echo "Cleaning up node_modules directory"
                                 rm -rf node_modules
                                 mkdir -p node_modules
                                 chmod -R 755 node_modules
 
                                 echo "Installing dependencies"
-                                npm cache clean --force
-                                npm ci --no-audit --no-optional
+                                cnpm install
                                 CI_STATUS=$?
                                 if [ $CI_STATUS -ne 0 ]; then
-                                    echo "npm ci failed with status $CI_STATUS"
-                                    npm cache verify
+                                    echo "cnpm install failed with status $CI_STATUS"
                                     exit $CI_STATUS
                                 fi
                                 
                                 echo "Running tests with coverage"
                                 mkdir -p "${NODE_TEST_REPORTS_DIR}"
-                                JEST_JUNIT_OUTPUT_DIR="${NODE_TEST_REPORTS_DIR}" npm run test -- --reporters=default --reporters=jest-junit --coverage
+                                JEST_JUNIT_OUTPUT_DIR="${NODE_TEST_REPORTS_DIR}" cnpm run test -- --reporters=default --reporters=jest-junit --coverage
                                 TEST_STATUS=$?
                                 if [ $TEST_STATUS -ne 0 ]; then
                                     echo "Tests failed with status $TEST_STATUS"
@@ -135,24 +136,25 @@ pipeline {
                                 node -v
                                 npm -v
                                 
+                                echo "Installing cnpm globally"
+                                npm install -g cnpm --registry=https://registry.npmmirror.com
+                                
                                 echo "Cleaning up node_modules directory"
                                 rm -rf node_modules
                                 mkdir -p node_modules
                                 chmod -R 755 node_modules
 
                                 echo "Installing dependencies"
-                                npm cache clean --force
-                                npm ci --no-audit --no-optional
+                                cnpm install
                                 CI_STATUS=$?
                                 if [ $CI_STATUS -ne 0 ]; then
-                                    echo "npm ci failed with status $CI_STATUS"
-                                    npm cache verify
+                                    echo "cnpm install failed with status $CI_STATUS"
                                     exit $CI_STATUS
                                 fi
                                 
                                 echo "Running tests with coverage"
                                 mkdir -p "${NODE_TEST_REPORTS_DIR}"
-                                JEST_JUNIT_OUTPUT_DIR="${NODE_TEST_REPORTS_DIR}" npm run test -- --reporters=default --reporters=jest-junit --coverage
+                                JEST_JUNIT_OUTPUT_DIR="${NODE_TEST_REPORTS_DIR}" cnpm run test -- --reporters=default --reporters=jest-junit --coverage
                                 TEST_STATUS=$?
                                 if [ $TEST_STATUS -ne 0 ]; then
                                     echo "Tests failed with status $TEST_STATUS"
@@ -231,11 +233,14 @@ pipeline {
                                 node -v
                                 npm -v
                                 
+                                echo "Installing cnpm globally"
+                                npm install -g cnpm --registry=https://registry.npmmirror.com
+                                
                                 echo "Installing production dependencies"
-                                npm ci --production
+                                cnpm install --production
                                 CI_STATUS=$?
                                 if [ $CI_STATUS -ne 0 ]; then
-                                    echo "npm ci failed with status $CI_STATUS"
+                                    echo "cnpm install failed with status $CI_STATUS"
                                     exit $CI_STATUS
                                 fi
                             '''
