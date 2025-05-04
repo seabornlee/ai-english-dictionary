@@ -7,6 +7,13 @@ pipeline {
         NODE_VERSION_20 = '20.5.0'
         NVM_DIR = "$HOME/.nvm"
         XCODE_TEST_REPORTS_DIR = "${WORKSPACE}/${MACOS_APP_DIR}/test-reports"
+        PGYER_API_KEY = credentials('PGYER_API_KEY')
+        PGYER_USER_KEY = credentials('PGYER_USER_KEY')
+        DEVELOPMENT_TEAM = credentials('DEVELOPMENT_TEAM')
+        PROVISIONING_PROFILE = credentials('PROVISIONING_PROFILE')
+        CERTIFICATE_P12 = credentials('CERTIFICATE_P12')
+        CERTIFICATE_PASSWORD = credentials('CERTIFICATE_PASSWORD')
+        CODE_SIGN_IDENTITY = credentials('CODE_SIGN_IDENTITY')
     }
 
     stages {
@@ -48,6 +55,35 @@ pipeline {
             }
         }
 
+        stage('Install Certificates') {
+            agent { label 'macos' }
+            steps {
+                sh '''
+                    # 创建临时目录
+                    mkdir -p ~/temp_certs
+                    cd ~/temp_certs
+
+                    # 导出证书
+                    echo "${CERTIFICATE_P12}" | base64 --decode > certificate.p12
+
+                    # 删除已存在的钥匙串（如果存在）
+                    security delete-keychain build.keychain || true
+
+                    # 创建钥匙串
+                    security create-keychain -p "${CERTIFICATE_PASSWORD}" build.keychain
+                    security unlock-keychain -p "${CERTIFICATE_PASSWORD}" build.keychain
+                    security set-keychain-settings -t 3600 -l ~/Library/Keychains/build.keychain
+
+                    # 导入证书
+                    security import certificate.p12 -k build.keychain -P "${CERTIFICATE_PASSWORD}" -T /usr/bin/codesign
+                    security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "${CERTIFICATE_PASSWORD}" build.keychain
+
+                    # 清理临时文件
+                    rm -rf ~/temp_certs
+                '''
+            }
+        }
+
         stage('Build and Test macOS App') {
             agent { label 'macos' }
             steps {
@@ -75,8 +111,11 @@ pipeline {
                             -scheme AIDictionary \
                             -destination 'platform=macOS' \
                             -resultBundlePath "${XCODE_TEST_REPORTS_DIR}/TestResults.xcresult" \
-                            CODE_SIGN_IDENTITY="" \
-                            CODE_SIGNING_REQUIRED=NO | tee build.log | xcpretty --report junit --output "${XCODE_TEST_REPORTS_DIR}/test-results.xml"
+                            DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM}" \
+                            PROVISIONING_PROFILE="${PROVISIONING_PROFILE}" \
+                            CODE_SIGN_STYLE="Manual" \
+                            CODE_SIGN_IDENTITY="${CODE_SIGN_IDENTITY}" \
+                            CODE_SIGNING_REQUIRED=YES | tee build.log | xcpretty --report junit --output "${XCODE_TEST_REPORTS_DIR}/test-results.xml"
                         
                         # 检查构建和测试结果
                         BUILD_RESULT=${PIPESTATUS[0]}
@@ -126,41 +165,34 @@ pipeline {
             }
         }
 
-        stage('Deploy macOS App') {
-            when { branch 'main' }
+        stage('Build and Upload to Pgyer') {
             agent { label 'macos' }
             steps {
                 dir(MACOS_APP_DIR) {
                     sh '''
                         set +e
+                        # 构建应用
                         xcodebuild archive \
                             -scheme AIDictionary \
-                            -archivePath build/AIDictionary.xcarchive || { echo "Archive failed"; exit 1; }
+                            -archivePath build/AIDictionary.xcarchive \
+                            DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM}" \
+                            PROVISIONING_PROFILE="${PROVISIONING_PROFILE}" \
+                            CODE_SIGN_STYLE="Manual" \
+                            CODE_SIGN_IDENTITY="${CODE_SIGN_IDENTITY}" \
+                            CODE_SIGNING_REQUIRED=YES || { echo "Archive failed"; exit 1; }
                             
                         xcodebuild -exportArchive \
                             -archivePath build/AIDictionary.xcarchive \
                             -exportPath build/export \
                             -exportOptionsPlist exportOptions.plist || { echo "Export failed"; exit 1; }
-                    '''
-                }
-            }
-        }
 
-        stage('Deploy Server') {
-            when { 
-                branch 'main'
-                environment name: 'NODE_VERSION', value: '20.x'
-            }
-            steps {
-                dir(SERVER_DIR) {
-                    sh '''
-                        set +e
-                        source $NVM_DIR/nvm.sh
-                        nvm install ${NODE_VERSION_20} || { echo "Node.js install failed"; exit 1; }
-                        nvm use ${NODE_VERSION_20}
-                        
-                        npm install -g cnpm --registry=https://registry.npmmirror.com
-                        cnpm install --production || { echo "Dependencies install failed"; exit 1; }
+                        # 上传到蒲公英
+                        curl -F "file=@build/export/AIDictionary.app.zip" \
+                             -F "_api_key=${PGYER_API_KEY}" \
+                             -F "buildInstallType=2" \
+                             -F "buildPassword=123456" \
+                             -F "buildUpdateDescription=${GIT_COMMIT}" \
+                             https://www.pgyer.com/apiv2/app/upload || { echo "Upload to Pgyer failed"; exit 1; }
                     '''
                 }
             }
@@ -199,6 +231,11 @@ pipeline {
                 ])
 
                 //cleanWs()
+
+                // 清理钥匙串
+                sh '''
+                    security delete-keychain build.keychain || true
+                '''
             }
         }
         success { echo 'Pipeline completed successfully!' }
