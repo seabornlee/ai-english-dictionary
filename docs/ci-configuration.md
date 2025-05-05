@@ -75,6 +75,47 @@
 
 ### 3. 证书问题排查
 
+#### 证书匹配验证
+当遇到 "No certificate for team matching found" 错误时，需要验证证书和团队 ID 的匹配：
+
+1. 验证团队 ID：
+   ```bash
+   # 在 Mac 终端中运行
+   security find-identity -v -p codesigning
+   ```
+   输出示例：
+   ```
+   1) 1234567890ABCDEF1234567890ABCDEF12345678 "Apple Development: your.name@example.com (TEAM_ID)"
+   ```
+   从输出中提取团队 ID（括号中的部分）
+
+2. 验证 DEVELOPMENT_TEAM 值：
+   - 登录 [Apple Developer](https://developer.apple.com)
+   - 进入 "Membership" 页面
+   - 确认 Team ID 是否与证书中的团队 ID 匹配
+
+3. 验证 CODE_SIGN_IDENTITY 值：
+   - 在钥匙串访问中双击证书
+   - 查看 "Common Name" 字段
+   - 确保完整名称与 Jenkins 中配置的 CODE_SIGN_IDENTITY 完全匹配
+   - 特别注意括号中的团队 ID 是否与 DEVELOPMENT_TEAM 匹配
+
+4. 常见问题解决：
+   - 如果团队 ID 不匹配：
+     1. 确认使用的是同一个 Apple Developer 账号
+     2. 检查 DEVELOPMENT_TEAM 值是否正确
+     3. 检查 CODE_SIGN_IDENTITY 中的团队 ID 是否正确
+   
+   - 如果证书名称不匹配：
+     1. 在钥匙串访问中确认正确的证书名称
+     2. 更新 Jenkins 中的 CODE_SIGN_IDENTITY 值
+     3. 确保包含完整的证书名称，包括团队 ID
+
+   - 如果证书不可用：
+     1. 检查证书是否在有效期内
+     2. 确认证书是否已正确安装到钥匙串
+     3. 验证证书的私钥是否可用
+
 #### 无法导出 .p12 格式
 如果只能看到 .cer、.pem 或 .p7b 格式，说明只看到了证书文件，没有私钥。解决方案：
 
