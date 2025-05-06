@@ -3,10 +3,15 @@
 <plist version="1.0">
 <dict>
     <key>method</key>
-    <string>mac-application</string>
+    <string>development</string>
     <key>teamID</key>
-    <string>YOUR_TEAM_ID</string>
+    <string>$(DEVELOPMENT_TEAM)</string>
     <key>signingStyle</key>
-    <string>automatic</string>
+    <string>manual</string>
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>com.seabornlee.AIDictionary</key>
+        <string>$(PROVISIONING_PROFILE)</string>
+    </dict>
 </dict>
 </plist>
