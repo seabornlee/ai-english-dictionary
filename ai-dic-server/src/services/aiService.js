@@ -1,11 +1,11 @@
 const axios = require('axios');
 
-// DeepSeek Chat API configuration
-const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
-const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
+// SiliconFlow API configuration
+const SILICONFLOW_API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
+const SILICONFLOW_API_KEY = process.env.SILICONFLOW_API_KEY;
 
 /**
- * Get word definition from DeepSeek Chat API
+ * Get word definition from SiliconFlow API
  * @param {string} word - The word to define
  * @param {string[]} avoidWords - Words to avoid in the definition
  * @returns {Promise<{term: string, definition: string, timestamp: Date}>}
@@ -18,11 +18,13 @@ async function getWordDefinition(word, avoidWords = []) {
   }
   
   prompt += "The explanation should be suitable for English language learners and avoid overly complex vocabulary unless necessary.";
+
+  console.log('Prompt:', prompt);
   
   const response = await axios.post(
-    DEEPSEEK_API_URL,
+    SILICONFLOW_API_URL,
     {
-      model: "deepseek-chat",
+      model: "deepseek-ai/DeepSeek-V3",
       messages: [
         { role: "user", content: prompt }
       ],
@@ -32,13 +34,14 @@ async function getWordDefinition(word, avoidWords = []) {
     {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+        'Authorization': `Bearer ${SILICONFLOW_API_KEY}`
       }
     }
   );
   
   const definition = response.data.choices[0].message.content.trim();
   
+  console.log('Definition:', definition);
   return {
     term: word,
     definition: definition,
@@ -48,4 +51,4 @@ async function getWordDefinition(word, avoidWords = []) {
 
 module.exports = {
   getWordDefinition
-}; 
+};

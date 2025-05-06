@@ -1,7 +1,13 @@
 ai-dic-server/coverage
 ai-dic-server/node_modules
 ai-dic-server/junit.xml
-ai-dic-server
 ai-dic-mac/TestResults.xcresult
 .DS_Store
-ai-dic-mac
+ai-dic-mac/AIDictionary.app
+ai-dic-mac/AIDictionary.xcodeproj
+ai-dic-mac/fastlane
+ai-dic-mac/Gemfile
+ai-dic-mac/Gemfile.lock
+ai-dic-server/.env
+ai-dic-server/.nyc_output
+ai-dic-server/test-reports
