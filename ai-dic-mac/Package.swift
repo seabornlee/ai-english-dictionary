@@ -7,18 +7,22 @@ let package = Package(
         .macOS(.v13)
     ],
     products: [
-        .executable(
+        .library(
             name: "AIDictionary",
+            type: .dynamic,
             targets: ["AIDictionary"]
         )
     ],
     targets: [
-        .executableTarget(
+        .target(
             name: "AIDictionary",
             path: "AIDictionary",
             resources: [
                 .process("Assets.xcassets"),
                 .process("AIDictionary.entitlements")
+            ],
+            swiftSettings: [
+                .enableUpcomingFeature("BareSlashRegexLiterals")
             ]
         ),
         .testTarget(
