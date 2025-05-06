@@ -1,6 +1,6 @@
 name: AIDictionary
 options:
-  bundleIdPrefix: com.aidictionary
+  bundleIdPrefix: site.waterlee.aidic
   deploymentTarget:
     macOS: "13.0"
   createIntermediateGroups: true
@@ -16,7 +16,7 @@ targets:
           - "**/Preview Content/**"
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.aidictionary.AIDictionary
+        PRODUCT_BUNDLE_IDENTIFIER: site.waterlee.aidic.AIDictionary
         INFOPLIST_FILE: AIDictionary/Info.plist
         MACOSX_DEPLOYMENT_TARGET: "13.0"
         CODE_SIGN_ENTITLEMENTS: AIDictionary/AIDictionary.entitlements
@@ -60,7 +60,7 @@ targets:
       - path: AIDictionaryTests
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.aidictionary.AIDictionaryTests
+        PRODUCT_BUNDLE_IDENTIFIER: site.waterlee.aidic.AIDictionaryTests
         INFOPLIST_FILE: AIDictionaryTests/Info.plist
         MACOSX_DEPLOYMENT_TARGET: "13.0"
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/AIDictionary.app/Contents/MacOS/AIDictionary"
