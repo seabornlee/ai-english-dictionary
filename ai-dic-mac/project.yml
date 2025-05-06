@@ -21,7 +21,7 @@ targets:
         MACOSX_DEPLOYMENT_TARGET: "13.0"
         CODE_SIGN_ENTITLEMENTS: AIDictionary/AIDictionary.entitlements
         CODE_SIGN_IDENTITY: "Apple Development: Xiaobo Li (3E839LJDS7)"
-        DEVELOPMENT_TEAM: "3E839LJDS7"
+        DEVELOPMENT_TEAM: "6RT3UH94M6"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         COMBINE_HIDPI_IMAGES: YES
         SDKROOT: macosx
