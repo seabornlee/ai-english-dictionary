@@ -17,8 +17,14 @@ let package = Package(
             name: "AIDictionary",
             path: "AIDictionary",
             resources: [
-                .process("Assets.xcassets")
+                .process("Assets.xcassets"),
+                .process("AIDictionary.entitlements")
             ]
+        ),
+        .testTarget(
+            name: "AIDictionaryTests",
+            dependencies: ["AIDictionary"],
+            path: "AIDictionaryTests"
         )
     ]
-) 
+)
