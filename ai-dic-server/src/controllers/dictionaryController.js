@@ -1,4 +1,4 @@
-const axios = require('axios');
+const { getWordDefinition } = require('../services/aiService');
 
 // In-memory storage for vocabulary, favorites, and history (would be replaced with a database in production)
 let vocabularyList = [];
@@ -18,39 +18,7 @@ exports.defineWord = async (req, res) => {
       return res.status(400).json({ error: 'Word is required' });
     }
     
-    let prompt = `Define the English word '${word}' in one clear, concise sentence of explanation. `;
-    
-    if (avoidWords.length > 0) {
-      prompt += `Please avoid using these words in your explanation: ${avoidWords.join(', ')}. `;
-    }
-    
-    prompt += "The explanation should be suitable for English language learners and avoid overly complex vocabulary unless necessary.";
-    
-    const response = await axios.post(
-      DEEPSEEK_API_URL,
-      {
-        model: "deepseek-chat",
-        messages: [
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.3,
-        max_tokens: 100
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
-        }
-      }
-    );
-    
-    const definition = response.data.choices[0].message.content.trim();
-    
-    const result = {
-      term: word,
-      definition: definition,
-      timestamp: new Date()
-    };
+    const result = await getWordDefinition(word, avoidWords);
     
     // Add to search history
     addToHistory(result);

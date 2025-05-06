@@ -8,3 +8,6 @@ alwaysApply: true
 # 技术栈
 Next.js
 Supabase
+
+## 测试框架
+Mocha + chai + Sinon.js
