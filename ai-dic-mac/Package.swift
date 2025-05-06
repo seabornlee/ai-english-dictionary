@@ -7,14 +7,13 @@ let package = Package(
         .macOS(.v13)
     ],
     products: [
-        .library(
+        .executable(
             name: "AIDictionary",
-            type: .dynamic,
             targets: ["AIDictionary"]
         )
     ],
     targets: [
-        .target(
+        .executableTarget(
             name: "AIDictionary",
             path: "AIDictionary",
             resources: [
@@ -23,6 +22,9 @@ let package = Package(
             ],
             swiftSettings: [
                 .enableUpcomingFeature("BareSlashRegexLiterals")
+            ],
+            linkerSettings: [
+                .linkedFramework("SwiftUI")
             ]
         ),
         .testTarget(
