@@ -18,11 +18,13 @@ struct ContentView: View {
                     TextField("Enter a word", text: $searchText)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .frame(maxWidth: 300)
+                        .onSubmit {
+                            performSearch()
+                        }
                     
                     Button(action: performSearch) {
                         Text("Search")
                     }
-                    .keyboardShortcut(.return, modifiers: .command)
                     .disabled(searchText.isEmpty || isLoading)
                 }
                 .padding()
