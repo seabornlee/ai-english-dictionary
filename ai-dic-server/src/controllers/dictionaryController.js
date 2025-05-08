@@ -19,6 +19,7 @@ exports.defineWord = async (req, res) => {
     }
     
     const result = await getWordDefinition(word, avoidWords);
+    result.definition = stripMarkdown(result.definition);
     
     // Add to search history
     addToHistory(result);
@@ -142,6 +143,20 @@ function addToHistory(word) {
   if (searchHistory.length > 100) {
     searchHistory = searchHistory.slice(0, 100);
   }
+}
+
+function stripMarkdown(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '$1') // Bold
+    .replace(/\*(.*?)\*/g, '$1')     // Italic
+    .replace(/_(.*?)_/g, '$1')       // Underline
+    .replace(/`(.*?)`/g, '$1')       // Inline code
+    .replace(/```[\s\S]*?```/g, '')  // Code blocks
+    .replace(/#{1,6}\s/g, '')        // Headers
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Links
+    .replace(/\n/g, ' ')             // Newlines to spaces
+    .replace(/\s+/g, ' ')            // Multiple spaces to single space
+    .trim();
 }
 
 // Get search history

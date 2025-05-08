@@ -52,5 +52,15 @@ describe('AI Service', async function() {
         expect(error.message).to.be.a('string');
       }
     });
+
+    it('should strip markdown formatting from the definition', async () => {
+      const result = await getWordDefinition('cat');
+    
+      expect(result.definition).to.not.include('**');
+      expect(result.definition).to.not.include('*');
+      expect(result.definition).to.not.include('_');
+      expect(result.definition).to.not.include('#');
+      expect(result.definition).to.not.include('```');
+    });
   });
 });
