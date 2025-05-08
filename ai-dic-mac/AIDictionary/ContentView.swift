@@ -183,36 +183,72 @@ struct HighlightableText: View {
     @Binding var markedWords: Set<String>
     
     var body: some View {
-        Text(.init(attributedString()))
-            .lineSpacing(4)
+        FlowLayout(spacing: 4) {
+            ForEach(text.components(separatedBy: .whitespacesAndNewlines), id: \.self) { word in
+                let cleanWord = word.trimmingCharacters(in: .punctuationCharacters).lowercased()
+                if !cleanWord.isEmpty {
+                    Button(action: {
+                        if markedWords.contains(cleanWord) {
+                            markedWords.remove(cleanWord)
+                        } else {
+                            markedWords.insert(cleanWord)
+                        }
+                    }) {
+                        Text(word)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(markedWords.contains(cleanWord) ? Color.gray.opacity(0.1) : Color.blue.opacity(0.3))
+                            .cornerRadius(4)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+}
+
+struct FlowLayout: Layout {
+    var spacing: CGFloat = 8
+    
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        return layout(sizes: sizes, proposal: proposal).size
     }
     
-    private func attributedString() -> NSAttributedString {
-        let words = text.components(separatedBy: .whitespacesAndNewlines)
-        let attrString = NSMutableAttributedString()
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        let offsets = layout(sizes: sizes, proposal: proposal).offsets
         
-        for (index, word) in words.enumerated() {
-            // Strip punctuation for matching but keep it for display
-            let cleanWord = word.trimmingCharacters(in: .punctuationCharacters).lowercased()
-            
-            let attributes: [NSAttributedString.Key: Any] = [
-                .foregroundColor: markedWords.contains(cleanWord) ? NSColor.blue : NSColor.textColor
-            ]
-            
-            let wordAttrString = NSAttributedString(
-                string: word + (index < words.count - 1 ? " " : ""),
-                attributes: attributes
-            )
-            
-            let tapGesture = NSMutableAttributedString(attributedString: wordAttrString)
-            let range = NSRange(location: 0, length: word.count)
-            
-            tapGesture.addAttribute(.link, value: "word:\(cleanWord)", range: range)
-            
-            attrString.append(tapGesture)
+        for (offset, subview) in zip(offsets, subviews) {
+            subview.place(at: CGPoint(x: bounds.minX + offset.x, y: bounds.minY + offset.y), proposal: .unspecified)
+        }
+    }
+    
+    private func layout(sizes: [CGSize], proposal: ProposedViewSize) -> (offsets: [CGPoint], size: CGSize) {
+        guard let containerWidth = proposal.width else {
+            return (sizes.map { _ in .zero }, .zero)
         }
         
-        return attrString
+        var offsets: [CGPoint] = []
+        var currentX: CGFloat = 0
+        var currentY: CGFloat = 0
+        var maxY: CGFloat = 0
+        var lineHeight: CGFloat = 0
+        
+        for size in sizes {
+            if currentX + size.width > containerWidth {
+                currentX = 0
+                currentY += lineHeight + spacing
+                lineHeight = 0
+            }
+            
+            offsets.append(CGPoint(x: currentX, y: currentY))
+            currentX += size.width + spacing
+            lineHeight = max(lineHeight, size.height)
+            maxY = max(maxY, currentY + size.height)
+        }
+        
+        return (offsets, CGSize(width: containerWidth, height: maxY))
     }
 }
 
