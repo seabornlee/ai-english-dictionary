@@ -219,7 +219,7 @@ struct WordDisplayView: View {
                 
                 if !markedWords.isEmpty {
                     HStack {
-                        Text("Marked words: ")
+                        Text("Unknown words: ")
                             .font(.title3)
                         
                         ForEach(Array(markedWords), id: \.self) { word in

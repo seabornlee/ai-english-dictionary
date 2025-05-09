@@ -5,19 +5,19 @@ const SILICONFLOW_API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
 const SILICONFLOW_API_KEY = process.env.SILICONFLOW_API_KEY;
 
 /**
- * Get word definition from SiliconFlow API
+ * Get word definition using DeepSeek Chat API
  * @param {string} word - The word to define
- * @param {string[]} avoidWords - Words to avoid in the definition
- * @returns {Promise<{term: string, definition: string, timestamp: Date}>}
+ * @param {string[]} unknownWords - Words to avoid in the definition
+ * @returns {Promise<Object>} Word definition object
  */
-async function getWordDefinition(word, avoidWords = []) {
-  let prompt = `You are a professional English teacher for Chinese students. Define the English word '${word}' in one clear, concise sentence of explanation. `;
+async function getWordDefinition(word, unknownWords = []) {
+  let prompt = `Define the word "${word}" in a simple way. `;
   
-  if (avoidWords.length > 0) {
-    prompt += `The student do NOT know these words: ${avoidWords.join(', ')}. `;
+  if (unknownWords.length > 0) {
+    prompt += `The student do NOT know these words: ${unknownWords.join(', ')}. `;
   }
   
-  prompt += "The explanation should be suitable for English language learners and avoid overly complex vocabulary unless necessary. Never use Chinese in the explanation. Never add comments in the explanation.";
+  prompt += 'Do not use any markdown formatting or quotes in your response.';
 
   console.log('Prompt:', prompt);
   

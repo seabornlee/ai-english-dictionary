@@ -4,7 +4,7 @@ const request = require('supertest');
 const axios = require('axios');
 const sinon = require('sinon');
 const mongoose = require('mongoose');
-const AvoidWord = require('../src/models/AvoidWord');
+const UnknownWord = require('../src/models/UnknownWord');
 const { app, server } = require('../src/index');
 
 // Set test environment variables
@@ -37,7 +37,7 @@ describe('Dictionary API Endpoints', async () => {
       
       // Clear database if connected
       if (mongoose.connection.readyState === 1) {
-        await AvoidWord.deleteMany({});
+        await UnknownWord.deleteMany({});
       } else {
         console.warn('MongoDB not connected during test setup, skipping database operations');
       }
@@ -91,12 +91,12 @@ describe('Dictionary API Endpoints', async () => {
       expect(response.body.definition).to.equal('A simulated definition with markdown and quotes.');
     });
 
-    it('POST /api/dictionary/define with avoid words should use the avoid list', async () => {
+    it('POST /api/dictionary/define with unknown words should use the unknown list', async () => {
       const response = await request(app)
         .post('/api/dictionary/define')
         .send({
           word: 'test',
-          avoidWords: ['procedure', 'quality']
+          unknownWords: ['procedure', 'quality']
         });
 
       expect(response.status).to.equal(200);
@@ -121,13 +121,13 @@ describe('Dictionary API Endpoints', async () => {
       expect(response.body).to.have.property('error', 'Word is required');
     });
 
-    it('POST /api/dictionary/define should accumulate avoidWords across multiple requests for the same word', async () => {
-      // First request with initial avoid words
+    it('POST /api/dictionary/define should accumulate unknownWords across multiple requests for the same word', async () => {
+      // First request with initial unknown words
       const firstResponse = await request(app)
         .post('/api/dictionary/define')
         .send({
           word: 'test',
-          avoidWords: ['first', 'second']
+          unknownWords: ['first', 'second']
         });
 
       expect(firstResponse.status).to.equal(200);
@@ -136,16 +136,16 @@ describe('Dictionary API Endpoints', async () => {
       expect(firstResponse.body).to.have.property('timestamp');
 
       // Verify first request was saved to database
-      const firstAvoidWord = await AvoidWord.findOne({ word: 'test' });
-      expect(firstAvoidWord).to.exist;
-      expect(firstAvoidWord.avoidWords).to.have.members(['first', 'second']);
+      const firstUnknownWord = await UnknownWord.findOne({ word: 'test' });
+      expect(firstUnknownWord).to.exist;
+      expect(firstUnknownWord.unknownWords).to.have.members(['first', 'second']);
 
-      // Second request with additional avoid words
+      // Second request with additional unknown words
       const secondResponse = await request(app)
         .post('/api/dictionary/define')
         .send({
           word: 'test',
-          avoidWords: ['third', 'fourth']
+          unknownWords: ['third', 'fourth']
         });
 
       expect(secondResponse.status).to.equal(200);
@@ -154,11 +154,11 @@ describe('Dictionary API Endpoints', async () => {
       expect(secondResponse.body).to.have.property('timestamp');
 
       // Verify second request updated database
-      const secondAvoidWord = await AvoidWord.findOne({ word: 'test' });
-      expect(secondAvoidWord).to.exist;
-      expect(secondAvoidWord.avoidWords).to.have.members(['first', 'second', 'third', 'fourth']);
+      const secondUnknownWord = await UnknownWord.findOne({ word: 'test' });
+      expect(secondUnknownWord).to.exist;
+      expect(secondUnknownWord.unknownWords).to.have.members(['first', 'second', 'third', 'fourth']);
 
-      // Verify that all avoid words were used in the prompt
+      // Verify that all unknown words were used in the prompt
       expect(axiosPostStub.called).to.be.true;
       const lastCallArgs = axiosPostStub.lastCall.args;
       const prompt = lastCallArgs[1].messages[0].content;
@@ -168,24 +168,24 @@ describe('Dictionary API Endpoints', async () => {
       expect(prompt).to.include('first, second, third, fourth');
     });
 
-    it('POST /api/dictionary/define should include all previous avoid words in subsequent requests', async () => {
-      // First request with initial avoid words
+    it('POST /api/dictionary/define should include all previous unknown words in subsequent requests', async () => {
+      // First request with initial unknown words
       await request(app)
         .post('/api/dictionary/define')
         .send({
           word: 'test',
-          avoidWords: ['previous1', 'previous2']
+          unknownWords: ['previous1', 'previous2']
         });
 
-      // Second request with new avoid words
+      // Second request with new unknown words
       await request(app)
         .post('/api/dictionary/define')
         .send({
           word: 'test',
-          avoidWords: ['previous3', 'previous4']
+          unknownWords: ['previous3', 'previous4']
         });
 
-      // Third request without any new avoid words
+      // Third request without any new unknown words
       const thirdResponse = await request(app)
         .post('/api/dictionary/define')
         .send({
@@ -195,7 +195,7 @@ describe('Dictionary API Endpoints', async () => {
       expect(thirdResponse.status).to.equal(200);
       expect(thirdResponse.body).to.have.property('term', 'test');
 
-      // Verify that all previous avoid words were used in the prompt
+      // Verify that all previous unknown words were used in the prompt
       expect(axiosPostStub.called).to.be.true;
       let lastCallArgs = axiosPostStub.lastCall.args;
       let prompt = lastCallArgs[1].messages[0].content;
@@ -203,7 +203,7 @@ describe('Dictionary API Endpoints', async () => {
       expect(prompt).to.include('The student do NOT know these words');
       expect(prompt).to.include('previous1, previous2, previous3, previous4');
 
-      // Fourth request with new avoid words
+      // Fourth request with new unknown words
       const fourthResponse = await request(app)
         .post('/api/dictionary/define')
         .send({
@@ -213,7 +213,7 @@ describe('Dictionary API Endpoints', async () => {
       expect(fourthResponse.status).to.equal(200);
       expect(fourthResponse.body).to.have.property('term', 'anotherword');
 
-      // Verify that all previous avoid words were used in the prompt
+      // Verify that all previous unknown words were used in the prompt
       expect(axiosPostStub.called).to.be.true;
       lastCallArgs = axiosPostStub.lastCall.args;
       prompt = lastCallArgs[1].messages[0].content;
@@ -225,13 +225,13 @@ describe('Dictionary API Endpoints', async () => {
     it('POST /api/dictionary/define should handle database errors gracefully', async () => {
       // Simulate database error
       const dbError = new Error('Database connection error');
-      sinon.stub(AvoidWord, 'findOne').rejects(dbError);
+      sinon.stub(UnknownWord, 'findOne').rejects(dbError);
 
       const response = await request(app)
         .post('/api/dictionary/define')
         .send({
           word: 'test',
-          avoidWords: ['error']
+          unknownWords: ['error']
         });
 
       expect(response.status).to.equal(500);
@@ -239,7 +239,7 @@ describe('Dictionary API Endpoints', async () => {
       expect(response.body).to.have.property('message', dbError.message);
 
       // Restore stub
-      AvoidWord.findOne.restore();
+      UnknownWord.findOne.restore();
     });
   });
 

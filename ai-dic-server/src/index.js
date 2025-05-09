@@ -26,14 +26,14 @@ const initializeDatabase = async () => {
     const collections = await db.listCollections().toArray();
     const collectionNames = collections.map(c => c.name);
 
-    if (!collectionNames.includes('avoidwords')) {
-      console.log('Creating avoidwords collection...');
-      await db.createCollection('avoidwords');
+    if (!collectionNames.includes('unknownwords')) {
+      console.log('Creating unknownwords collection...');
+      await db.createCollection('unknownwords');
     }
 
     // Create indexes
-    const AvoidWord = require('./models/AvoidWord');
-    await AvoidWord.createIndexes();
+    const UnknownWord = require('./models/UnknownWord');
+    await UnknownWord.createIndexes();
 
     console.log(`MongoDB connected successfully to ${uri}`);
     return true;

@@ -217,7 +217,7 @@ struct FloatingWordView: View {
         
         Task {
             do {
-                let result = try await APIService.shared.lookupWord(word, avoidWords: [])
+                let result = try await APIService.shared.lookupWord(word, unknownWords: [])
                 DispatchQueue.main.async {
                     self.definition = result.definition
                     self.wordResult = result
@@ -238,10 +238,7 @@ struct FloatingWordView: View {
         
         Task {
             do {
-                let result = try await APIService.shared.lookupWord(
-                    word,
-                    avoidWords: Array(markedWords)
-                )
+                let result = try await APIService.shared.lookupWord(word, unknownWords: Array(markedWords))
                 
                 DispatchQueue.main.async {
                     self.definition = result.definition

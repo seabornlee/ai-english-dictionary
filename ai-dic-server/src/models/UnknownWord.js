@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 
-const avoidWordSchema = new mongoose.Schema({
+const unknownWordSchema = new mongoose.Schema({
   word: {
     type: String,
     required: true,
     unique: true,
     index: true
   },
-  avoidWords: [{
+  unknownWords: [{
     type: String,
     required: true
   }],
@@ -22,9 +22,9 @@ const avoidWordSchema = new mongoose.Schema({
 });
 
 // Update the updatedAt timestamp before saving
-avoidWordSchema.pre('save', function(next) {
+unknownWordSchema.pre('save', function(next) {
   this.updatedAt = new Date();
   next();
 });
 
-module.exports = mongoose.model('AvoidWord', avoidWordSchema); 
+module.exports = mongoose.model('UnknownWord', unknownWordSchema); 

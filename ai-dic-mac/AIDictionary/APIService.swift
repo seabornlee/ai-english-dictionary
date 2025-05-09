@@ -15,25 +15,24 @@ class APIService {
     private init() {}
     
     // Replace with your server URL
-    private let baseURL = "http://localhost:3000/api/dictionary"
+    private let baseURL = "http://localhost:3000"
     
-    func lookupWord(_ word: String, avoidWords: [String] = []) async throws -> Word {
-        guard let url = URL(string: "\(baseURL)/define") else {
-            throw APIError.invalidURL
-        }
-        
-        let requestBody: [String: Any] = [
-            "word": word,
-            "avoidWords": avoidWords
-        ]
-        
+    func lookupWord(_ word: String, unknownWords: [String] = []) async throws -> Word {
+        let url = URL(string: "\(baseURL)/api/dictionary/define")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
+        let body: [String: Any] = [
+            "word": word,
+            "unknownWords": unknownWords
+        ]
+        
+        print("body: \(body)")
         do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
         } catch {
+            print("error: \(error)")
             throw APIError.networkError(error)
         }
         
@@ -56,6 +55,7 @@ class APIService {
             let result = try decoder.decode(Word.self, from: data)
             return result
         } catch {
+            print("Decoding error: \(error)")
             throw APIError.decodingError(error)
         }
     }

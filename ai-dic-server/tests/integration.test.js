@@ -77,16 +77,16 @@ describe('Dictionary API Integration Tests', () => {
     const vocabExists = vocabResponse.body.some(item => item.term === 'integrate');
     expect(vocabExists).to.be.true;
 
-    // 7. Define word with avoid words
-    defineResponse = await request(app)
+    // 7. Define word with unknown words
+    const response7 = await request(app)
       .post('/api/dictionary/define')
       .send({
-        word: 'integrate',
-        avoidWords: ['combine', 'incorporate']
+        word: 'test',
+        unknownWords: ['combine', 'incorporate']
       });
 
-    expect(defineResponse.status).to.equal(200);
-    expect(defineResponse.body).to.have.property('term', 'integrate');
+    expect(response7.status).to.equal(200);
+    expect(response7.body).to.have.property('term', 'test');
 
     // 8. Remove from vocabulary
     let deleteResponse = await request(app).delete('/api/dictionary/vocabulary/integrate');

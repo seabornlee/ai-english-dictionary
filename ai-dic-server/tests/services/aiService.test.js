@@ -26,16 +26,16 @@ describe('AI Service', async function() {
       expect(result.timestamp).to.be.instanceOf(Date);
     });
 
-    it('should include avoid words in the definition', async () => {
-      const avoidWords = ['animal', 'pet'];
-      const result = await getWordDefinition('cat', avoidWords);
+    it('should include unknown words in the definition', async () => {
+      const unknownWords = ['animal', 'pet'];
+      const result = await getWordDefinition('cat', unknownWords);
 
       expect(result).to.have.property('term', 'cat');
       expect(result).to.have.property('definition');
       expect(result.definition).to.be.a('string');
       
-      // Check that avoid words are not in the definition
-      avoidWords.forEach(word => {
+      // Check that unknown words are not in the definition
+      unknownWords.forEach(word => {
         expect(result.definition.toLowerCase()).to.not.include(word.toLowerCase());
       });
     });

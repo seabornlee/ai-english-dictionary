@@ -104,7 +104,7 @@ struct ContentView: View {
             do {
                 let result = try await APIService.shared.lookupWord(
                     searchText.lowercased().trimmingCharacters(in: .whitespacesAndNewlines),
-                    avoidWords: []
+                    unknownWords: []
                 )
                 
                 DispatchQueue.main.async {
@@ -134,7 +134,7 @@ struct ContentView: View {
             do {
                 let result = try await APIService.shared.lookupWord(
                     word.term,
-                    avoidWords: Array(markedWords)
+                    unknownWords: Array(markedWords)
                 )
                 
                 DispatchQueue.main.async {

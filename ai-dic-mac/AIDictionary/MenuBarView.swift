@@ -96,7 +96,7 @@ struct MenuBarView: View {
             do {
                 let result = try await APIService.shared.lookupWord(
                     searchText.lowercased().trimmingCharacters(in: .whitespacesAndNewlines),
-                    avoidWords: []
+                    unknownWords: []
                 )
                 
                 DispatchQueue.main.async {

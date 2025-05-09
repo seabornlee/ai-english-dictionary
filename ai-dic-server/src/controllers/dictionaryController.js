@@ -1,5 +1,5 @@
 const { getWordDefinition } = require('../services/aiService');
-const AvoidWord = require('../models/AvoidWord');
+const UnknownWord = require('../models/UnknownWord');
 const mongoose = require('mongoose');
 
 // In-memory storage for vocabulary, favorites, and history (would be replaced with a database in production)
@@ -10,37 +10,39 @@ let searchHistory = [];
 // Define a word using DeepSeek Chat API
 exports.defineWord = async (req, res) => {
   try {
-    const { word, avoidWords = [] } = req.body;
+    const { word, unknownWords = [] } = req.body;
     
     if (!word) {
       return res.status(400).json({ error: 'Word is required' });
     }
+
+    console.log('req.body', req.body);
     
-    // Get or create avoid words document for current word
-    let avoidWordDoc = await AvoidWord.findOne({ word });
+    // Get or create unknown words document for current word
+    let unknownWordDoc = await UnknownWord.findOne({ word });
     
-    if (!avoidWordDoc) {
-      avoidWordDoc = new AvoidWord({
+    if (!unknownWordDoc) {
+      unknownWordDoc = new UnknownWord({
         word,
-        avoidWords: avoidWords
+        unknownWords: unknownWords
       });
     } else {
-      // Add new avoid words to existing ones
-      const updatedAvoidWords = [...new Set([...avoidWordDoc.avoidWords, ...avoidWords])];
-      avoidWordDoc.avoidWords = updatedAvoidWords;
+      // Add new unknown words to existing ones
+      const updatedUnknownWords = [...new Set([...unknownWordDoc.unknownWords, ...unknownWords])];
+      unknownWordDoc.unknownWords = updatedUnknownWords;
     }
     
     // Save to database
-    await avoidWordDoc.save();
+    await unknownWordDoc.save();
     
-    // Get all avoid words from database
-    const allAvoidWords = await AvoidWord.find({});
-    const allAvoidWordsList = allAvoidWords.reduce((acc, doc) => {
-      return [...acc, ...doc.avoidWords];
+    // Get all unknown words from database
+    const allUnknownWords = await UnknownWord.find({});
+    const allUnknownWordsList = allUnknownWords.reduce((acc, doc) => {
+      return [...acc, ...doc.unknownWords];
     }, []);
     
-    // Use all avoid words from database when getting definition
-    const result = await getWordDefinition(word, allAvoidWordsList);
+    // Use all unknown words from database when getting definition
+    const result = await getWordDefinition(word, allUnknownWordsList);
     result.definition = stripMarkdown(result.definition);
     
     // Add to search history
@@ -195,7 +197,7 @@ exports.clearHistory = async (req, res) => {
     
     // Check if mongoose is connected before attempting database operations
     if (mongoose.connection.readyState === 1) {
-      await AvoidWord.deleteMany({});
+      await UnknownWord.deleteMany({});
       return res.status(200).json({ message: 'Search history cleared' });
     } else {
       console.warn('MongoDB not connected, skipping database cleanup');
