@@ -13,7 +13,8 @@ struct ContentView: View {
         NavigationView {
             SidebarView()
             
-            VStack {
+            VStack(spacing: 0) {
+                // Fixed search controls
                 HStack {
                     TextField("Enter a word", text: $searchText)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -28,88 +29,92 @@ struct ContentView: View {
                     .disabled(searchText.isEmpty || isLoading)
                 }
                 .padding()
+                .background(Color(NSColor.windowBackgroundColor))
                 
-                if isLoading {
-                    ProgressView("Loading...")
-                        .padding()
-                } else if let error = errorMessage {
-                    Text(error)
-                        .foregroundColor(.red)
-                        .padding()
-                } else if let word = searchResult {
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 16) {
-                            HStack {
-                                Text(word.term)
-                                    .font(.largeTitle)
-                                    .bold()
-                                
-                                Spacer()
-                                
-                                Button(action: {
-                                    wordStore.addToFavorites(word)
-                                }) {
-                                    Image(systemName: wordStore.isFavorite(word) ? "star.fill" : "star")
-                                }
-                                .buttonStyle(.plain)
-                            }
-                            
-                            Divider()
-                            
-                            Text("Definition")
-                                .font(.headline)
-                            
-                            HighlightableText(
-                                text: word.definition,
-                                markedWords: $markedWords
-                            )
-                            
-                            if !markedWords.isEmpty {
+                // Content area
+                ScrollView {
+                    VStack {
+                        if isLoading {
+                            ProgressView("Loading...")
+                                .padding()
+                        } else if let error = errorMessage {
+                            Text(error)
+                                .foregroundColor(.red)
+                                .padding()
+                        } else if let word = searchResult {
+                            VStack(alignment: .leading, spacing: 16) {
                                 HStack {
-                                    Text("Marked words: ")
-                                        .font(.caption)
-                                    
-                                    ForEach(Array(markedWords), id: \.self) { word in
-                                        Text(word)
-                                            .font(.caption)
-                                            .padding(.horizontal, 6)
-                                            .padding(.vertical, 2)
-                                            .background(Color.blue.opacity(0.2))
-                                            .cornerRadius(4)
-                                    }
+                                    Text(word.term)
+                                        .font(.largeTitle)
+                                        .bold()
                                     
                                     Spacer()
                                     
-                                    Button("Clear") {
-                                        markedWords.removeAll()
+                                    Button(action: {
+                                        wordStore.addToFavorites(word)
+                                    }) {
+                                        Image(systemName: wordStore.isFavorite(word) ? "star.fill" : "star")
                                     }
-                                    
-                                    Button("Regenerate") {
-                                        regenerateDefinition()
-                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .padding(.vertical)
+                                
+                                Divider()
+                                
+                                Text("Definition")
+                                    .font(.headline)
+                                
+                                HighlightableText(
+                                    text: word.definition,
+                                    markedWords: $markedWords
+                                )
+                                
+                                if !markedWords.isEmpty {
+                                    HStack {
+                                        Text("Marked words: ")
+                                            .font(.caption)
+                                        
+                                        ForEach(Array(markedWords), id: \.self) { word in
+                                            Text(word)
+                                                .font(.caption)
+                                                .padding(.horizontal, 6)
+                                                .padding(.vertical, 2)
+                                                .background(Color.blue.opacity(0.2))
+                                                .cornerRadius(4)
+                                        }
+                                        
+                                        Spacer()
+                                        
+                                        Button("Clear") {
+                                            markedWords.removeAll()
+                                        }
+                                        
+                                        Button("Regenerate") {
+                                            regenerateDefinition()
+                                        }
+                                    }
+                                    .padding(.vertical)
+                                }
+                                
+                                // Add to vocabulary button
+                                Button("Add to Vocabulary") {
+                                    wordStore.addToVocabulary(word)
+                                }
+                                .padding(.top)
                             }
-                            
-                            // Add to vocabulary button
-                            Button("Add to Vocabulary") {
-                                wordStore.addToVocabulary(word)
+                            .padding()
+                        } else {
+                            VStack {
+                                Image(systemName: "character.book.closed")
+                                    .font(.system(size: 48))
+                                    .foregroundColor(.secondary)
+                                
+                                Text("Search for a word to begin")
+                                    .font(.title2)
+                                    .foregroundColor(.secondary)
                             }
-                            .padding(.top)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
-                        .padding()
                     }
-                } else {
-                    VStack {
-                        Image(systemName: "character.book.closed")
-                            .font(.system(size: 48))
-                            .foregroundColor(.secondary)
-                        
-                        Text("Search for a word to begin")
-                            .font(.title2)
-                            .foregroundColor(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
         }
