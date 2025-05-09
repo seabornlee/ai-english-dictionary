@@ -36,11 +36,15 @@ struct AIDictionaryApp: App {
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     var preferencesWindow: NSWindow?
+    var selectionMonitor: SelectionMonitor?
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Initialize accessibility if needed
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]
         AXIsProcessTrustedWithOptions(options as CFDictionary)
+        
+        // 初始化SelectionMonitor
+        selectionMonitor = SelectionMonitor()
     }
     
     @objc func openPreferences() {

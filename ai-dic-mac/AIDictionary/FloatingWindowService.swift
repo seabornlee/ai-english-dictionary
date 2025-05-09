@@ -133,6 +133,11 @@ class FloatingWindowService {
         floatingWindow = window
     }
     
+    func showFloatingWindow(with text: String) {
+        selectedWord = text
+        showFloatingWindow()
+    }
+    
     func closeFloatingWindow() {
         floatingWindow?.close()
         floatingWindow = nil
