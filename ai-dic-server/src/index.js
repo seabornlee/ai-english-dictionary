@@ -2,10 +2,48 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const mongoose = require('mongoose');
 const dictionaryRoutes = require('./routes/dictionary');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+process.env.MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/ai-dictionary';
+
+// Initialize database connection
+const initializeDatabase = async () => {
+  try {
+    const uri = process.env.NODE_ENV === 'test' 
+      ? process.env.MONGODB_URI + '_test'
+      : process.env.MONGODB_URI;
+
+    await mongoose.connect(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    // Create collections and indexes if needed
+    const db = mongoose.connection.db;
+    const collections = await db.listCollections().toArray();
+    const collectionNames = collections.map(c => c.name);
+
+    if (!collectionNames.includes('avoidwords')) {
+      console.log('Creating avoidwords collection...');
+      await db.createCollection('avoidwords');
+    }
+
+    // Create indexes
+    const AvoidWord = require('./models/AvoidWord');
+    await AvoidWord.createIndexes();
+
+    console.log(`MongoDB connected successfully to ${uri}`);
+    return true;
+  } catch (error) {
+    console.error('Database initialization error:', error);
+    throw error;
+  }
+};
+
+initializeDatabase();
 
 // Middleware
 app.use(helmet());
@@ -29,12 +67,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
+// Create and start server
+const server = app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
-// Export app for testing
-module.exports = app; 
+module.exports = {
+  app,
+  server,
+}; 

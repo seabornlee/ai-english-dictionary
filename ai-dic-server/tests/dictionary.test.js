@@ -3,8 +3,13 @@ require('dotenv').config(); // Load .env file at the very top
 const request = require('supertest');
 const axios = require('axios');
 const sinon = require('sinon');
+const mongoose = require('mongoose');
+const AvoidWord = require('../src/models/AvoidWord');
+const { app, server } = require('../src/index');
 
-const app = require('../src/index');
+// Set test environment variables
+process.env.NODE_ENV = 'test';
+process.env.MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/ai-dictionary';
 
 describe('Dictionary API Endpoints', async () => {
   let expect;
@@ -15,12 +20,37 @@ describe('Dictionary API Endpoints', async () => {
     expect = chai.expect;
   });
 
-  beforeEach(() => {
-    axiosPostStub = sinon.stub(axios, 'post').resolves({
-      data: {
-        choices: [{ message: { content: 'A simulated definition.' } }]
+  after(async () => {
+    try {
+      // Clear in-memory data
+      searchHistory = [];
+    } catch (error) {
+      console.error('Error in after hook:', error);
+      // Don't throw error here to avoid masking test failures
+    }
+  });
+
+  beforeEach(async () => {
+    try {
+      // Clear in-memory data
+      searchHistory = [];
+      
+      // Clear database if connected
+      if (mongoose.connection.readyState === 1) {
+        await AvoidWord.deleteMany({});
+      } else {
+        console.warn('MongoDB not connected during test setup, skipping database operations');
       }
-    });
+      
+      axiosPostStub = sinon.stub(axios, 'post').resolves({
+        data: {
+          choices: [{ message: { content: 'A simulated definition.' } }]
+        }
+      });
+    } catch (error) {
+      console.error('Error in beforeEach hook:', error);
+      throw error;
+    }
   });
 
   afterEach(() => {
@@ -105,6 +135,11 @@ describe('Dictionary API Endpoints', async () => {
       expect(firstResponse.body).to.have.property('definition');
       expect(firstResponse.body).to.have.property('timestamp');
 
+      // Verify first request was saved to database
+      const firstAvoidWord = await AvoidWord.findOne({ word: 'test' });
+      expect(firstAvoidWord).to.exist;
+      expect(firstAvoidWord.avoidWords).to.have.members(['first', 'second']);
+
       // Second request with additional avoid words
       const secondResponse = await request(app)
         .post('/api/dictionary/define')
@@ -118,6 +153,11 @@ describe('Dictionary API Endpoints', async () => {
       expect(secondResponse.body).to.have.property('definition');
       expect(secondResponse.body).to.have.property('timestamp');
 
+      // Verify second request updated database
+      const secondAvoidWord = await AvoidWord.findOne({ word: 'test' });
+      expect(secondAvoidWord).to.exist;
+      expect(secondAvoidWord.avoidWords).to.have.members(['first', 'second', 'third', 'fourth']);
+
       // Verify that all avoid words were used in the prompt
       expect(axiosPostStub.called).to.be.true;
       const lastCallArgs = axiosPostStub.lastCall.args;
@@ -125,6 +165,26 @@ describe('Dictionary API Endpoints', async () => {
 
       expect(prompt).to.include('avoid using these words');
       expect(prompt).to.include('first, second, third, fourth');
+    });
+
+    it('POST /api/dictionary/define should handle database errors gracefully', async () => {
+      // Simulate database error
+      const dbError = new Error('Database connection error');
+      sinon.stub(AvoidWord, 'findOne').rejects(dbError);
+
+      const response = await request(app)
+        .post('/api/dictionary/define')
+        .send({
+          word: 'test',
+          avoidWords: ['error']
+        });
+
+      expect(response.status).to.equal(500);
+      expect(response.body).to.have.property('error', 'Error defining word');
+      expect(response.body).to.have.property('message', dbError.message);
+
+      // Restore stub
+      AvoidWord.findOne.restore();
     });
   });
 

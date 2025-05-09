@@ -8,7 +8,14 @@
     "dev": "nodemon src/index.js",
     "test": "PORT=3001 mocha 'tests/**/*.test.js' --exit",
     "test:ci": "nyc --reporter=lcov --reporter=text mocha 'tests/**/*.test.js' --reporter mochawesome --reporter-options reportDir=test-reports,reportFilename=test-report,reportTitle=\"Mocha Test Report\",reportPageTitle=\"Mocha Test Report\",charts=true,code=true,overwrite=true,inline=true,inlineAssets=true --exit",
-    "test:watch": "mocha 'tests/**/*.test.js' --watch"
+    "test:watch": "mocha 'tests/**/*.test.js' --watch",
+    "docker:start": "./scripts/docker-env.sh start",
+    "docker:stop": "./scripts/docker-env.sh stop",
+    "docker:restart": "./scripts/docker-env.sh restart",
+    "docker:status": "./scripts/docker-env.sh status",
+    "docker:logs": "./scripts/docker-env.sh logs",
+    "docker:cleanup": "./scripts/docker-env.sh cleanup",
+    "test:docker": "npm run docker:start && npm test && npm run docker:stop"
   },
   "dependencies": {
     "axios": "^1.6.2",
@@ -16,7 +23,8 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "helmet": "^7.1.0",
-    "mocha": "^11.2.2"
+    "mocha": "^11.2.2",
+    "mongoose": "^8.14.2"
   },
   "devDependencies": {
     "chai": "^5.2.0",

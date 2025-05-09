@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: ai-dictionary-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=ai-dictionary
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - ai-dictionary-network
+
+volumes:
+  mongodb_data:
+    name: ai-dictionary-mongodb-data
+
+networks:
+  ai-dictionary-network:
+    name: ai-dictionary-network 

@@ -1,14 +1,11 @@
 const { getWordDefinition } = require('../services/aiService');
+const AvoidWord = require('../models/AvoidWord');
+const mongoose = require('mongoose');
 
 // In-memory storage for vocabulary, favorites, and history (would be replaced with a database in production)
 let vocabularyList = [];
 let favorites = [];
 let searchHistory = [];
-let wordAvoidWords = new Map(); // Store avoid words for each word
-
-// DeepSeek Chat API configuration
-const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
-const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 
 // Define a word using DeepSeek Chat API
 exports.defineWord = async (req, res) => {
@@ -19,16 +16,24 @@ exports.defineWord = async (req, res) => {
       return res.status(400).json({ error: 'Word is required' });
     }
     
-    // Get existing avoid words for this word
-    const existingAvoidWords = wordAvoidWords.get(word) || [];
+    // Get or create avoid words document
+    let avoidWordDoc = await AvoidWord.findOne({ word });
     
-    // Add new avoid words to the existing ones
-    const updatedAvoidWords = [...new Set([...existingAvoidWords, ...avoidWords])];
+    if (!avoidWordDoc) {
+      avoidWordDoc = new AvoidWord({
+        word,
+        avoidWords: avoidWords
+      });
+    } else {
+      // Add new avoid words to existing ones
+      const updatedAvoidWords = [...new Set([...avoidWordDoc.avoidWords, ...avoidWords])];
+      avoidWordDoc.avoidWords = updatedAvoidWords;
+    }
     
-    // Update the avoid words map
-    wordAvoidWords.set(word, updatedAvoidWords);
+    // Save to database
+    await avoidWordDoc.save();
     
-    const result = await getWordDefinition(word, updatedAvoidWords);
+    const result = await getWordDefinition(word, avoidWordDoc.avoidWords);
     result.definition = stripMarkdown(result.definition);
     
     // Add to search history
@@ -177,8 +182,26 @@ exports.getHistory = (req, res) => {
 };
 
 // Clear search history
-exports.clearHistory = (req, res) => {
-  searchHistory = [];
-  wordAvoidWords.clear(); // Also clear the avoid words map
-  return res.status(200).json({ message: 'Search history cleared' });
+exports.clearHistory = async (req, res) => {
+  try {
+    searchHistory = [];
+    
+    // Check if mongoose is connected before attempting database operations
+    if (mongoose.connection.readyState === 1) {
+      await AvoidWord.deleteMany({});
+      return res.status(200).json({ message: 'Search history cleared' });
+    } else {
+      console.warn('MongoDB not connected, skipping database cleanup');
+      return res.status(200).json({ 
+        message: 'Search history cleared (in-memory only)',
+        warning: 'Database cleanup skipped due to connection issues'
+      });
+    }
+  } catch (error) {
+    console.error('Error clearing history:', error);
+    return res.status(500).json({ 
+      error: 'Error clearing history',
+      message: error.message
+    });
+  }
 }; 
