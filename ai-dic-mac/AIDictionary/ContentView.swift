@@ -171,6 +171,7 @@ struct HighlightableText: View {
                         }
                     }) {
                         Text(cleanWord)
+                            .font(.title3)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(markedWords.contains(cleanWord) ? Color.gray.opacity(0.1) : Color.blue.opacity(0.3))
@@ -181,7 +182,7 @@ struct HighlightableText: View {
                     // Display punctuation marks as plain text
                     let punctuation = word.filter { $0 == "," || $0 == "." }
                     if !punctuation.isEmpty {
-                        Text(punctuation)
+                        Text(punctuation).font(.title3)
                     }
                 }
             }
