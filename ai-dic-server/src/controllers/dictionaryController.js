@@ -4,6 +4,7 @@ const { getWordDefinition } = require('../services/aiService');
 let vocabularyList = [];
 let favorites = [];
 let searchHistory = [];
+let wordAvoidWords = new Map(); // Store avoid words for each word
 
 // DeepSeek Chat API configuration
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
@@ -18,7 +19,16 @@ exports.defineWord = async (req, res) => {
       return res.status(400).json({ error: 'Word is required' });
     }
     
-    const result = await getWordDefinition(word, avoidWords);
+    // Get existing avoid words for this word
+    const existingAvoidWords = wordAvoidWords.get(word) || [];
+    
+    // Add new avoid words to the existing ones
+    const updatedAvoidWords = [...new Set([...existingAvoidWords, ...avoidWords])];
+    
+    // Update the avoid words map
+    wordAvoidWords.set(word, updatedAvoidWords);
+    
+    const result = await getWordDefinition(word, updatedAvoidWords);
     result.definition = stripMarkdown(result.definition);
     
     // Add to search history
@@ -169,5 +179,6 @@ exports.getHistory = (req, res) => {
 // Clear search history
 exports.clearHistory = (req, res) => {
   searchHistory = [];
+  wordAvoidWords.clear(); // Also clear the avoid words map
   return res.status(200).json({ message: 'Search history cleared' });
 }; 

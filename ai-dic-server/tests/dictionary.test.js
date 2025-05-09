@@ -90,6 +90,42 @@ describe('Dictionary API Endpoints', async () => {
       expect(response.status).to.equal(400);
       expect(response.body).to.have.property('error', 'Word is required');
     });
+
+    it('POST /api/dictionary/define should accumulate avoidWords across multiple requests for the same word', async () => {
+      // First request with initial avoid words
+      const firstResponse = await request(app)
+        .post('/api/dictionary/define')
+        .send({
+          word: 'test',
+          avoidWords: ['first', 'second']
+        });
+
+      expect(firstResponse.status).to.equal(200);
+      expect(firstResponse.body).to.have.property('term', 'test');
+      expect(firstResponse.body).to.have.property('definition');
+      expect(firstResponse.body).to.have.property('timestamp');
+
+      // Second request with additional avoid words
+      const secondResponse = await request(app)
+        .post('/api/dictionary/define')
+        .send({
+          word: 'test',
+          avoidWords: ['third', 'fourth']
+        });
+
+      expect(secondResponse.status).to.equal(200);
+      expect(secondResponse.body).to.have.property('term', 'test');
+      expect(secondResponse.body).to.have.property('definition');
+      expect(secondResponse.body).to.have.property('timestamp');
+
+      // Verify that all avoid words were used in the prompt
+      expect(axiosPostStub.called).to.be.true;
+      const lastCallArgs = axiosPostStub.lastCall.args;
+      const prompt = lastCallArgs[1].messages[0].content;
+
+      expect(prompt).to.include('avoid using these words');
+      expect(prompt).to.include('first, second, third, fourth');
+    });
   });
 
   // Rest of the test cases remain unchanged...
