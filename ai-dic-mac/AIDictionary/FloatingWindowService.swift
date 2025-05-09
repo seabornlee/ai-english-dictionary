@@ -75,16 +75,19 @@ class FloatingWindowService {
             self.closeFloatingWindow()
         }
         
+        // Create hosting view
+        let hostingView = NSHostingView(rootView: contentView)
+        
         // Create window
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 300, height: 200),
+            contentRect: NSRect(x: 0, y: 0, width: 300, height: 0),
             styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
         window.isReleasedWhenClosed = false
         window.center()
-        window.contentView = NSHostingView(rootView: contentView)
+        window.contentView = hostingView
         window.makeKeyAndOrderFront(nil)
         window.level = .floating
         window.titlebarAppearsTransparent = true
@@ -97,6 +100,10 @@ class FloatingWindowService {
             let mouseLocation = NSEvent.mouseLocation
             var windowFrame = window.frame
             let cursorOffset: CGFloat = 20 // Offset from cursor
+            
+            // Calculate the ideal height based on content
+            let idealSize = hostingView.fittingSize
+            windowFrame.size.height = min(idealSize.height, screenFrame.height * 0.8) // Limit to 80% of screen height
             
             windowFrame.origin.x = mouseLocation.x
             windowFrame.origin.y = screenFrame.height - mouseLocation.y - windowFrame.height - cursorOffset
@@ -174,12 +181,12 @@ struct FloatingWordView: View {
                 showFavoritesButton: false
             )
             
-            Spacer()
+            Spacer(minLength: 0)
             
             HStack {
                 Spacer()
                 
-                Button("Open in Dictionary") {
+                Button {
                     // Open main window with this word
                     NSApp.activate(ignoringOtherApps: true)
                     if let wordResult = wordResult {
@@ -191,11 +198,17 @@ struct FloatingWordView: View {
                     }
                     NSApp.sendAction(Selector(("showMainWindow:")), to: nil, from: nil)
                     onClose()
+                } label: {
+                    Image(systemName: "book.fill")
+                        .font(.system(size: 16))
+                        .foregroundColor(.blue)
                 }
+                .buttonStyle(.plain)
+                .help("Open in Dictionary")
             }
         }
         .padding()
-        .frame(width: 300, height: 300)
+        .frame(width: 300)
         .onAppear {
             loadDefinition()
         }
