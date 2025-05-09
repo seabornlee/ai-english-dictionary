@@ -11,10 +11,10 @@ const SILICONFLOW_API_KEY = process.env.SILICONFLOW_API_KEY;
  * @returns {Promise<{term: string, definition: string, timestamp: Date}>}
  */
 async function getWordDefinition(word, avoidWords = []) {
-  let prompt = `Define the English word '${word}' in one clear, concise sentence of explanation. `;
+  let prompt = `You are a professional English teacher for Chinese students. Define the English word '${word}' in one clear, concise sentence of explanation. `;
   
   if (avoidWords.length > 0) {
-    prompt += `Please avoid using these words in your explanation: ${avoidWords.join(', ')}. `;
+    prompt += `The studend do NOT know these words: ${avoidWords.join(', ')}. `;
   }
   
   prompt += "The explanation should be suitable for English language learners and avoid overly complex vocabulary unless necessary.";
