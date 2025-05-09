@@ -158,6 +158,7 @@ struct FloatingWordView: View {
     @State private var definition: String = ""
     @State private var error: String?
     @State private var markedWords = Set<String>()
+    @State private var wordResult: Word?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -181,8 +182,14 @@ struct FloatingWordView: View {
                 Button("Open in Dictionary") {
                     // Open main window with this word
                     NSApp.activate(ignoringOtherApps: true)
+                    if let wordResult = wordResult {
+                        NotificationCenter.default.post(
+                            name: NSNotification.Name("OpenWordInDictionary"),
+                            object: nil,
+                            userInfo: ["word": wordResult]
+                        )
+                    }
                     NSApp.sendAction(Selector(("showMainWindow:")), to: nil, from: nil)
-                    // TODO: Pass the word to search
                     onClose()
                 }
             }
@@ -202,6 +209,7 @@ struct FloatingWordView: View {
                 let result = try await APIService.shared.lookupWord(word, avoidWords: [])
                 DispatchQueue.main.async {
                     self.definition = result.definition
+                    self.wordResult = result
                     self.isLoading = false
                 }
             } catch {
@@ -226,6 +234,7 @@ struct FloatingWordView: View {
                 
                 DispatchQueue.main.async {
                     self.definition = result.definition
+                    self.wordResult = result
                     self.isLoading = false
                     self.markedWords.removeAll()
                 }

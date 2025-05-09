@@ -78,6 +78,19 @@ struct ContentView: View {
         .onAppear {
             // Make sure data is loaded when app starts
             wordStore.loadData()
+            
+            // Add notification observer
+            NotificationCenter.default.addObserver(
+                forName: NSNotification.Name("OpenWordInDictionary"),
+                object: nil,
+                queue: .main
+            ) { notification in
+                if let word = notification.userInfo?["word"] as? Word {
+                    self.searchResult = word
+                    self.searchText = word.term
+                    self.markedWords.removeAll()
+                }
+            }
         }
     }
     
