@@ -114,6 +114,11 @@ class SelectionMonitor {
     }
     
     private func handleSelectionChange(element: AXUIElement) {
+        // Ignore selection changes when the main window is active
+        if NSApp.isActive {
+            return
+        }
+        
         var selectedText: AnyObject?
         if AXUIElementCopyAttributeValue(element, kAXSelectedTextAttribute as CFString, &selectedText) == .success,
            let text = selectedText as? String, !text.isEmpty {

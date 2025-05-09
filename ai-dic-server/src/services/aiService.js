@@ -17,7 +17,7 @@ async function getWordDefinition(word, avoidWords = []) {
     prompt += `The studend do NOT know these words: ${avoidWords.join(', ')}. `;
   }
   
-  prompt += "The explanation should be suitable for English language learners and avoid overly complex vocabulary unless necessary.";
+  prompt += "The explanation should be suitable for English language learners and avoid overly complex vocabulary unless necessary. Never use Chinese in the explanation. Never add comments in the explanation.";
 
   console.log('Prompt:', prompt);
   

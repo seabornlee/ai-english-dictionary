@@ -220,11 +220,10 @@ struct WordDisplayView: View {
                 if !markedWords.isEmpty {
                     HStack {
                         Text("Marked words: ")
-                            .font(.caption)
+                            .font(.subheadline)
                         
                         ForEach(Array(markedWords), id: \.self) { word in
                             Text(word)
-                                .font(.caption)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
                                 .background(Color.blue.opacity(0.2))
