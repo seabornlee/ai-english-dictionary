@@ -16,7 +16,7 @@ exports.defineWord = async (req, res) => {
       return res.status(400).json({ error: 'Word is required' });
     }
     
-    // Get or create avoid words document
+    // Get or create avoid words document for current word
     let avoidWordDoc = await AvoidWord.findOne({ word });
     
     if (!avoidWordDoc) {
@@ -33,7 +33,14 @@ exports.defineWord = async (req, res) => {
     // Save to database
     await avoidWordDoc.save();
     
-    const result = await getWordDefinition(word, avoidWordDoc.avoidWords);
+    // Get all avoid words from database
+    const allAvoidWords = await AvoidWord.find({});
+    const allAvoidWordsList = allAvoidWords.reduce((acc, doc) => {
+      return [...acc, ...doc.avoidWords];
+    }, []);
+    
+    // Use all avoid words from database when getting definition
+    const result = await getWordDefinition(word, allAvoidWordsList);
     result.definition = stripMarkdown(result.definition);
     
     // Add to search history

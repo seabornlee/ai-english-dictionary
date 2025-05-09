@@ -108,7 +108,7 @@ describe('Dictionary API Endpoints', async () => {
       const lastCallArgs = axiosPostStub.lastCall.args;
       const prompt = lastCallArgs[1].messages[0].content;
 
-      expect(prompt).to.include('avoid using these words');
+      expect(prompt).to.include('The student do NOT know these words');
       expect(prompt).to.include('procedure, quality');
     });
 
@@ -162,9 +162,64 @@ describe('Dictionary API Endpoints', async () => {
       expect(axiosPostStub.called).to.be.true;
       const lastCallArgs = axiosPostStub.lastCall.args;
       const prompt = lastCallArgs[1].messages[0].content;
+      console.log('prompt', prompt);
 
-      expect(prompt).to.include('avoid using these words');
+      expect(prompt).to.include('The student do NOT know these words');
       expect(prompt).to.include('first, second, third, fourth');
+    });
+
+    it('POST /api/dictionary/define should include all previous avoid words in subsequent requests', async () => {
+      // First request with initial avoid words
+      await request(app)
+        .post('/api/dictionary/define')
+        .send({
+          word: 'test',
+          avoidWords: ['previous1', 'previous2']
+        });
+
+      // Second request with new avoid words
+      await request(app)
+        .post('/api/dictionary/define')
+        .send({
+          word: 'test',
+          avoidWords: ['previous3', 'previous4']
+        });
+
+      // Third request without any new avoid words
+      const thirdResponse = await request(app)
+        .post('/api/dictionary/define')
+        .send({
+          word: 'test'
+        });
+
+      expect(thirdResponse.status).to.equal(200);
+      expect(thirdResponse.body).to.have.property('term', 'test');
+
+      // Verify that all previous avoid words were used in the prompt
+      expect(axiosPostStub.called).to.be.true;
+      let lastCallArgs = axiosPostStub.lastCall.args;
+      let prompt = lastCallArgs[1].messages[0].content;
+
+      expect(prompt).to.include('The student do NOT know these words');
+      expect(prompt).to.include('previous1, previous2, previous3, previous4');
+
+      // Fourth request with new avoid words
+      const fourthResponse = await request(app)
+        .post('/api/dictionary/define')
+        .send({
+          word: 'anotherword'
+        });
+
+      expect(fourthResponse.status).to.equal(200);
+      expect(fourthResponse.body).to.have.property('term', 'anotherword');
+
+      // Verify that all previous avoid words were used in the prompt
+      expect(axiosPostStub.called).to.be.true;
+      lastCallArgs = axiosPostStub.lastCall.args;
+      prompt = lastCallArgs[1].messages[0].content;
+
+      expect(prompt).to.include('The student do NOT know these words');
+      expect(prompt).to.include('previous1, previous2, previous3, previous4');
     });
 
     it('POST /api/dictionary/define should handle database errors gracefully', async () => {
