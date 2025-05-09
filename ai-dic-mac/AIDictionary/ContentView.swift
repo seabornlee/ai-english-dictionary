@@ -164,9 +164,11 @@ struct ContentView: View {
                 )
                 
                 DispatchQueue.main.async {
-                    self.searchResult = result
-                    self.isLoading = false
-                    self.markedWords.removeAll()
+                    withAnimation {
+                        self.searchResult = result
+                        self.isLoading = false
+                        self.markedWords.removeAll()
+                    }
                 }
             } catch {
                 DispatchQueue.main.async {

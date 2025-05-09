@@ -24,6 +24,7 @@ exports.defineWord = async (req, res) => {
     // Add to search history
     addToHistory(result);
     
+    console.log('Result:', result);
     return res.status(200).json(result);
   } catch (error) {
     console.error('Error defining word:', error);
@@ -147,13 +148,14 @@ function addToHistory(word) {
 
 function stripMarkdown(text) {
   return text
-    .replace(/\*\*(.*?)\*\*/g, '$1') // Bold
+    .replace(/\*\*/g, '')            // Remove **
     .replace(/\*(.*?)\*/g, '$1')     // Italic
     .replace(/_(.*?)_/g, '$1')       // Underline
     .replace(/`(.*?)`/g, '$1')       // Inline code
     .replace(/```[\s\S]*?```/g, '')  // Code blocks
     .replace(/#{1,6}\s/g, '')        // Headers
     .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Links
+    .replace(/["'](.*?)["']/g, '$1') // Quotes
     .replace(/\n/g, ' ')             // Newlines to spaces
     .replace(/\s+/g, ' ')            // Multiple spaces to single space
     .trim();

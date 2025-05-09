@@ -7,6 +7,8 @@ struct Word: Identifiable, Codable, Equatable {
     let timestamp: Date
     
     static func == (lhs: Word, rhs: Word) -> Bool {
-        return lhs.term == rhs.term
+        return lhs.term == rhs.term &&
+               lhs.definition == rhs.definition &&
+               lhs.timestamp == rhs.timestamp
     }
 } 
