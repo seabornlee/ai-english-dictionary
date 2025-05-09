@@ -177,9 +177,22 @@ struct WordDisplayView: View {
                 
                 Spacer()
                 
+                if !markedWords.isEmpty {
+                    Button {
+                        onRegenerate()
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 16))
+                            .foregroundColor(.blue)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Regenerate definition")
+                }
+                
                 if showFavoritesButton, let onAddToFavorites = onAddToFavorites {
                     Button(action: onAddToFavorites) {
                         Image(systemName: "star")
+                            .font(.system(size: 16))
                     }
                     .buttonStyle(.plain)
                 }
@@ -217,16 +230,6 @@ struct WordDisplayView: View {
                                 .background(Color.blue.opacity(0.2))
                                 .cornerRadius(4)
                         }
-                        
-                        Spacer()
-                        
-                        Button("Clear") {
-                            markedWords.removeAll()
-                        }
-                        
-                        Button("Regenerate") {
-                            onRegenerate()
-                        }
                     }
                     .padding(.vertical)
                 }
@@ -236,6 +239,24 @@ struct WordDisplayView: View {
                         onAddToVocabulary()
                     }
                     .padding(.top)
+                }
+            }
+            
+            Spacer(minLength: 0)
+            
+            HStack {
+                Spacer()
+                
+                if let onAddToVocabulary = onAddToVocabulary {
+                    Button {
+                        onAddToVocabulary()
+                    } label: {
+                        Image(systemName: "plus.circle")
+                            .font(.system(size: 16))
+                            .foregroundColor(.blue)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Add to Vocabulary")
                 }
             }
         }

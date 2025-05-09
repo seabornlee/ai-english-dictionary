@@ -181,8 +181,6 @@ struct FloatingWordView: View {
                 showFavoritesButton: false
             )
             
-            Spacer(minLength: 0)
-            
             HStack {
                 Spacer()
                 
