@@ -6,6 +6,8 @@ class SelectionMonitor {
     private var lastSelectedText: String?
     private var currentAppPID: pid_t = 0
     private var safariPollingTimer: Timer?
+    private var lastClipboardContent: String?
+    private var clipboardTimer: Timer?
     
     init() {
         // 监听前台应用切换
@@ -15,7 +17,42 @@ class SelectionMonitor {
             name: NSWorkspace.didActivateApplicationNotification,
             object: nil
         )
+        
+        // Start clipboard monitoring
+        startClipboardMonitoring()
+        
         startMonitoring()
+    }
+    
+    private func startClipboardMonitoring() {
+        // Check clipboard every 0.5 seconds
+        clipboardTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+            self?.checkClipboard()
+        }
+    }
+    
+    private func checkClipboard() {
+        guard let clipboardString = NSPasteboard.general.string(forType: .string)?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !clipboardString.isEmpty,
+              clipboardString != lastClipboardContent else {
+            return
+        }
+        
+        // Only process if it's a single word (no spaces)
+        if !clipboardString.contains(" ") {
+            lastClipboardContent = clipboardString
+            DispatchQueue.main.async {
+                FloatingWindowService.shared.showFloatingWindow(with: clipboardString)
+            }
+        }
+    }
+    
+    deinit {
+        clipboardTimer?.invalidate()
+        safariPollingTimer?.invalidate()
+        if let eventMonitor = observer {
+            NSEvent.removeMonitor(eventMonitor)
+        }
     }
     
     @objc private func frontAppChanged() {
@@ -117,6 +154,16 @@ class SelectionMonitor {
         // Ignore selection changes when the main window is active
         if NSApp.isActive {
             return
+        }
+        
+        // Check if the element is in a browser's address bar
+        var role: AnyObject?
+        if AXUIElementCopyAttributeValue(element, kAXRoleAttribute as CFString, &role) == .success,
+           let roleStr = role as? String {
+            // Ignore if it's a text field (which includes address bars)
+            if roleStr == "AXTextField" || roleStr == "AXTextArea" {
+                return
+            }
         }
         
         var selectedText: AnyObject?
