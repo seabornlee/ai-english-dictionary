@@ -157,39 +157,21 @@ struct FloatingWordView: View {
     @State private var isLoading = true
     @State private var definition: String = ""
     @State private var error: String?
+    @State private var markedWords = Set<String>()
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text(word)
-                    .font(.headline)
-                
-                Spacer()
-                
-                Button(action: onClose) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.secondary)
-                }
-                .buttonStyle(PlainButtonStyle())
-            }
-            
-            Divider()
-            
-            if isLoading {
-                HStack {
-                    Spacer()
-                    ProgressView("Loading...")
-                    Spacer()
-                }
-                .padding()
-            } else if let error = error {
-                Text(error)
-                    .foregroundColor(.red)
-                    .padding()
-            } else {
-                Text(definition)
-                    .lineLimit(5)
-            }
+            WordDisplayView(
+                word: word,
+                definition: definition,
+                isLoading: isLoading,
+                error: error,
+                markedWords: $markedWords,
+                onRegenerate: regenerateDefinition,
+                onAddToFavorites: nil,
+                onAddToVocabulary: nil,
+                showFavoritesButton: false
+            )
             
             Spacer()
             
@@ -206,7 +188,7 @@ struct FloatingWordView: View {
             }
         }
         .padding()
-        .frame(width: 300, height: 200)
+        .frame(width: 300, height: 300)
         .onAppear {
             loadDefinition()
         }
@@ -221,6 +203,31 @@ struct FloatingWordView: View {
                 DispatchQueue.main.async {
                     self.definition = result.definition
                     self.isLoading = false
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.error = "Error: \(error.localizedDescription)"
+                    self.isLoading = false
+                }
+            }
+        }
+    }
+    
+    private func regenerateDefinition() {
+        isLoading = true
+        error = nil
+        
+        Task {
+            do {
+                let result = try await APIService.shared.lookupWord(
+                    word,
+                    avoidWords: Array(markedWords)
+                )
+                
+                DispatchQueue.main.async {
+                    self.definition = result.definition
+                    self.isLoading = false
+                    self.markedWords.removeAll()
                 }
             } catch {
                 DispatchQueue.main.async {

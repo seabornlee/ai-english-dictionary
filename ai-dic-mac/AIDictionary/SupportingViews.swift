@@ -156,4 +156,88 @@ struct VocabularyDocument: FileDocument {
         let text = words.map { "\($0.term): \($0.definition)" }.joined(separator: "\n")
         return FileWrapper(regularFileWithContents: Data(text.utf8))
     }
+}
+
+struct WordDisplayView: View {
+    let word: String
+    let definition: String
+    let isLoading: Bool
+    let error: String?
+    @Binding var markedWords: Set<String>
+    let onRegenerate: () -> Void
+    let onAddToFavorites: (() -> Void)?
+    let onAddToVocabulary: (() -> Void)?
+    let showFavoritesButton: Bool
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text(word)
+                    .font(.headline)
+                
+                Spacer()
+                
+                if showFavoritesButton, let onAddToFavorites = onAddToFavorites {
+                    Button(action: onAddToFavorites) {
+                        Image(systemName: "star")
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            
+            Divider()
+            
+            if isLoading {
+                HStack {
+                    Spacer()
+                    ProgressView("Loading...")
+                    Spacer()
+                }
+                .padding()
+            } else if let error = error {
+                Text(error)
+                    .foregroundColor(.red)
+                    .padding()
+            } else {
+                HighlightableText(
+                    text: definition,
+                    markedWords: $markedWords
+                )
+                
+                if !markedWords.isEmpty {
+                    HStack {
+                        Text("Marked words: ")
+                            .font(.caption)
+                        
+                        ForEach(Array(markedWords), id: \.self) { word in
+                            Text(word)
+                                .font(.caption)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.blue.opacity(0.2))
+                                .cornerRadius(4)
+                        }
+                        
+                        Spacer()
+                        
+                        Button("Clear") {
+                            markedWords.removeAll()
+                        }
+                        
+                        Button("Regenerate") {
+                            onRegenerate()
+                        }
+                    }
+                    .padding(.vertical)
+                }
+                
+                if let onAddToVocabulary = onAddToVocabulary {
+                    Button("Add to Vocabulary") {
+                        onAddToVocabulary()
+                    }
+                    .padding(.top)
+                }
+            }
+        }
+    }
 } 

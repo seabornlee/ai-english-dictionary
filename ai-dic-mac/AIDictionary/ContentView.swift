@@ -42,65 +42,21 @@ struct ContentView: View {
                                 .foregroundColor(.red)
                                 .padding()
                         } else if let word = searchResult {
-                            VStack(alignment: .leading, spacing: 16) {
-                                HStack {
-                                    Text(word.term)
-                                        .font(.largeTitle)
-                                        .bold()
-                                    
-                                    Spacer()
-                                    
-                                    Button(action: {
-                                        wordStore.addToFavorites(word)
-                                    }) {
-                                        Image(systemName: wordStore.isFavorite(word) ? "star.fill" : "star")
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                                
-                                Divider()
-                                
-                                Text("Definition")
-                                    .font(.headline)
-                                
-                                HighlightableText(
-                                    text: word.definition,
-                                    markedWords: $markedWords
-                                )
-                                
-                                if !markedWords.isEmpty {
-                                    HStack {
-                                        Text("Marked words: ")
-                                            .font(.caption)
-                                        
-                                        ForEach(Array(markedWords), id: \.self) { word in
-                                            Text(word)
-                                                .font(.caption)
-                                                .padding(.horizontal, 6)
-                                                .padding(.vertical, 2)
-                                                .background(Color.blue.opacity(0.2))
-                                                .cornerRadius(4)
-                                        }
-                                        
-                                        Spacer()
-                                        
-                                        Button("Clear") {
-                                            markedWords.removeAll()
-                                        }
-                                        
-                                        Button("Regenerate") {
-                                            regenerateDefinition()
-                                        }
-                                    }
-                                    .padding(.vertical)
-                                }
-                                
-                                // Add to vocabulary button
-                                Button("Add to Vocabulary") {
+                            WordDisplayView(
+                                word: word.term,
+                                definition: word.definition,
+                                isLoading: isLoading,
+                                error: errorMessage,
+                                markedWords: $markedWords,
+                                onRegenerate: regenerateDefinition,
+                                onAddToFavorites: {
+                                    wordStore.addToFavorites(word)
+                                },
+                                onAddToVocabulary: {
                                     wordStore.addToVocabulary(word)
-                                }
-                                .padding(.top)
-                            }
+                                },
+                                showFavoritesButton: true
+                            )
                             .padding()
                         } else {
                             VStack {
