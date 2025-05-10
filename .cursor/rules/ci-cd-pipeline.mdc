@@ -1,0 +1,37 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# CI/CD Pipeline
+
+## Jenkins Pipeline
+The project uses Jenkins for continuous integration and deployment. The pipeline is defined in [Jenkinsfile](mdc:Jenkinsfile).
+
+### Pipeline Stages
+1. Build and Test
+   - Builds both macOS app and server
+   - Runs unit tests
+   - Generates test reports
+
+2. Code Quality
+   - Runs linting
+   - Performs code coverage analysis
+   - Generates coverage reports
+
+3. Deployment
+   - Deploys server to staging/production
+   - Builds and signs macOS app
+   - Creates release artifacts
+
+## Fastlane (macOS App)
+The macOS app uses Fastlane for automated deployment:
+- [fastlane/](mdc:ai-dic-mac/fastlane/) contains the configuration
+- Handles app signing and distribution
+- Manages App Store submissions
+
+## Docker (Server)
+The server uses Docker for containerization:
+- [docker-compose.yml](mdc:ai-dic-server/docker-compose.yml) defines the environment
+- Ensures consistent development and production environments
+- Simplifies deployment process

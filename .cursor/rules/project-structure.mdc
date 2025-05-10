@@ -1,0 +1,28 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Project Structure
+
+This project consists of two main components:
+
+## macOS Application (ai-dic-mac)
+The macOS application is built using Swift and Xcode. Key files and directories:
+- [project.yml](mdc:ai-dic-mac/project.yml) - Project configuration
+- [Package.swift](mdc:ai-dic-mac/Package.swift) - Swift package dependencies
+- [AIDictionary/](mdc:ai-dic-mac/AIDictionary/) - Main application source code
+- [AIDictionaryTests/](mdc:ai-dic-mac/AIDictionaryTests/) - Test files
+- [fastlane/](mdc:ai-dic-mac/fastlane/) - CI/CD configuration
+
+## Server Application (ai-dic-server)
+The server is a Node.js application. Key files and directories:
+- [package.json](mdc:ai-dic-server/package.json) - Node.js dependencies and scripts
+- [src/](mdc:ai-dic-server/src/) - Server source code
+- [tests/](mdc:ai-dic-server/tests/) - Test files
+- [docker-compose.yml](mdc:ai-dic-server/docker-compose.yml) - Docker configuration
+
+## Documentation
+- [README.md](mdc:README.md) - Project overview
+- [feature.md](mdc:feature.md) - Feature documentation
+- [docs/](mdc:docs/) - Additional documentation

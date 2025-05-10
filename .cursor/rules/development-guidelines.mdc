@@ -1,0 +1,38 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Development Guidelines
+
+## Code Style and Standards
+
+### Swift (macOS App)
+- Follow Swift style guide and best practices
+- Use SwiftLint for code style enforcement
+- Write unit tests for new features
+- Document public APIs using Swift documentation comments
+
+### JavaScript/Node.js (Server)
+- Follow ESLint configuration
+- Use async/await for asynchronous operations
+- Write unit tests using Jest
+- Document API endpoints using JSDoc
+
+## Git Workflow
+- Use feature branches for new development
+- Follow conventional commit messages
+- Create pull requests for code review
+- Keep commits atomic and focused
+
+## Testing
+- Run tests before submitting PRs
+- Maintain good test coverage
+- Include both unit and integration tests
+- Use CI/CD pipeline for automated testing
+
+## Documentation
+- Keep README files up to date
+- Document new features in [feature.md](mdc:feature.md)
+- Update API documentation when endpoints change
+- Include code comments for complex logic
