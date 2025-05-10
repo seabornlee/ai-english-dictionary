@@ -126,6 +126,11 @@ struct UnknownWordsView: View {
         }
         .navigationTitle("Unknown Words")
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+            Task {
+                await wordStore.loadUnknownWords()
+            }
+        }
     }
 }
 

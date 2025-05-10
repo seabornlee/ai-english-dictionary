@@ -136,7 +136,7 @@ class WordStore: ObservableObject {
         }
     }
     
-    private func loadUnknownWords() async {
+    public func loadUnknownWords() async {
         do {
             let loadedUnknownWords = try await APIService.shared.getUnknownWords()
             
