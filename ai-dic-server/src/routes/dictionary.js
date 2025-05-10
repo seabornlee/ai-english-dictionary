@@ -22,4 +22,7 @@ router.get('/favorites', dictionaryController.getFavorites);
 router.get('/history', dictionaryController.getHistory);
 router.delete('/history', dictionaryController.clearHistory);
 
+// Route to get all unknown words
+router.get('/unknown-words', dictionaryController.getUnknownWords);
+
 module.exports = router; 

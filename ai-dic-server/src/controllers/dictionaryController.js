@@ -213,4 +213,27 @@ exports.clearHistory = async (req, res) => {
       message: error.message
     });
   }
+};
+
+// Get all unknown words
+exports.getUnknownWords = async (req, res) => {
+  try {
+    // Get all unknown words documents from database
+    const allUnknownWords = await UnknownWord.find({});
+    
+    // Flatten and deduplicate the unknown words
+    const uniqueUnknownWords = [...new Set(
+      allUnknownWords.reduce((acc, doc) => {
+        return [...acc, ...doc.unknownWords];
+      }, [])
+    )];
+
+    return res.status(200).json(uniqueUnknownWords);
+  } catch (error) {
+    console.error('Error fetching unknown words:', error);
+    return res.status(500).json({ 
+      error: 'Error fetching unknown words',
+      message: error.message
+    });
+  }
 }; 

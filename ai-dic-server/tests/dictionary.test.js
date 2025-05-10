@@ -394,4 +394,58 @@ describe('Dictionary API Endpoints', async () => {
       expect(response.body.length).to.equal(0);
     });
   });
+
+  describe.only('Unknown Words Endpoints', () => {
+    beforeEach(async () => {
+      // Clear any existing unknown words
+      await UnknownWord.deleteMany({});
+    });
+
+    it('GET /api/dictionary/unknown-words should return all unknown words', async () => {
+      // First create some unknown words
+      await request(app)
+        .post('/api/dictionary/define')
+        .send({
+          word: 'test1',
+          unknownWords: ['unknown1', 'unknown2']
+        });
+
+      await request(app)
+        .post('/api/dictionary/define')
+        .send({
+          word: 'test2',
+          unknownWords: ['unknown3', 'unknown4']
+        });
+
+      const response = await request(app).get('/api/dictionary/unknown-words');
+
+      expect(response.status).to.equal(200);
+      expect(response.body).to.be.an('array');
+      expect(response.body.length).to.equal(4);
+      expect(response.body).to.have.members(['unknown1', 'unknown2', 'unknown3', 'unknown4']);
+    });
+
+    it('GET /api/dictionary/unknown-words should return empty array when no unknown words exist', async () => {
+      const response = await request(app).get('/api/dictionary/unknown-words');
+
+      expect(response.status).to.equal(200);
+      expect(response.body).to.be.an('array');
+      expect(response.body.length).to.equal(0);
+    });
+
+    it('GET /api/dictionary/unknown-words should handle database errors gracefully', async () => {
+      // Simulate database error
+      const dbError = new Error('Database connection error');
+      sinon.stub(UnknownWord, 'find').rejects(dbError);
+
+      const response = await request(app).get('/api/dictionary/unknown-words');
+
+      expect(response.status).to.equal(500);
+      expect(response.body).to.have.property('error', 'Error fetching unknown words');
+      expect(response.body).to.have.property('message', dbError.message);
+
+      // Restore stub
+      UnknownWord.find.restore();
+    });
+  });
 }); 
