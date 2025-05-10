@@ -7,7 +7,7 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "test": "PORT=3001 mocha 'tests/**/*.test.js' --exit",
-    "test:ci": "nyc --reporter=lcov --reporter=text mocha 'tests/**/*.test.js' --reporter mochawesome --reporter-options reportDir=test-reports,reportFilename=test-report,reportTitle=\"Mocha Test Report\",reportPageTitle=\"Mocha Test Report\",charts=true,code=true,overwrite=true,inline=true,inlineAssets=true --exit",
+    "test:ci": "PORT=3001 nyc --reporter=lcov --reporter=text mocha 'tests/**/*.test.js' --reporter mochawesome --reporter-options reportDir=test-reports,reportFilename=test-report,reportTitle=\"Mocha Test Report\",reportPageTitle=\"Mocha Test Report\",charts=true,code=true,overwrite=true,inline=true,inlineAssets=true --exit",
     "test:watch": "mocha 'tests/**/*.test.js' --watch",
     "docker:start": "./scripts/docker-env.sh start",
     "docker:stop": "./scripts/docker-env.sh stop",
