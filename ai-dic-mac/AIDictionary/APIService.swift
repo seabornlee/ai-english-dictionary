@@ -15,10 +15,10 @@ class APIService {
     private init() {}
     
     // Replace with your server URL
-    private let baseURL = "http://localhost:3000"
+    private let baseURL = "http://localhost:3000/api/dictionary"
     
     func lookupWord(_ word: String, unknownWords: [String] = []) async throws -> Word {
-        let url = URL(string: "\(baseURL)/api/dictionary/define")!
+        let url = URL(string: "\(baseURL)/define")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -28,7 +28,6 @@ class APIService {
             "unknownWords": unknownWords
         ]
         
-        print("body: \(body)")
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
         } catch {

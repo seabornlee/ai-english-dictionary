@@ -60,7 +60,9 @@ class SelectionMonitor {
             .filter { !$0.isEmpty }
             .count
         
-        if wordCount <= 3 && text != lastSelectedText {
+        var isValid = TextValidation.isValidEnglishWord(text)
+        print("\(text) isValid: \(isValid)")
+        if wordCount <= 3 && text != lastSelectedText && isValid {
             print("[SelectionMonitor] Selected text: \(text)")
             lastSelectedText = text
             DispatchQueue.main.async {
