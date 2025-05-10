@@ -8,6 +8,9 @@ class SelectionMonitor {
     private var safariPollingTimer: Timer?
     private var lastClipboardContent: String?
     private var clipboardTimer: Timer?
+    private var mouseDownMonitor: Any?
+    private var mouseUpMonitor: Any?
+    private var isMouseDown = false
     
     init() {
         // 监听前台应用切换
@@ -21,7 +24,49 @@ class SelectionMonitor {
         // Start clipboard monitoring
         startClipboardMonitoring()
         
+        // Setup mouse event monitoring
+        setupMouseMonitoring()
+        
         startMonitoring()
+    }
+    
+    private func setupMouseMonitoring() {
+        mouseDownMonitor = NSEvent.addGlobalMonitorForEvents(matching: .leftMouseDown) { [weak self] _ in
+            self?.isMouseDown = true
+        }
+        
+        mouseUpMonitor = NSEvent.addGlobalMonitorForEvents(matching: .leftMouseUp) { [weak self] _ in
+            self?.isMouseDown = false
+            self?.checkCurrentSelection()
+        }
+    }
+    
+    private func checkCurrentSelection() {
+        guard let app = NSWorkspace.shared.frontmostApplication else { return }
+        let pid = app.processIdentifier
+        let appElement = AXUIElementCreateApplication(pid)
+        
+        if let webArea = findWebArea(element: appElement) {
+            var selectedText: AnyObject?
+            if AXUIElementCopyAttributeValue(webArea, kAXSelectedTextAttribute as CFString, &selectedText) == .success,
+               let text = selectedText as? String, !text.isEmpty {
+                processSelectedText(text)
+            }
+        }
+    }
+    
+    private func processSelectedText(_ text: String) {
+        let wordCount = text.components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+            .count
+        
+        if wordCount <= 3 && text != lastSelectedText {
+            print("[SelectionMonitor] Selected text: \(text)")
+            lastSelectedText = text
+            DispatchQueue.main.async {
+                FloatingWindowService.shared.showFloatingWindow(with: text)
+            }
+        }
     }
     
     private func startClipboardMonitoring() {
@@ -52,6 +97,12 @@ class SelectionMonitor {
         safariPollingTimer?.invalidate()
         if let eventMonitor = observer {
             NSEvent.removeMonitor(eventMonitor)
+        }
+        if let mouseDownMonitor = mouseDownMonitor {
+            NSEvent.removeMonitor(mouseDownMonitor)
+        }
+        if let mouseUpMonitor = mouseUpMonitor {
+            NSEvent.removeMonitor(mouseUpMonitor)
         }
     }
     
@@ -166,15 +217,12 @@ class SelectionMonitor {
             }
         }
         
-        var selectedText: AnyObject?
-        if AXUIElementCopyAttributeValue(element, kAXSelectedTextAttribute as CFString, &selectedText) == .success,
-           let text = selectedText as? String, !text.isEmpty {
-            print("[SelectionMonitor] Selected text: \(text)") // 调试日志
-            if text != lastSelectedText {
-                lastSelectedText = text
-                DispatchQueue.main.async {
-                    FloatingWindowService.shared.showFloatingWindow(with: text)
-                }
+        // Only process selection if mouse is not down
+        if !isMouseDown {
+            var selectedText: AnyObject?
+            if AXUIElementCopyAttributeValue(element, kAXSelectedTextAttribute as CFString, &selectedText) == .success,
+               let text = selectedText as? String, !text.isEmpty {
+                processSelectedText(text)
             }
         }
     }
