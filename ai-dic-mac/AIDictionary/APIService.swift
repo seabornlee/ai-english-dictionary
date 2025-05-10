@@ -254,4 +254,28 @@ class APIService {
             throw APIError.serverError(httpResponse.statusCode)
         }
     }
+    
+    func getUnknownWords() async throws -> [String] {
+        guard let url = URL(string: "\(baseURL)/unknown-words") else {
+            throw APIError.invalidURL
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: URLRequest(url: url))
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw APIError.serverError(httpResponse.statusCode)
+        }
+        
+        do {
+            let unknownWords = try JSONDecoder().decode([String].self, from: data)
+            print("unknownWords: \(unknownWords)")
+            return unknownWords
+        } catch {
+            throw APIError.decodingError(error)
+        }
+    }
 } 

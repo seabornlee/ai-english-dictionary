@@ -251,6 +251,10 @@ struct SidebarView: View {
             NavigationLink(destination: HistoryView()) {
                 Label("History", systemImage: "clock")
             }
+            
+            NavigationLink(destination: UnknownWordsView()) {
+                Label("Unknown Words", systemImage: "questionmark.circle")
+            }
         }
         .listStyle(SidebarListStyle())
         .frame(minWidth: 200)

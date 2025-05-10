@@ -90,6 +90,45 @@ struct HistoryView: View {
     }
 }
 
+struct UnknownWordsView: View {
+    @EnvironmentObject private var wordStore: WordStore
+    
+    var body: some View {
+        VStack {
+            if wordStore.unknownWords.isEmpty {
+                EmptyStateView(
+                    title: "No Unknown Words",
+                    systemImage: "questionmark.circle",
+                    description: "Words you mark as unknown will appear here."
+                )
+            } else {
+                List {
+                    ForEach(wordStore.unknownWords, id: \.self) { word in
+                        Button(action: {
+                            // Open the word in the main dictionary view
+                            NotificationCenter.default.post(
+                                name: NSNotification.Name("OpenWordInDictionary"),
+                                object: nil,
+                                userInfo: ["word": Word(
+                                    term: word,
+                                    definition: "",
+                                    timestamp: Date()
+                                )]
+                            )
+                        }) {
+                            Text(word)
+                                .font(.headline)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
+        .navigationTitle("Unknown Words")
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
 struct EmptyStateView: View {
     let title: String
     let systemImage: String

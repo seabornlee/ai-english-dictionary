@@ -5,6 +5,7 @@ class WordStore: ObservableObject {
     @Published var favorites: [Word] = []
     @Published var vocabularyList: [Word] = []
     @Published var searchHistory: [Word] = []
+    @Published var unknownWords: [String] = []
     
     init() {
         loadData()
@@ -15,6 +16,7 @@ class WordStore: ObservableObject {
             await loadFavorites()
             await loadVocabulary()
             await loadHistory()
+            await loadUnknownWords()
         }
     }
     
@@ -131,6 +133,18 @@ class WordStore: ObservableObject {
             }
         } catch {
             print("Error loading history: \(error)")
+        }
+    }
+    
+    private func loadUnknownWords() async {
+        do {
+            let loadedUnknownWords = try await APIService.shared.getUnknownWords()
+            
+            DispatchQueue.main.async {
+                self.unknownWords = loadedUnknownWords
+            }
+        } catch {
+            print("Error loading unknown words: \(error)")
         }
     }
 } 
