@@ -6,6 +6,7 @@ pipeline {
         SERVER_DIR = 'ai-dic-server'
         NODE_VERSION_20 = '20.5.0'
         NVM_DIR = "$HOME/.nvm"
+        SILICONFLOW_API_KEY = credentials('siliconflow-api-key')
     }
 
     stages {

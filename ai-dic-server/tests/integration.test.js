@@ -33,7 +33,7 @@ describe('Dictionary API Integration Tests', () => {
 
   it('Complete user workflow - define, add to favorites, add to vocabulary', async function() {
     // Increase timeout for this test
-    this.timeout(10000);
+    this.timeout(30000);
 
     // 1. Define a word
     let defineResponse = await request(app)
