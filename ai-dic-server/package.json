@@ -15,7 +15,9 @@
     "docker:status": "./scripts/docker-env.sh status",
     "docker:logs": "./scripts/docker-env.sh logs",
     "docker:cleanup": "./scripts/docker-env.sh cleanup",
-    "test:docker": "npm run docker:start && npm test && npm run docker:stop"
+    "test:docker": "npm run docker:start && npm test && npm run docker:stop",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\""
   },
   "dependencies": {
     "axios": "^1.6.2",
@@ -33,6 +35,7 @@
     "mochawesome": "^7.1.3",
     "nodemon": "^3.0.1",
     "nyc": "^15.1.0",
+    "prettier": "^3.2.5",
     "sinon": "^18.0.1",
     "supertest": "^6.3.3"
   }

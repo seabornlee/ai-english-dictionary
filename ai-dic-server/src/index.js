@@ -12,9 +12,8 @@ process.env.MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/
 // Initialize database connection
 const initializeDatabase = async () => {
   try {
-    const uri = process.env.NODE_ENV === 'test' 
-      ? process.env.MONGODB_URI + '_test'
-      : process.env.MONGODB_URI;
+    const uri =
+      process.env.NODE_ENV === 'test' ? process.env.MONGODB_URI + '_test' : process.env.MONGODB_URI;
 
     await mongoose.connect(uri, {
       useNewUrlParser: true,
@@ -63,7 +62,7 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
     error: 'Internal Server Error',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
   });
 });
 
@@ -75,4 +74,4 @@ const server = app.listen(PORT, () => {
 module.exports = {
   app,
   server,
-}; 
+};

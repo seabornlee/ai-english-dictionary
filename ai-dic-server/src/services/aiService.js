@@ -12,43 +12,41 @@ const SILICONFLOW_API_KEY = process.env.SILICONFLOW_API_KEY;
  */
 async function getWordDefinition(word, unknownWords = []) {
   let prompt = `Define the word "${word}" in a simple way. `;
-  
+
   if (unknownWords.length > 0) {
     prompt += `The student do NOT know these words: ${unknownWords.join(', ')}. `;
   }
-  
+
   prompt += 'Do not use any markdown formatting or quotes in your response.';
 
   console.log('Prompt:', prompt);
-  
+
   const response = await axios.post(
     SILICONFLOW_API_URL,
     {
-      model: "deepseek-ai/DeepSeek-V3",
-      messages: [
-        { role: "user", content: prompt }
-      ],
+      model: 'deepseek-ai/DeepSeek-V3',
+      messages: [{ role: 'user', content: prompt }],
       temperature: 0.3,
-      max_tokens: 100
+      max_tokens: 100,
     },
     {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SILICONFLOW_API_KEY}`
-      }
+        Authorization: `Bearer ${SILICONFLOW_API_KEY}`,
+      },
     }
   );
-  
+
   const definition = response.data.choices[0].message.content.trim();
-  
+
   console.log('Definition:', definition);
   return {
     term: word,
     definition: definition,
-    timestamp: new Date()
+    timestamp: new Date(),
   };
 }
 
 module.exports = {
-  getWordDefinition
+  getWordDefinition,
 };

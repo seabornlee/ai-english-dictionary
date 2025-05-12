@@ -1,7 +1,7 @@
 require('dotenv').config(); // Load .env file at the very top
 
 const request = require('supertest');
-const {app} = require('../src/index'); // Assuming index exports the app or starts the server
+const { app } = require('../src/index'); // Assuming index exports the app or starts the server
 
 describe('Dictionary API Integration Tests', () => {
   let expect;
@@ -16,22 +16,22 @@ describe('Dictionary API Integration Tests', () => {
     // Clear vocabulary, favorites, history before each test
     // Note: This assumes DELETE endpoints work correctly, which should be covered by unit tests.
     try {
-        await request(app).delete('/api/dictionary/history');
-        const vocab = await request(app).get('/api/dictionary/vocabulary');
-        for (const word of vocab.body) {
-            await request(app).delete(`/api/dictionary/vocabulary/${word.term}`);
-        }
-        const favs = await request(app).get('/api/dictionary/favorites');
-        for (const word of favs.body) {
-            // Favorites are toggled via POST
-            await request(app).post('/api/dictionary/favorites').send(word);
-        }
+      await request(app).delete('/api/dictionary/history');
+      const vocab = await request(app).get('/api/dictionary/vocabulary');
+      for (const word of vocab.body) {
+        await request(app).delete(`/api/dictionary/vocabulary/${word.term}`);
+      }
+      const favs = await request(app).get('/api/dictionary/favorites');
+      for (const word of favs.body) {
+        // Favorites are toggled via POST
+        await request(app).post('/api/dictionary/favorites').send(word);
+      }
     } catch (error) {
-        console.error("Error during test setup cleanup:", error);
+      console.error('Error during test setup cleanup:', error);
     }
   });
 
-  it('Complete user workflow - define, add to favorites, add to vocabulary', async function() {
+  it('Complete user workflow - define, add to favorites, add to vocabulary', async function () {
     // Increase timeout for this test
     this.timeout(30000);
 
@@ -51,9 +51,7 @@ describe('Dictionary API Integration Tests', () => {
     expect(historyResponse.body.some(h => h.term === 'integrate')).to.be.true;
 
     // 3. Add to favorites
-    let favResponse = await request(app)
-      .post('/api/dictionary/favorites')
-      .send(word);
+    let favResponse = await request(app).post('/api/dictionary/favorites').send(word);
 
     expect(favResponse.status).to.equal(200);
     expect(favResponse.body).to.have.property('isFavorite', true);
@@ -65,9 +63,7 @@ describe('Dictionary API Integration Tests', () => {
     expect(favoriteExists).to.be.true;
 
     // 5. Add to vocabulary
-    let vocabResponse = await request(app)
-      .post('/api/dictionary/vocabulary')
-      .send(word);
+    let vocabResponse = await request(app).post('/api/dictionary/vocabulary').send(word);
 
     expect(vocabResponse.status).to.equal(201);
 
@@ -82,7 +78,7 @@ describe('Dictionary API Integration Tests', () => {
       .post('/api/dictionary/define')
       .send({
         word: 'test',
-        unknownWords: ['combine', 'incorporate']
+        unknownWords: ['combine', 'incorporate'],
       });
 
     expect(response7.status).to.equal(200);
@@ -98,9 +94,7 @@ describe('Dictionary API Integration Tests', () => {
     expect(vocabRemoved).to.be.true;
 
     // 10. Remove from favorites (toggle off)
-    favResponse = await request(app)
-      .post('/api/dictionary/favorites')
-      .send(word);
+    favResponse = await request(app).post('/api/dictionary/favorites').send(word);
 
     expect(favResponse.status).to.equal(200);
     expect(favResponse.body).to.have.property('isFavorite', false);

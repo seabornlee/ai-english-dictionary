@@ -5,26 +5,28 @@ const unknownWordSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    index: true
+    index: true,
   },
-  unknownWords: [{
-    type: String,
-    required: true
-  }],
+  unknownWords: [
+    {
+      type: String,
+      required: true,
+    },
+  ],
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   updatedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 // Update the updatedAt timestamp before saving
-unknownWordSchema.pre('save', function(next) {
+unknownWordSchema.pre('save', function (next) {
   this.updatedAt = new Date();
   next();
 });
 
-module.exports = mongoose.model('UnknownWord', unknownWordSchema); 
+module.exports = mongoose.model('UnknownWord', unknownWordSchema);

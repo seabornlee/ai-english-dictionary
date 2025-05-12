@@ -12,11 +12,13 @@ Backend server for the AI Dictionary Mac application.
 ## Setup
 
 1. Install dependencies:
+
    ```
    npm install
    ```
 
 2. Create a `.env` file in the root directory:
+
    ```
    cp src/config/example.env .env
    ```
@@ -24,6 +26,7 @@ Backend server for the AI Dictionary Mac application.
 3. Update the `.env` file with your DeepSeek API key
 
 4. Start the development server:
+
    ```
    npm run dev
    ```
@@ -48,4 +51,4 @@ Backend server for the AI Dictionary Mac application.
 
 ## Development
 
-The server uses in-memory storage by default. For production, you should implement a proper database solution. 
+The server uses in-memory storage by default. For production, you should implement a proper database solution.

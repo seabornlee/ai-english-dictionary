@@ -34,18 +34,18 @@ describe('Dictionary API Endpoints', async () => {
     try {
       // Clear in-memory data
       searchHistory = [];
-      
+
       // Clear database if connected
       if (mongoose.connection.readyState === 1) {
         await UnknownWord.deleteMany({});
       } else {
         console.warn('MongoDB not connected during test setup, skipping database operations');
       }
-      
+
       axiosPostStub = sinon.stub(axios, 'post').resolves({
         data: {
-          choices: [{ message: { content: 'A simulated definition.' } }]
-        }
+          choices: [{ message: { content: 'A simulated definition.' } }],
+        },
       });
     } catch (error) {
       console.error('Error in beforeEach hook:', error);
@@ -59,8 +59,9 @@ describe('Dictionary API Endpoints', async () => {
 
   const testWord = {
     term: 'test',
-    definition: 'A procedure intended to establish the quality, performance, or reliability of something.',
-    timestamp: new Date().toISOString()
+    definition:
+      'A procedure intended to establish the quality, performance, or reliability of something.',
+    timestamp: new Date().toISOString(),
   };
 
   describe('Health Check', () => {
@@ -76,13 +77,13 @@ describe('Dictionary API Endpoints', async () => {
       // Mock response with markdown and quotes
       axiosPostStub.resolves({
         data: {
-          choices: [{ message: { content: '**"A simulated definition with markdown and quotes."**' } }]
-        }
+          choices: [
+            { message: { content: '**"A simulated definition with markdown and quotes."**' } },
+          ],
+        },
       });
 
-      const response = await request(app)
-        .post('/api/dictionary/define')
-        .send({ word: 'test' });
+      const response = await request(app).post('/api/dictionary/define').send({ word: 'test' });
 
       expect(response.status).to.equal(200);
       expect(response.body).to.have.property('term', 'test');
@@ -96,7 +97,7 @@ describe('Dictionary API Endpoints', async () => {
         .post('/api/dictionary/define')
         .send({
           word: 'test',
-          unknownWords: ['procedure', 'quality']
+          unknownWords: ['procedure', 'quality'],
         });
 
       expect(response.status).to.equal(200);
@@ -113,9 +114,7 @@ describe('Dictionary API Endpoints', async () => {
     });
 
     it('POST /api/dictionary/define should return 400 when no word is provided', async () => {
-      const response = await request(app)
-        .post('/api/dictionary/define')
-        .send({ });
+      const response = await request(app).post('/api/dictionary/define').send({});
 
       expect(response.status).to.equal(400);
       expect(response.body).to.have.property('error', 'Word is required');
@@ -127,7 +126,7 @@ describe('Dictionary API Endpoints', async () => {
         .post('/api/dictionary/define')
         .send({
           word: 'test',
-          unknownWords: ['first', 'second']
+          unknownWords: ['first', 'second'],
         });
 
       expect(firstResponse.status).to.equal(200);
@@ -145,7 +144,7 @@ describe('Dictionary API Endpoints', async () => {
         .post('/api/dictionary/define')
         .send({
           word: 'test',
-          unknownWords: ['third', 'fourth']
+          unknownWords: ['third', 'fourth'],
         });
 
       expect(secondResponse.status).to.equal(200);
@@ -156,7 +155,12 @@ describe('Dictionary API Endpoints', async () => {
       // Verify second request updated database
       const secondUnknownWord = await UnknownWord.findOne({ word: 'test' });
       expect(secondUnknownWord).to.exist;
-      expect(secondUnknownWord.unknownWords).to.have.members(['first', 'second', 'third', 'fourth']);
+      expect(secondUnknownWord.unknownWords).to.have.members([
+        'first',
+        'second',
+        'third',
+        'fourth',
+      ]);
 
       // Verify that all unknown words were used in the prompt
       expect(axiosPostStub.called).to.be.true;
@@ -174,7 +178,7 @@ describe('Dictionary API Endpoints', async () => {
         .post('/api/dictionary/define')
         .send({
           word: 'test',
-          unknownWords: ['previous1', 'previous2']
+          unknownWords: ['previous1', 'previous2'],
         });
 
       // Second request with new unknown words
@@ -182,15 +186,13 @@ describe('Dictionary API Endpoints', async () => {
         .post('/api/dictionary/define')
         .send({
           word: 'test',
-          unknownWords: ['previous3', 'previous4']
+          unknownWords: ['previous3', 'previous4'],
         });
 
       // Third request without any new unknown words
-      const thirdResponse = await request(app)
-        .post('/api/dictionary/define')
-        .send({
-          word: 'test'
-        });
+      const thirdResponse = await request(app).post('/api/dictionary/define').send({
+        word: 'test',
+      });
 
       expect(thirdResponse.status).to.equal(200);
       expect(thirdResponse.body).to.have.property('term', 'test');
@@ -204,11 +206,9 @@ describe('Dictionary API Endpoints', async () => {
       expect(prompt).to.include('previous1, previous2, previous3, previous4');
 
       // Fourth request with new unknown words
-      const fourthResponse = await request(app)
-        .post('/api/dictionary/define')
-        .send({
-          word: 'anotherword'
-        });
+      const fourthResponse = await request(app).post('/api/dictionary/define').send({
+        word: 'anotherword',
+      });
 
       expect(fourthResponse.status).to.equal(200);
       expect(fourthResponse.body).to.have.property('term', 'anotherword');
@@ -231,7 +231,7 @@ describe('Dictionary API Endpoints', async () => {
         .post('/api/dictionary/define')
         .send({
           word: 'test',
-          unknownWords: ['error']
+          unknownWords: ['error'],
         });
 
       expect(response.status).to.equal(500);
@@ -249,18 +249,14 @@ describe('Dictionary API Endpoints', async () => {
     it('POST /api/dictionary/vocabulary should add a word to vocabulary', async () => {
       await request(app).delete(`/api/dictionary/vocabulary/${testWord.term}`);
 
-      const response = await request(app)
-        .post('/api/dictionary/vocabulary')
-        .send(testWord);
+      const response = await request(app).post('/api/dictionary/vocabulary').send(testWord);
 
       expect(response.status).to.equal(201);
       expect(response.body).to.have.property('term', testWord.term);
     });
 
     it('POST /api/dictionary/vocabulary should return 400 when term or definition is missing', async () => {
-      const response = await request(app)
-        .post('/api/dictionary/vocabulary')
-        .send({ term: 'test' });
+      const response = await request(app).post('/api/dictionary/vocabulary').send({ term: 'test' });
 
       expect(response.status).to.equal(400);
       expect(response.body).to.have.property('error', 'Term and definition are required');
@@ -284,7 +280,9 @@ describe('Dictionary API Endpoints', async () => {
       const initialLength = getResponse.body.length;
       expect(getResponse.body.some(word => word.term === testWord.term)).to.be.true;
 
-      const deleteResponse = await request(app).delete(`/api/dictionary/vocabulary/${testWord.term}`);
+      const deleteResponse = await request(app).delete(
+        `/api/dictionary/vocabulary/${testWord.term}`
+      );
       expect(deleteResponse.status).to.equal(200);
       expect(deleteResponse.body).to.have.property('message', 'Word removed from vocabulary');
 
@@ -296,8 +294,7 @@ describe('Dictionary API Endpoints', async () => {
     it('DELETE /api/dictionary/vocabulary/:term should return 404 for non-existent word', async () => {
       await request(app).delete(`/api/dictionary/vocabulary/nonexistentword`);
 
-      const response = await request(app)
-        .delete('/api/dictionary/vocabulary/nonexistentword');
+      const response = await request(app).delete('/api/dictionary/vocabulary/nonexistentword');
 
       expect(response.status).to.equal(404);
       expect(response.body).to.have.property('error', 'Word not found in vocabulary');
@@ -313,9 +310,7 @@ describe('Dictionary API Endpoints', async () => {
     });
 
     it('POST /api/dictionary/favorites should add a word to favorites', async () => {
-      const response = await request(app)
-        .post('/api/dictionary/favorites')
-        .send(testWord);
+      const response = await request(app).post('/api/dictionary/favorites').send(testWord);
 
       expect(response.status).to.equal(200);
       expect(response.body).to.have.property('message', 'Word added to favorites');
@@ -326,9 +321,7 @@ describe('Dictionary API Endpoints', async () => {
     });
 
     it('POST /api/dictionary/favorites should return 400 when term or definition is missing', async () => {
-      const response = await request(app)
-        .post('/api/dictionary/favorites')
-        .send({ term: 'test' });
+      const response = await request(app).post('/api/dictionary/favorites').send({ term: 'test' });
 
       expect(response.status).to.equal(400);
       expect(response.body).to.have.property('error', 'Term and definition are required');
@@ -349,9 +342,7 @@ describe('Dictionary API Endpoints', async () => {
       let getResponse = await request(app).get('/api/dictionary/favorites');
       expect(getResponse.body.some(fav => fav.term === testWord.term)).to.be.true;
 
-      const toggleResponse = await request(app)
-        .post('/api/dictionary/favorites')
-        .send(testWord);
+      const toggleResponse = await request(app).post('/api/dictionary/favorites').send(testWord);
 
       expect(toggleResponse.status).to.equal(200);
       expect(toggleResponse.body).to.have.property('message', 'Word removed from favorites');
@@ -368,9 +359,7 @@ describe('Dictionary API Endpoints', async () => {
     });
 
     it('GET /api/dictionary/history should return search history', async () => {
-      await request(app)
-        .post('/api/dictionary/define')
-        .send({ word: 'history' });
+      await request(app).post('/api/dictionary/define').send({ word: 'history' });
 
       const response = await request(app).get('/api/dictionary/history');
 
@@ -407,14 +396,14 @@ describe('Dictionary API Endpoints', async () => {
         .post('/api/dictionary/define')
         .send({
           word: 'test1',
-          unknownWords: ['unknown1', 'unknown2']
+          unknownWords: ['unknown1', 'unknown2'],
         });
 
       await request(app)
         .post('/api/dictionary/define')
         .send({
           word: 'test2',
-          unknownWords: ['unknown3', 'unknown4']
+          unknownWords: ['unknown3', 'unknown4'],
         });
 
       const response = await request(app).get('/api/dictionary/unknown-words');
@@ -448,4 +437,4 @@ describe('Dictionary API Endpoints', async () => {
       UnknownWord.find.restore();
     });
   });
-}); 
+});

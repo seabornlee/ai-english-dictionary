@@ -4,9 +4,10 @@ const connectDB = async () => {
   try {
     // Use test database for tests
     const defaultURI = 'mongodb://localhost:27017/ai-dictionary';
-    const mongoURI = process.env.NODE_ENV === 'test' 
-      ? (process.env.MONGODB_URI || defaultURI) + '_test'
-      : process.env.MONGODB_URI || defaultURI;
+    const mongoURI =
+      process.env.NODE_ENV === 'test'
+        ? (process.env.MONGODB_URI || defaultURI) + '_test'
+        : process.env.MONGODB_URI || defaultURI;
 
     if (!mongoURI) {
       throw new Error('MongoDB URI is not defined in environment variables');
@@ -23,4 +24,4 @@ const connectDB = async () => {
   }
 };
 
-module.exports = connectDB; 
+module.exports = connectDB;

@@ -25,4 +25,4 @@ router.delete('/history', dictionaryController.clearHistory);
 // Route to get all unknown words
 router.get('/unknown-words', dictionaryController.getUnknownWords);
 
-module.exports = router; 
+module.exports = router;

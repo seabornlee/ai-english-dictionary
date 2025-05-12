@@ -2,7 +2,7 @@ require('dotenv').config();
 const { getWordDefinition } = require('../../src/services/aiService.js');
 
 // Make the outer describe async to allow top-level await for import()
-describe('AI Service', async function() {
+describe('AI Service', async function () {
   let expect; // Declare expect here
 
   // Import chai dynamically before tests run
@@ -33,7 +33,7 @@ describe('AI Service', async function() {
       expect(result).to.have.property('term', 'cat');
       expect(result).to.have.property('definition');
       expect(result.definition).to.be.a('string');
-      
+
       // Check that unknown words are not in the definition
       unknownWords.forEach(word => {
         expect(result.definition.toLowerCase()).to.not.include(word.toLowerCase());
@@ -43,7 +43,7 @@ describe('AI Service', async function() {
     it('should handle API errors gracefully', async () => {
       // Test with an invalid API key to trigger an error
       process.env.DEEPSEEK_API_KEY = 'invalid_key';
-      
+
       try {
         await getWordDefinition('cat');
         expect.fail('Should have thrown an error');
@@ -55,7 +55,7 @@ describe('AI Service', async function() {
 
     it('should strip markdown formatting from the definition', async () => {
       const result = await getWordDefinition('cat');
-    
+
       expect(result.definition).to.not.include('**');
       expect(result.definition).to.not.include('*');
       expect(result.definition).to.not.include('_');
