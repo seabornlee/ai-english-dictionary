@@ -5,10 +5,10 @@ struct Word: Identifiable, Codable, Equatable {
     let term: String
     let definition: String
     let timestamp: Date
-    
+
     static func == (lhs: Word, rhs: Word) -> Bool {
         return lhs.term == rhs.term &&
-               lhs.definition == rhs.definition &&
-               lhs.timestamp == rhs.timestamp
+            lhs.definition == rhs.definition &&
+            lhs.timestamp == rhs.timestamp
     }
-} 
+}

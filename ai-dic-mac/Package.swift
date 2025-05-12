@@ -4,13 +4,13 @@ import PackageDescription
 let package = Package(
     name: "AIDictionary",
     platforms: [
-        .macOS(.v13)
+        .macOS(.v13),
     ],
     products: [
         .executable(
             name: "AIDictionary",
             targets: ["AIDictionary"]
-        )
+        ),
     ],
     targets: [
         .executableTarget(
@@ -18,19 +18,19 @@ let package = Package(
             path: "AIDictionary",
             resources: [
                 .process("Assets.xcassets"),
-                .process("AIDictionary.entitlements")
+                .process("AIDictionary.entitlements"),
             ],
             swiftSettings: [
-                .enableUpcomingFeature("BareSlashRegexLiterals")
+                .enableUpcomingFeature("BareSlashRegexLiterals"),
             ],
             linkerSettings: [
-                .linkedFramework("SwiftUI")
+                .linkedFramework("SwiftUI"),
             ]
         ),
         .testTarget(
             name: "AIDictionaryTests",
             dependencies: ["AIDictionary"],
             path: "AIDictionaryTests"
-        )
+        ),
     ]
 )

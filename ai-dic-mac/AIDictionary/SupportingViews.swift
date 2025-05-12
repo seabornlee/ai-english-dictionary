@@ -3,7 +3,7 @@ import UniformTypeIdentifiers
 
 struct FavoritesView: View {
     @EnvironmentObject private var wordStore: WordStore
-    
+
     var body: some View {
         VStack {
             if wordStore.favorites.isEmpty {
@@ -27,7 +27,7 @@ struct FavoritesView: View {
 
 struct VocabularyView: View {
     @EnvironmentObject private var wordStore: WordStore
-    
+
     var body: some View {
         VStack {
             if wordStore.vocabularyList.isEmpty {
@@ -58,7 +58,7 @@ struct VocabularyView: View {
 
 struct HistoryView: View {
     @EnvironmentObject private var wordStore: WordStore
-    
+
     var body: some View {
         VStack {
             if wordStore.searchHistory.isEmpty {
@@ -76,7 +76,7 @@ struct HistoryView: View {
                         }
                         .padding()
                     }
-                    
+
                     List {
                         ForEach(wordStore.searchHistory) { word in
                             WordRow(word: word)
@@ -92,7 +92,7 @@ struct HistoryView: View {
 
 struct UnknownWordsView: View {
     @EnvironmentObject private var wordStore: WordStore
-    
+
     var body: some View {
         VStack {
             if wordStore.unknownWords.isEmpty {
@@ -138,7 +138,7 @@ struct EmptyStateView: View {
     let title: String
     let systemImage: String
     let description: String
-    
+
     var body: some View {
         VStack(spacing: 12) {
             Image(systemName: systemImage)
@@ -157,24 +157,24 @@ struct EmptyStateView: View {
 
 struct WordRow: View {
     let word: Word
-    
+
     var body: some View {
         VStack(alignment: .leading) {
             Text(word.term)
                 .font(.headline)
-            
+
             Text(word.definition)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .lineLimit(2)
-            
+
             Text(formattedDate(word.timestamp))
                 .font(.caption)
                 .foregroundColor(.secondary.opacity(0.7))
         }
         .padding(.vertical, 4)
     }
-    
+
     private func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
@@ -185,18 +185,18 @@ struct WordRow: View {
 
 struct VocabularyDocument: FileDocument {
     static var readableContentTypes: [UTType] { [.plainText] }
-    
+
     var words: [Word]
-    
+
     init(words: [Word]) {
         self.words = words
     }
-    
-    init(configuration: ReadConfiguration) throws {
+
+    init(configuration _: ReadConfiguration) throws {
         words = []
     }
-    
-    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+
+    func fileWrapper(configuration _: WriteConfiguration) throws -> FileWrapper {
         let text = words.map { "\($0.term): \($0.definition)" }.joined(separator: "\n")
         return FileWrapper(regularFileWithContents: Data(text.utf8))
     }
@@ -212,15 +212,15 @@ struct WordDisplayView: View {
     let onAddToFavorites: (() -> Void)?
     let onAddToVocabulary: (() -> Void)?
     let showFavoritesButton: Bool
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text(word)
                     .font(.title)
-                
+
                 Spacer()
-                
+
                 if !markedWords.isEmpty {
                     Button {
                         onRegenerate()
@@ -232,7 +232,7 @@ struct WordDisplayView: View {
                     .buttonStyle(.plain)
                     .help("Regenerate definition")
                 }
-                
+
                 if showFavoritesButton, let onAddToFavorites = onAddToFavorites {
                     Button(action: onAddToFavorites) {
                         Image(systemName: "star")
@@ -241,9 +241,9 @@ struct WordDisplayView: View {
                     .buttonStyle(.plain)
                 }
             }
-            
+
             Divider()
-            
+
             if isLoading {
                 HStack {
                     Spacer()
@@ -260,12 +260,12 @@ struct WordDisplayView: View {
                     text: definition,
                     markedWords: $markedWords
                 )
-                
+
                 if !markedWords.isEmpty {
                     HStack {
                         Text("Unknown words: ")
                             .font(.title3)
-                        
+
                         ForEach(Array(markedWords), id: \.self) { word in
                             Text(word)
                                 .font(.title3)
@@ -277,7 +277,7 @@ struct WordDisplayView: View {
                     }
                     .padding(.vertical)
                 }
-                
+
                 if let onAddToVocabulary = onAddToVocabulary {
                     Button("Add to Vocabulary") {
                         onAddToVocabulary()
@@ -285,12 +285,12 @@ struct WordDisplayView: View {
                     .padding(.top)
                 }
             }
-            
+
             Spacer(minLength: 0)
-            
+
             HStack {
                 Spacer()
-                
+
                 if let onAddToVocabulary = onAddToVocabulary {
                     Button {
                         onAddToVocabulary()
@@ -305,4 +305,4 @@ struct WordDisplayView: View {
             }
         }
     }
-} 
+}

@@ -1,11 +1,11 @@
-import SwiftUI
 import ApplicationServices
+import SwiftUI
 
 @main
 struct AIDictionaryApp: App {
     @StateObject private var wordStore = WordStore()
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-    
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -24,7 +24,7 @@ struct AIDictionaryApp: App {
                 .keyboardShortcut(",", modifiers: .command)
             }
         }
-        
+
         // Menu bar extra
         MenuBarExtra("Dictionary", systemImage: "character.book.closed") {
             MenuBarView()
@@ -37,16 +37,16 @@ struct AIDictionaryApp: App {
 class AppDelegate: NSObject, NSApplicationDelegate {
     var preferencesWindow: NSWindow?
     var selectionMonitor: SelectionMonitor?
-    
-    func applicationDidFinishLaunching(_ notification: Notification) {
+
+    func applicationDidFinishLaunching(_: Notification) {
         // Initialize accessibility if needed
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]
         AXIsProcessTrustedWithOptions(options as CFDictionary)
-        
+
         // 初始化SelectionMonitor
         selectionMonitor = SelectionMonitor()
     }
-    
+
     @objc func openPreferences() {
         if preferencesWindow == nil {
             let preferencesView = PreferencesView()
@@ -61,8 +61,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             preferencesWindow?.contentView = NSHostingView(rootView: preferencesView)
             preferencesWindow?.title = "Preferences"
         }
-        
+
         preferencesWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
-} 
+}
