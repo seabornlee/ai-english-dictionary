@@ -158,13 +158,12 @@ class SelectionMonitor {
     }
     // 获取子元素
     var children: AnyObject?
-    if AXUIElementCopyAttributeValue(element, kAXChildrenAttribute as CFString, &children)
-      == .success,
-      let childrenArray = children as? [AXUIElement]
-    {
-      for child in childrenArray {
-        addNotificationRecursively(element: child, observer: observer, selfPtr: selfPtr)
-      }
+    if AXUIElementCopyAttributeValue(element, kAXChildrenAttribute as CFString, &children) == .success {
+        if let childrenArray = children as? [AXUIElement] {
+            for child in childrenArray {
+                addNotificationRecursively(element: child, observer: observer, selfPtr: selfPtr)
+            }
+        }
     }
     // 兼容某些控件（如WebView）用AXFocusedUIElement
     var focused: AnyObject?
