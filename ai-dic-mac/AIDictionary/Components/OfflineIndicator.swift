@@ -4,6 +4,10 @@ struct OfflineIndicator: View {
     @EnvironmentObject private var networkMonitor: NetworkMonitor
     @EnvironmentObject private var wordStore: WordStore
     
+    private let surfaceHigh = Color(hex: "#28283d")
+    private let cyanAccent = Color(hex: "#00d4ff")
+    private let onSurfaceVariant = Color(hex: "#bbc9cf")
+    
     var body: some View {
         if !networkMonitor.isOnline {
             HStack(spacing: 6) {
@@ -11,24 +15,24 @@ struct OfflineIndicator: View {
                     .font(.system(size: 12, weight: .medium))
                 
                 Text("Offline")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.system(size: 11, weight: .bold))
                 
                 if wordStore.offlineCacheCount > 0 {
                     Text("(\(wordStore.offlineCacheCount) cached)")
-                        .font(.system(size: 11))
-                        .foregroundColor(.secondary)
+                        .font(.system(size: 10))
+                        .foregroundColor(onSurfaceVariant)
                 }
             }
-            .foregroundColor(.orange)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
+            .foregroundColor(cyanAccent)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
             .background(
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(Color.orange.opacity(0.1))
+                    .fill(surfaceHigh.opacity(0.8))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 6)
-                    .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                    .stroke(cyanAccent.opacity(0.3), lineWidth: 1)
             )
         }
     }
@@ -37,6 +41,8 @@ struct OfflineIndicator: View {
 struct MenuBarClipboardBadge: View {
     @EnvironmentObject private var clipboardManager: ClipboardManager
     @State private var isPulsing = false
+    
+    private let cyanAccent = Color(hex: "#00d4ff")
     
     var body: some View {
         if clipboardManager.hasNewContent {
@@ -47,12 +53,12 @@ struct MenuBarClipboardBadge: View {
                 Text("New word")
                     .font(.system(size: 10, weight: .medium))
             }
-            .foregroundColor(.white)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 3)
+            .foregroundColor(Color(hex: "#003642"))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
             .background(
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color(NSColor.systemGreen))
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(cyanAccent)
             )
             .scaleEffect(isPulsing ? 1.05 : 1.0)
             .opacity(isPulsing ? 0.9 : 1.0)
@@ -66,7 +72,6 @@ struct MenuBarClipboardBadge: View {
             }
             .onTapGesture {
                 clipboardManager.clearNotification()
-                // Trigger lookup
                 FloatingWindowService.shared.showFloatingWindow(with: clipboardManager.clipboardText)
             }
         }

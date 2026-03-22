@@ -1,0 +1,264 @@
+{
+  "version": "1.0",
+  "children": [
+    {
+      "id": "pg",
+      "type": "frame",
+      "name": "Lexis Vocabulary",
+      "width": 1280,
+      "height": 800,
+      "fill": "#12121a",
+      "layout": "horizontal",
+      "children": [
+        {
+          "id": "sb",
+          "type": "frame",
+          "name": "Sidebar",
+          "width": 280,
+          "height": 800,
+          "fill": "#0e0e16",
+          "layout": "vertical",
+          "padding": 24,
+          "gap": 8,
+          "children": [
+            {
+              "id": "lga",
+              "type": "frame",
+              "layout": "horizontal",
+              "width": "fill_container",
+              "height": 48,
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {"id": "lic", "type": "rectangle", "width": 36, "height": 36, "cornerRadius": 8, "fill": "#00d4ff"},
+                {"id": "ltx", "type": "text", "content": "Lexis", "fontSize": 20, "fontWeight": "700", "fill": "#ffffff", "fontFamily": "Inter"}
+              ]
+            },
+            {
+              "id": "nsc",
+              "type": "frame",
+              "layout": "vertical",
+              "width": "fill_container",
+              "gap": 4,
+              "children": [
+                {"id": "nlb", "type": "text", "content": "LEARNING", "fontSize": 11, "fontWeight": "600", "fill": "#666680", "letterSpacing": 1},
+                {"id": "ni1", "type": "frame", "layout": "horizontal", "width": "fill_container", "height": 40, "cornerRadius": 8, "padding": [8, 12], "gap": 12, "alignItems": "center", "children": [
+                  {"id": "ni1i", "type": "icon_font", "iconFontFamily": "lucide", "iconFontName": "book-open", "width": 20, "height": 20, "fill": "#888899"},
+                  {"id": "ni1t", "type": "text", "content": "Dictionary", "fontSize": 14, "fill": "#888899", "fontFamily": "Inter"}
+                ]},
+                {"id": "ni2", "type": "frame", "layout": "horizontal", "width": "fill_container", "height": 40, "cornerRadius": 8, "padding": [8, 12], "gap": 12, "alignItems": "center", "fill": "#1a1a2e", "children": [
+                  {"id": "ni2i", "type": "icon_font", "iconFontFamily": "lucide", "iconFontName": "library", "width": 20, "height": 20, "fill": "#00d4ff"},
+                  {"id": "ni2t", "type": "text", "content": "Vocabulary", "fontSize": 14, "fill": "#ffffff", "fontFamily": "Inter"}
+                ]},
+                {"id": "ni3", "type": "frame", "layout": "horizontal", "width": "fill_container", "height": 40, "cornerRadius": 8, "padding": [8, 12], "gap": 12, "alignItems": "center", "children": [
+                  {"id": "ni3i", "type": "icon_font", "iconFontFamily": "lucide", "iconFontName": "history", "width": 20, "height": 20, "fill": "#888899"},
+                  {"id": "ni3t", "type": "text", "content": "History", "fontSize": 14, "fill": "#888899", "fontFamily": "Inter"}
+                ]},
+                {"id": "ni4", "type": "frame", "layout": "horizontal", "width": "fill_container", "height": 40, "cornerRadius": 8, "padding": [8, 12], "gap": 12, "alignItems": "center", "children": [
+                  {"id": "ni4i", "type": "icon_font", "iconFontFamily": "lucide", "iconFontName": "help-circle", "width": 20, "height": 20, "fill": "#888899"},
+                  {"id": "ni4t", "type": "text", "content": "Unknown Words", "fontSize": 14, "fill": "#888899", "fontFamily": "Inter"}
+                ]}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "mc",
+          "type": "frame",
+          "name": "MainContent",
+          "layout": "vertical",
+          "width": "fill_container",
+          "height": 800,
+          "padding": 32,
+          "gap": 24,
+          "fill": "#12121a",
+          "children": [
+            {
+              "id": "hdr",
+              "type": "frame",
+              "layout": "horizontal",
+              "width": "fill_container",
+              "height": 56,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "hl",
+                  "type": "frame",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {"id": "pt", "type": "text", "content": "Vocabulary & History", "fontSize": 24, "fontWeight": "700", "fill": "#ffffff", "fontFamily": "Inter"},
+                    {"id": "ps", "type": "text", "content": "Manage your learned words and lookup history", "fontSize": 14, "fill": "#666680", "fontFamily": "Inter"}
+                  ]
+                },
+                {
+                  "id": "ab",
+                  "type": "frame",
+                  "layout": "horizontal",
+                  "gap": 12,
+                  "children": [
+                    {"id": "btn", "type": "frame", "layout": "horizontal", "height": 40, "cornerRadius": 8, "padding": [8, 16], "gap": 8, "fill": "#1a1a2e", "stroke": {"align": "inside", "fill": "#333344", "thickness": 1}, "children": [
+                      {"id": "btni", "type": "icon_font", "iconFontFamily": "lucide", "iconFontName": "trash-2", "width": 18, "height": 18, "fill": "#888899"},
+                      {"id": "btnt", "type": "text", "content": "Clear History", "fontSize": 14, "fill": "#888899", "fontFamily": "Inter"}
+                    ]}
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "tb",
+              "type": "frame",
+              "layout": "horizontal",
+              "width": "fill_container",
+              "gap": 0,
+              "children": [
+                {"id": "vt", "type": "frame", "layout": "horizontal", "height": 40, "padding": [8, 16], "gap": 8, "cornerRadius": [8, 8, 0, 0], "fill": "#00d4ff", "children": [
+                  {"id": "vtt", "type": "text", "content": "Vocabulary", "fontSize": 14, "fontWeight": "600", "fill": "#12121a", "fontFamily": "Inter"}
+                ]},
+                {"id": "ht", "type": "frame", "layout": "horizontal", "height": 40, "padding": [8, 16], "gap": 8, "cornerRadius": [8, 8, 0, 0], "fill": "#1a1a2e", "children": [
+                  {"id": "htt", "type": "text", "content": "History", "fontSize": 14, "fill": "#888899", "fontFamily": "Inter"}
+                ]}
+              ]
+            },
+            {
+              "id": "tbl",
+              "type": "frame",
+              "layout": "vertical",
+              "width": "fill_container",
+              "gap": 0,
+              "cornerRadius": 12,
+              "fill": "#1a1a2e",
+              "padding": 0,
+              "children": [
+                {
+                  "id": "th",
+                  "type": "frame",
+                  "layout": "horizontal",
+                  "width": "fill_container",
+                  "height": 48,
+                  "padding": [0, 16],
+                  "gap": 16,
+                  "alignItems": "center",
+                  "cornerRadius": [12, 12, 0, 0],
+                  "fill": "#0e0e16",
+                  "children": [
+                    {"id": "c1", "type": "frame", "width": 280, "height": "fill_container", "children": [
+                      {"id": "c1t", "type": "text", "content": "Word", "fontSize": 12, "fontWeight": "600", "fill": "#666680", "fontFamily": "Inter"}
+                    ]},
+                    {"id": "c2", "type": "frame", "width": "fill_container", "height": "fill_container", "children": [
+                      {"id": "c2t", "type": "text", "content": "Definition", "fontSize": 12, "fontWeight": "600", "fill": "#666680", "fontFamily": "Inter"}
+                    ]},
+                    {"id": "c3", "type": "frame", "width": 140, "height": "fill_container", "children": [
+                      {"id": "c3t", "type": "text", "content": "Date Added", "fontSize": 12, "fontWeight": "600", "fill": "#666680", "fontFamily": "Inter"}
+                    ]},
+                    {"id": "c4", "type": "frame", "width": 60, "height": "fill_container"}
+                  ]
+                },
+                {
+                  "id": "r1",
+                  "type": "frame",
+                  "layout": "horizontal",
+                  "width": "fill_container",
+                  "height": 64,
+                  "padding": [0, 16],
+                  "gap": 16,
+                  "alignItems": "center",
+                  "stroke": {"align": "inside", "fill": "#252535", "thickness": {"bottom": 1}},
+                  "children": [
+                    {"id": "r1c1", "type": "frame", "width": 280, "height": "fill_container", "alignItems": "center", "children": [
+                      {"id": "r1t1", "type": "text", "content": "ephemeral", "fontSize": 14, "fontWeight": "600", "fill": "#00d4ff", "fontFamily": "Inter"}
+                    ]},
+                    {"id": "r1c2", "type": "frame", "width": "fill_container", "height": "fill_container", "alignItems": "center", "children": [
+                      {"id": "r1t2", "type": "text", "content": "Lasting for a very short time; transient or fleeting.", "fontSize": 14, "fill": "#cccccc", "fontFamily": "Inter"}
+                    ]},
+                    {"id": "r1c3", "type": "frame", "width": 140, "height": "fill_container", "alignItems": "center", "children": [
+                      {"id": "r1t3", "type": "text", "content": "Mar 15, 2026", "fontSize": 13, "fill": "#888899", "fontFamily": "Inter"}
+                    ]},
+                    {"id": "r1c4", "type": "frame", "width": 60, "height": "fill_container", "alignItems": "center", "justifyContent": "center", "children": [
+                      {"id": "r1i", "type": "icon_font", "iconFontFamily": "lucide", "iconFontName": "trash-2", "width": 16, "height": 16, "fill": "#666680"}
+                    ]}
+                  ]
+                },
+                {
+                  "id": "r2",
+                  "type": "frame",
+                  "layout": "horizontal",
+                  "width": "fill_container",
+                  "height": 64,
+                  "padding": [0, 16],
+                  "gap": 16,
+                  "alignItems": "center",
+                  "stroke": {"align": "inside", "fill": "#252535", "thickness": {"bottom": 1}},
+                  "children": [
+                    {"id": "r2c1", "type": "frame", "width": 280, "height": "fill_container", "alignItems": "center", "children": [
+                      {"id": "r2t1", "type": "text", "content": "ubiquitous", "fontSize": 14, "fontWeight": "600", "fill": "#00d4ff", "fontFamily": "Inter"}
+                    ]},
+                    {"id": "r2c2", "type": "frame", "width": "fill_container", "height": "fill_container", "alignItems": "center", "children": [
+                      {"id": "r2t2", "type": "text", "content": "Present, appearing, or found everywhere.", "fontSize": 14, "fill": "#cccccc", "fontFamily": "Inter"}
+                    ]},
+                    {"id": "r2c3", "type": "frame", "width": 140, "height": "fill_container", "alignItems": "center", "children": [
+                      {"id": "r2t3", "type": "text", "content": "Mar 14, 2026", "fontSize": 13, "fill": "#888899", "fontFamily": "Inter"}
+                    ]},
+                    {"id": "r2c4", "type": "frame", "width": 60, "height": "fill_container", "alignItems": "center", "justifyContent": "center", "children": [
+                      {"id": "r2i", "type": "icon_font", "iconFontFamily": "lucide", "iconFontName": "trash-2", "width": 16, "height": 16, "fill": "#666680"}
+                    ]}
+                  ]
+                },
+                {
+                  "id": "r3",
+                  "type": "frame",
+                  "layout": "horizontal",
+                  "width": "fill_container",
+                  "height": 64,
+                  "padding": [0, 16],
+                  "gap": 16,
+                  "alignItems": "center",
+                  "stroke": {"align": "inside", "fill": "#252535", "thickness": {"bottom": 1}},
+                  "children": [
+                    {"id": "r3c1", "type": "frame", "width": 280, "height": "fill_container", "alignItems": "center", "children": [
+                      {"id": "r3t1", "type": "text", "content": "serendipity", "fontSize": 14, "fontWeight": "600", "fill": "#00d4ff", "fontFamily": "Inter"}
+                    ]},
+                    {"id": "r3c2", "type": "frame", "width": "fill_container", "height": "fill_container", "alignItems": "center", "children": [
+                      {"id": "r3t2", "type": "text", "content": "The occurrence of events by chance in a happy way.", "fontSize": 14, "fill": "#cccccc", "fontFamily": "Inter"}
+                    ]},
+                    {"id": "r3c3", "type": "frame", "width": 140, "height": "fill_container", "alignItems": "center", "children": [
+                      {"id": "r3t3", "type": "text", "content": "Mar 12, 2026", "fontSize": 13, "fill": "#888899", "fontFamily": "Inter"}
+                    ]},
+                    {"id": "r3c4", "type": "frame", "width": 60, "height": "fill_container", "alignItems": "center", "justifyContent": "center", "children": [
+                      {"id": "r3i", "type": "icon_font", "iconFontFamily": "lucide", "iconFontName": "trash-2", "width": 16, "height": 16, "fill": "#666680"}
+                    ]}
+                  ]
+                },
+                {
+                  "id": "r4",
+                  "type": "frame",
+                  "layout": "horizontal",
+                  "width": "fill_container",
+                  "height": 64,
+                  "padding": [0, 16],
+                  "gap": 16,
+                  "alignItems": "center",
+                  "children": [
+                    {"id": "r4c1", "type": "frame", "width": 280, "height": "fill_container", "alignItems": "center", "children": [
+                      {"id": "r4t1", "type": "text", "content": "mellifluous", "fontSize": 14, "fontWeight": "600", "fill": "#00d4ff", "fontFamily": "Inter"}
+                    ]},
+                    {"id": "r4c2", "type": "frame", "width": "fill_container", "height": "fill_container", "alignItems": "center", "children": [
+                      {"id": "r4t2", "type": "text", "content": "Sweet-sounding; pleasant to hear.", "fontSize": 14, "fill": "#cccccc", "fontFamily": "Inter"}
+                    ]},
+                    {"id": "r4c3", "type": "frame", "width": 140, "height": "fill_container", "alignItems": "center", "children": [
+                      {"id": "r4t3", "type": "text", "content": "Mar 10, 2026", "fontSize": 13, "fill": "#888899", "fontFamily": "Inter"}
+                    ]},
+                    {"id": "r4c4", "type": "frame", "width": 60, "height": "fill_container", "alignItems": "center", "justifyContent": "center", "children": [
+                      {"id": "r4i", "type": "icon_font", "iconFontFamily": "lucide", "iconFontName": "trash-2", "width": 16, "height": 16, "fill": "#666680"}
+                    ]}
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
