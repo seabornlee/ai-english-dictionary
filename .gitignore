@@ -11,3 +11,4 @@ ai-dic-mac/Gemfile.lock
 ai-dic-server/.env
 ai-dic-server/.nyc_output
 ai-dic-server/test-reports
+.gstack/

@@ -15,10 +15,18 @@ const initializeDatabase = async () => {
     const uri =
       process.env.NODE_ENV === 'test' ? process.env.MONGODB_URI + '_test' : process.env.MONGODB_URI;
 
-    await mongoose.connect(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    const options = {
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+    };
+
+    // Enable TLS for MongoDB Atlas connections
+    if (uri.includes('mongodb+srv')) {
+      options.tls = true;
+      options.tlsAllowInvalidCertificates = false;
+    }
+
+    await mongoose.connect(uri, options);
 
     // Create collections and indexes if needed
     const db = mongoose.connection.db;
@@ -37,8 +45,11 @@ const initializeDatabase = async () => {
     console.log(`MongoDB connected successfully to ${uri}`);
     return true;
   } catch (error) {
-    console.error('Database initialization error:', error);
-    throw error;
+    console.error('Database initialization error:', error.message);
+    console.error('Full error:', error);
+    if (error.code) console.error('Error code:', error.code);
+    if (error.codeName) console.error('Error codeName:', error.codeName);
+    console.log('App will continue without database functionality');
   }
 };
 
@@ -54,7 +65,9 @@ app.use('/api/dictionary', dictionaryRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+  const mongoState = mongoose.connection.readyState;
+  const mongoStatus = mongoState === 1 ? 'connected' : 'disconnected';
+  res.status(200).json({ status: 'ok', mongo: mongoStatus, state: mongoState });
 });
 
 // Error handler
@@ -67,7 +80,7 @@ app.use((err, req, res, next) => {
 });
 
 // Create and start server
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
 

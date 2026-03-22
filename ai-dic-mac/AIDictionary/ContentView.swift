@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject private var wordStore: WordStore
+    @EnvironmentObject private var networkMonitor: NetworkMonitor
     @State private var searchText = ""
     @State private var isSearching = false
     @State private var searchResult: Word?
@@ -14,8 +15,12 @@ struct ContentView: View {
             SidebarView()
 
             VStack(spacing: 0) {
-                // Fixed search controls
+                // Fixed search controls with offline indicator
                 HStack {
+                    OfflineIndicator()
+                    
+                    Spacer()
+                    
                     TextField("Enter a word", text: $searchText)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .frame(maxWidth: 300)

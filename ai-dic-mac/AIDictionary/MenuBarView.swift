@@ -2,6 +2,8 @@ import SwiftUI
 
 struct MenuBarView: View {
     @EnvironmentObject private var wordStore: WordStore
+    @EnvironmentObject private var networkMonitor: NetworkMonitor
+    @EnvironmentObject private var clipboardManager: ClipboardManager
     @State private var searchText = ""
     @State private var isLoading = false
     @State private var searchResult: Word?
@@ -9,6 +11,14 @@ struct MenuBarView: View {
 
     var body: some View {
         VStack(spacing: 12) {
+            // Status indicators
+            HStack {
+                OfflineIndicator()
+                Spacer()
+                MenuBarClipboardBadge()
+            }
+            .padding([.horizontal, .top])
+            
             HStack {
                 TextField("Enter a word", text: $searchText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -18,7 +28,7 @@ struct MenuBarView: View {
                 }
                 .disabled(searchText.isEmpty || isLoading)
             }
-            .padding([.horizontal, .top])
+            .padding(.horizontal)
 
             if isLoading {
                 ProgressView("Loading...")

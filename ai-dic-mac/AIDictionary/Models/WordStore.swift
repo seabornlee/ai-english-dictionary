@@ -6,6 +6,10 @@ class WordStore: ObservableObject {
     @Published var vocabularyList: [Word] = []
     @Published var searchHistory: [Word] = []
     @Published var unknownWords: [String] = []
+    
+    var offlineCacheCount: Int {
+        searchHistory.count + vocabularyList.count
+    }
 
     init() {
         loadData()

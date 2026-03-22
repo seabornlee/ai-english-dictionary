@@ -16,10 +16,17 @@ exports.defineWord = async (req, res) => {
       return res.status(400).json({ error: 'Word is required' });
     }
 
-    console.log('req.body', req.body);
+    console.log('Define word request:', word);
+    console.log('MongoDB connection state:', mongoose.connection.readyState);
 
-    // Get or create unknown words document for current word
-    let unknownWordDoc = await UnknownWord.findOne({ word });
+    let unknownWordDoc;
+    try {
+      unknownWordDoc = await UnknownWord.findOne({ word });
+      console.log('Found existing unknownWordDoc:', !!unknownWordDoc);
+    } catch (dbError) {
+      console.error('Database find error:', dbError.message);
+      unknownWordDoc = null;
+    }
 
     if (!unknownWordDoc) {
       unknownWordDoc = new UnknownWord({
@@ -33,15 +40,25 @@ exports.defineWord = async (req, res) => {
     }
 
     // Save to database
-    await unknownWordDoc.save();
+    try {
+      await unknownWordDoc.save();
+      console.log('Saved to database');
+    } catch (saveError) {
+      console.error('Database save error:', saveError.message);
+    }
 
-    // Get all unknown words from database
-    const allUnknownWords = await UnknownWord.find({});
-    const allUnknownWordsList = allUnknownWords.reduce((acc, doc) => {
-      return [...acc, ...doc.unknownWords];
-    }, []);
+    let allUnknownWordsList = [];
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const allUnknownWords = await UnknownWord.find({});
+        allUnknownWordsList = allUnknownWords.reduce((acc, doc) => {
+          return [...acc, ...doc.unknownWords];
+        }, []);
+      } catch (dbError) {
+        console.error('Database query error:', dbError.message);
+      }
+    }
 
-    // Use all unknown words from database when getting definition
     const result = await getWordDefinition(word, allUnknownWordsList);
     result.definition = stripMarkdown(result.definition);
 
@@ -117,13 +134,16 @@ exports.toggleFavorite = (req, res) => {
   try {
     const { term, definition } = req.body;
 
-    if (!term || !definition) {
-      return res.status(400).json({ error: 'Term and definition are required' });
+    if (!term) {
+      return res.status(400).json({ error: 'Term is required' });
     }
+
+    // Use provided definition or a placeholder (should be fetched by client if needed)
+    const wordDefinition = definition || `Definition for ${term}`;
 
     const word = {
       term,
-      definition,
+      definition: wordDefinition,
       timestamp: new Date(),
     };
 

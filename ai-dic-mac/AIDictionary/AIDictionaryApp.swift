@@ -4,15 +4,18 @@ import SwiftUI
 @main
 struct AIDictionaryApp: App {
     @StateObject private var wordStore = WordStore()
+    @StateObject private var networkMonitor = NetworkMonitor.shared
+    @StateObject private var clipboardManager = ClipboardManager.shared
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(wordStore)
+                .environmentObject(networkMonitor)
+                .environmentObject(clipboardManager)
                 .frame(minWidth: 800, minHeight: 600)
                 .onAppear {
-                    // Initialize the floating window service
                     _ = FloatingWindowService.shared
                 }
         }
@@ -25,10 +28,11 @@ struct AIDictionaryApp: App {
             }
         }
 
-        // Menu bar extra
         MenuBarExtra("Dictionary", systemImage: "character.book.closed") {
             MenuBarView()
                 .environmentObject(wordStore)
+                .environmentObject(networkMonitor)
+                .environmentObject(clipboardManager)
         }
         .menuBarExtraStyle(.window)
     }

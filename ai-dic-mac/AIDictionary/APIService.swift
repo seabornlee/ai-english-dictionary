@@ -14,8 +14,8 @@ class APIService {
 
     private init() {}
 
-    // Replace with your server URL
-    private let baseURL = "http://localhost:3000/api/dictionary"
+    // Production server URL
+    private let baseURL = "https://ai-dictionary-server.fly.dev/api/dictionary"
 
     func lookupWord(_ word: String, unknownWords: [String] = []) async throws -> Word {
         let url = URL(string: "\(baseURL)/define")!
