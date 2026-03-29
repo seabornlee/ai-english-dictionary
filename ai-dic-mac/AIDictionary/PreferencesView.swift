@@ -4,7 +4,6 @@ struct PreferencesView: View {
     @AppStorage("apiKey") private var apiKey: String = ""
     @AppStorage("darkModeEnabled") private var darkModeEnabled: Bool = true
     @AppStorage("fontSize") private var fontSize: Double = 14.0
-    @AppStorage("shortcutEnabled") private var shortcutEnabled: Bool = true
     
     private let backgroundColor = Color(hex: "#111125")
     private let surfaceLow = Color(hex: "#1a1a2e")
@@ -16,7 +15,6 @@ struct PreferencesView: View {
     var body: some View {
         TabView {
             generalTab
-            shortcutsTab
             aboutTab
         }
         .padding()
@@ -72,37 +70,6 @@ struct PreferencesView: View {
         }
     }
     
-    private var shortcutsTab: some View {
-        Form {
-            Section(header: sectionHeader("Keyboard Shortcuts")) {
-                Toggle("Enable Global Shortcut (⌘D)", isOn: $shortcutEnabled)
-                    .toggleStyle(SwitchToggleStyle(tint: cyanAccent))
-                    .foregroundColor(onSurface)
-
-                Text("When enabled, you can use Command+D anywhere to look up a word.")
-                    .font(.system(size: 11))
-                    .foregroundColor(onSurfaceVariant)
-            }
-
-            Section(header: sectionHeader("Text Selection")) {
-                Text("Choose how you want to select text for lookup:")
-                    .font(.system(size: 13))
-                    .foregroundColor(onSurface)
-
-                Picker("Selection Mode", selection: .constant("auto")) {
-                    Text("Auto (Smart Detection)").tag("auto")
-                    Text("On Select").tag("select")
-                    Text("On Click").tag("click")
-                }
-                .pickerStyle(RadioGroupPickerStyle())
-                .foregroundColor(onSurface)
-            }
-        }
-        .formStyle(GroupedFormStyle())
-        .tabItem {
-            Label("Shortcuts", systemImage: "keyboard")
-        }
-    }
     
     private var aboutTab: some View {
         AboutView()
@@ -137,7 +104,7 @@ struct AboutView: View {
                     .foregroundColor(cyanAccent)
             }
 
-            Text("AI Dictionary")
+            Text("CleverDict")
                 .font(.system(size: 24, weight: .bold))
                 .foregroundColor(onSurface)
 
@@ -154,7 +121,7 @@ struct AboutView: View {
 
             Spacer()
 
-            Text("© 2025 AI Dictionary")
+            Text("© 2025 CleverDict")
                 .font(.system(size: 11))
                 .foregroundColor(onSurfaceVariant.opacity(0.7))
         }

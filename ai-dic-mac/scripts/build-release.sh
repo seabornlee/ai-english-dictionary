@@ -7,7 +7,7 @@ set -e
 
 # Configuration
 APP_NAME="AIDictionary"
-BUNDLE_ID="com.seabornlee.AIDictionary"
+BUNDLE_ID="site.waterlee.aidic.AIDictionary"
 BUILD_DIR="build"
 EXPORT_DIR="$BUILD_DIR/Export"
 VERSION=${1:-$(date +%Y.%m.%d)}

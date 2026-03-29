@@ -1,4 +1,3 @@
-import ApplicationServices
 import SwiftUI
 
 @main
@@ -15,9 +14,6 @@ struct AIDictionaryApp: App {
                 .environmentObject(networkMonitor)
                 .environmentObject(clipboardManager)
                 .frame(minWidth: 800, minHeight: 600)
-                .onAppear {
-                    _ = FloatingWindowService.shared
-                }
         }
         .commands {
             CommandGroup(after: .appInfo) {
@@ -40,16 +36,8 @@ struct AIDictionaryApp: App {
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     var preferencesWindow: NSWindow?
-    var selectionMonitor: SelectionMonitor?
 
-    func applicationDidFinishLaunching(_: Notification) {
-        // Initialize accessibility if needed
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]
-        AXIsProcessTrustedWithOptions(options as CFDictionary)
-
-        // 初始化SelectionMonitor
-        selectionMonitor = SelectionMonitor()
-    }
+    func applicationDidFinishLaunching(_: Notification) {}
 
     @objc func openPreferences() {
         if preferencesWindow == nil {

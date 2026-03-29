@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject private var wordStore: WordStore
     @EnvironmentObject private var networkMonitor: NetworkMonitor
+    @ObservedObject private var speechCoordinator = SpeechCoordinator.shared
     @State private var searchText = ""
     @State private var isSearching = false
     @State private var searchResult: Word?
@@ -25,7 +26,7 @@ struct ContentView: View {
 
             mainContentView
         }
-        .navigationTitle("AI Dictionary")
+        .navigationTitle("CleverDict")
         .frame(minWidth: 900, minHeight: 600)
         .background(backgroundColor)
         .onAppear {
@@ -186,9 +187,21 @@ struct ContentView: View {
                     .foregroundColor(cyanAccent)
                     .tracking(-0.5)
                 
-                Text("/phonetic/ • adjective")
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundColor(onSurfaceVariant)
+                HStack(spacing: 10) {
+                    Text("\(StitchUIHelpers.pronunciationLabel(for: word)) • \(word.partOfSpeech ?? "entry")")
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundColor(onSurfaceVariant)
+
+                    Button {
+                        speechCoordinator.speak(word.term)
+                    } label: {
+                        Image(systemName: speechCoordinator.speakingText == word.term ? "speaker.wave.2.fill" : "speaker.wave.2")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(cyanAccent)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Speak the word aloud")
+                }
             }
             
             Spacer()
@@ -253,6 +266,53 @@ struct ContentView: View {
                             )
                     }
                     .buttonStyle(.plain)
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text(StitchUIHelpers.listeningSectionTitle(for: word))
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(onSurface)
+
+                    Spacer()
+
+                    Button {
+                        speechCoordinator.speak(StitchUIHelpers.listeningSentences(for: word).joined(separator: " "))
+                    } label: {
+                        Label("Listen", systemImage: speechCoordinator.speakingText == StitchUIHelpers.listeningSentences(for: word).joined(separator: " ") ? "speaker.wave.2.fill" : "speaker.wave.2")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(cyanAccent)
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                ForEach(Array(StitchUIHelpers.listeningSentences(for: word).enumerated()), id: \.offset) { index, sentence in
+                    HStack(alignment: .top, spacing: 12) {
+                        Text("\(index + 1).")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(onSurfaceVariant)
+
+                        Text(sentence)
+                            .font(.system(size: 14))
+                            .foregroundColor(onSurface.opacity(0.92))
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        Spacer(minLength: 0)
+
+                        Button {
+                            speechCoordinator.speak(sentence)
+                        } label: {
+                            Image(systemName: speechCoordinator.speakingText == sentence ? "speaker.wave.2.fill" : "speaker.wave.2")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(cyanAccent)
+                        }
+                        .buttonStyle(.plain)
+                            .help("Speak sentence aloud")
+                    }
+                    .padding(12)
+                    .background(surfaceHigh.opacity(0.55))
+                    .cornerRadius(8)
                 }
             }
         }
@@ -450,71 +510,82 @@ struct FlowLayout: Layout {
 }
 
 struct SidebarView: View {
-    @EnvironmentObject private var wordStore: WordStore
-    
-    private let backgroundColor = Color(hex: "#111125")
+    private let backgroundColor = Color(hex: "#0e0e16")
     private let surfaceLow = Color(hex: "#1a1a2e")
     private let cyanAccent = Color(hex: "#00d4ff")
-    private let onSurface = Color(hex: "#e2e0fc")
-    private let onSurfaceVariant = Color(hex: "#bbc9cf")
+    private let onSurface = Color(hex: "#ffffff")
+    private let onSurfaceVariant = Color(hex: "#888899")
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 10) {
-                RoundedRectangle(cornerRadius: 8)
+        VStack(alignment: .leading, spacing: 24) {
+            HStack(spacing: 12) {
+                RoundedRectangle(cornerRadius: 10)
                     .fill(cyanAccent)
-                    .frame(width: 32, height: 32)
+                    .frame(width: 36, height: 36)
                     .overlay(
                         Image(systemName: "book.closed")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: 16, weight: .bold))
                             .foregroundColor(Color(hex: "#003642"))
                     )
-                
-                Text("AI Dictionary")
-                    .font(.system(size: 18, weight: .bold))
+
+                Text("CleverDict")
+                    .font(.system(size: 20, weight: .bold))
                     .foregroundColor(onSurface)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 20)
-            
-            Text("LEARNING")
-                .font(.system(size: 10, weight: .bold))
-                .foregroundColor(onSurfaceVariant)
-                .tracking(1)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 8)
-            
-            List {
-                NavigationLink(destination: FavoritesView()) {
-                    Label("Favorites", systemImage: "star")
-                        .font(.system(size: 14))
-                }
-                .listRowBackground(surfaceLow)
-                
-                NavigationLink(destination: VocabularyView()) {
-                    Label("Vocabulary", systemImage: "text.book.closed")
-                        .font(.system(size: 14))
-                }
-                .listRowBackground(surfaceLow)
-                
-                NavigationLink(destination: HistoryView()) {
-                    Label("History", systemImage: "clock")
-                        .font(.system(size: 14))
-                }
-                .listRowBackground(surfaceLow)
-                
-                NavigationLink(destination: UnknownWordsView()) {
-                    Label("Unknown Words", systemImage: "questionmark.circle")
-                        .font(.system(size: 14))
-                }
-                .listRowBackground(surfaceLow)
+            .padding(.horizontal, 24)
+            .padding(.top, 24)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("LEARNING")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(Color(hex: "#666680"))
+                    .tracking(1)
+
+                sidebarLabel("Dictionary", systemImage: "book.closed", emphasized: true)
+                sidebarItem("Favorites", systemImage: "star", destination: FavoritesView())
+                sidebarItem("Vocabulary", systemImage: "text.book.closed", destination: VocabularyView())
+                sidebarItem("History", systemImage: "clock.arrow.circlepath", destination: HistoryView())
+                sidebarItem("Unknown Words", systemImage: "questionmark.circle", destination: UnknownWordsView())
             }
-            .listStyle(SidebarListStyle())
-            .background(backgroundColor)
-            
+            .padding(.horizontal, 24)
+
             Spacer()
         }
         .background(backgroundColor)
+    }
+
+    private func sidebarLabel(
+        _ title: String,
+        systemImage: String,
+        emphasized: Bool = false
+    ) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: systemImage)
+                .font(.system(size: 15, weight: .medium))
+                .foregroundColor(emphasized ? cyanAccent : onSurfaceVariant)
+
+            Text(title)
+                .font(.system(size: 14, weight: emphasized ? .semibold : .regular))
+                .foregroundColor(emphasized ? onSurface : onSurfaceVariant)
+
+            Spacer()
+        }
+        .padding(.horizontal, 12)
+        .frame(height: 40)
+        .background(emphasized ? surfaceLow : Color.clear)
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+    }
+
+    private func sidebarItem<Destination: View>(
+        _ title: String,
+        systemImage: String,
+        destination: Destination,
+        emphasized: Bool = false
+    ) -> some View {
+        NavigationLink(destination: destination) {
+            sidebarLabel(title, systemImage: systemImage, emphasized: emphasized)
+        }
+        .buttonStyle(.plain)
     }
 }
 

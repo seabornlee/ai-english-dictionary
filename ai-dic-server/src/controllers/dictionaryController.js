@@ -7,6 +7,25 @@ let vocabularyList = [];
 let favorites = [];
 let searchHistory = [];
 
+function buildStoredWord(payload) {
+  const {
+    term,
+    definition,
+    pronunciation = null,
+    partOfSpeech = null,
+    exampleSentences = [],
+  } = payload;
+
+  return {
+    term,
+    definition,
+    pronunciation,
+    partOfSpeech,
+    exampleSentences: Array.isArray(exampleSentences) ? exampleSentences : [],
+    timestamp: new Date(),
+  };
+}
+
 // Define a word using DeepSeek Chat API
 exports.defineWord = async (req, res) => {
   try {
@@ -19,32 +38,33 @@ exports.defineWord = async (req, res) => {
     console.log('Define word request:', word);
     console.log('MongoDB connection state:', mongoose.connection.readyState);
 
-    let unknownWordDoc;
-    try {
-      unknownWordDoc = await UnknownWord.findOne({ word });
-      console.log('Found existing unknownWordDoc:', !!unknownWordDoc);
-    } catch (dbError) {
-      console.error('Database find error:', dbError.message);
-      unknownWordDoc = null;
-    }
+    let unknownWordDoc = null;
 
-    if (!unknownWordDoc) {
-      unknownWordDoc = new UnknownWord({
-        word,
-        unknownWords: unknownWords,
-      });
-    } else {
-      // Add new unknown words to existing ones
-      const updatedUnknownWords = [...new Set([...unknownWordDoc.unknownWords, ...unknownWords])];
-      unknownWordDoc.unknownWords = updatedUnknownWords;
-    }
+    if (mongoose.connection.readyState === 1) {
+      try {
+        unknownWordDoc = await UnknownWord.findOne({ word });
+        console.log('Found existing unknownWordDoc:', !!unknownWordDoc);
+      } catch (dbError) {
+        console.error('Database find error:', dbError.message);
+        unknownWordDoc = null;
+      }
 
-    // Save to database
-    try {
-      await unknownWordDoc.save();
-      console.log('Saved to database');
-    } catch (saveError) {
-      console.error('Database save error:', saveError.message);
+      if (!unknownWordDoc) {
+        unknownWordDoc = new UnknownWord({
+          word,
+          unknownWords: unknownWords,
+        });
+      } else {
+        const updatedUnknownWords = [...new Set([...unknownWordDoc.unknownWords, ...unknownWords])];
+        unknownWordDoc.unknownWords = updatedUnknownWords;
+      }
+
+      try {
+        await unknownWordDoc.save();
+        console.log('Saved to database');
+      } catch (saveError) {
+        console.error('Database save error:', saveError.message);
+      }
     }
 
     let allUnknownWordsList = [];
@@ -85,11 +105,7 @@ exports.addToVocabulary = (req, res) => {
       return res.status(400).json({ error: 'Term and definition are required' });
     }
 
-    const word = {
-      term,
-      definition,
-      timestamp: new Date(),
-    };
+    const word = buildStoredWord(req.body);
 
     // Check if word already exists
     const existingIndex = vocabularyList.findIndex(item => item.term === term);
@@ -134,18 +150,11 @@ exports.toggleFavorite = (req, res) => {
   try {
     const { term, definition } = req.body;
 
-    if (!term) {
-      return res.status(400).json({ error: 'Term is required' });
+    if (!term || !definition) {
+      return res.status(400).json({ error: 'Term and definition are required' });
     }
 
-    // Use provided definition or a placeholder (should be fetched by client if needed)
-    const wordDefinition = definition || `Definition for ${term}`;
-
-    const word = {
-      term,
-      definition: wordDefinition,
-      timestamp: new Date(),
-    };
+    const word = buildStoredWord(req.body);
 
     // Check if word is already a favorite
     const existingIndex = favorites.findIndex(item => item.term === term);

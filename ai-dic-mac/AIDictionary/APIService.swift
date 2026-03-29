@@ -17,6 +17,16 @@ class APIService {
     // Production server URL
     private let baseURL = "https://ai-dictionary-server.fly.dev/api/dictionary"
 
+    private func wordRequestBody(for word: Word) -> [String: Any] {
+        [
+            "term": word.term,
+            "definition": word.definition,
+            "pronunciation": word.pronunciation as Any,
+            "partOfSpeech": word.partOfSpeech as Any,
+            "exampleSentences": word.exampleSentences,
+        ]
+    }
+
     func lookupWord(_ word: String, unknownWords: [String] = []) async throws -> Word {
         let url = URL(string: "\(baseURL)/define")!
         var request = URLRequest(url: url)
@@ -64,10 +74,7 @@ class APIService {
             throw APIError.invalidURL
         }
 
-        let requestBody: [String: Any] = [
-            "term": word.term,
-            "definition": word.definition,
-        ]
+        let requestBody = wordRequestBody(for: word)
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -163,10 +170,7 @@ class APIService {
             throw APIError.invalidURL
         }
 
-        let requestBody: [String: Any] = [
-            "term": word.term,
-            "definition": word.definition,
-        ]
+        let requestBody = wordRequestBody(for: word)
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"

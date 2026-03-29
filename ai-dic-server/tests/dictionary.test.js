@@ -73,6 +73,40 @@ describe('Dictionary API Endpoints', async () => {
   });
 
   describe('Word Definition', () => {
+    it('POST /api/dictionary/define should return pronunciation metadata and explanation sentences', async () => {
+      axiosPostStub.resolves({
+        data: {
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  definition: 'Giving off a soft, clear light.',
+                  pronunciation: 'ˈluːmɪnəs',
+                  partOfSpeech: 'adjective',
+                  exampleSentences: [
+                    'The hallway became luminous at sunrise.',
+                    'Her luminous smile calmed the room.',
+                  ],
+                }),
+              },
+            },
+          ],
+        },
+      });
+
+      const response = await request(app).post('/api/dictionary/define').send({ word: 'luminous' });
+
+      expect(response.status).to.equal(200);
+      expect(response.body).to.have.property('term', 'luminous');
+      expect(response.body).to.have.property('pronunciation', 'ˈluːmɪnəs');
+      expect(response.body).to.have.property('partOfSpeech', 'adjective');
+      expect(response.body).to.have.property('exampleSentences');
+      expect(response.body.exampleSentences).to.deep.equal([
+        'The hallway became luminous at sunrise.',
+        'Her luminous smile calmed the room.',
+      ]);
+    });
+
     it('POST /api/dictionary/define should return a word definition without markdown and quotes', async () => {
       // Mock response with markdown and quotes
       axiosPostStub.resolves({

@@ -2,226 +2,406 @@ import SwiftUI
 
 struct FavoritesView: View {
     @EnvironmentObject private var wordStore: WordStore
-    
-    private let backgroundColor = Color(hex: "#111125")
+
+    private let backgroundColor = Color(hex: "#12121a")
     private let surfaceLow = Color(hex: "#1a1a2e")
+    private let surfaceHigh = Color(hex: "#28283d")
     private let cyanAccent = Color(hex: "#00d4ff")
-    private let onSurface = Color(hex: "#e2e0fc")
-    private let onSurfaceVariant = Color(hex: "#bbc9cf")
+    private let onSurface = Color(hex: "#ffffff")
+    private let onSurfaceVariant = Color(hex: "#888899")
 
     var body: some View {
-        VStack {
+        VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Favorites")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(onSurface)
+
+                Text("Quick access to the words you want to revisit.")
+                    .font(.system(size: 14))
+                    .foregroundColor(onSurfaceVariant)
+            }
+
             if wordStore.favorites.isEmpty {
                 EmptyStateView(
-                    title: "No Favorites",
+                    title: "No Favorites Yet",
                     systemImage: "star.slash",
-                    description: "Words you mark as favorites will appear here."
+                    description: "Star a word from the dictionary or menu bar to pin it here."
                 )
             } else {
-                List {
-                    ForEach(wordStore.favorites) { word in
-                        WordRow(word: word)
+                ScrollView(showsIndicators: false) {
+                    LazyVStack(spacing: 14) {
+                        ForEach(wordStore.favorites) { word in
+                            FavoriteWordCard(word: word)
+                        }
                     }
                 }
-                .listStyle(PlainListStyle())
-                .background(backgroundColor)
             }
         }
-        .navigationTitle("Favorites")
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(32)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(backgroundColor)
     }
 }
 
 struct VocabularyView: View {
-    @EnvironmentObject private var wordStore: WordStore
-    
-    private let backgroundColor = Color(hex: "#111125")
-    private let surfaceLow = Color(hex: "#1a1a2e")
-    private let cyanAccent = Color(hex: "#00d4ff")
-    private let onSurface = Color(hex: "#e2e0fc")
-    private let onSurfaceVariant = Color(hex: "#bbc9cf")
-
     var body: some View {
-        VStack {
-            if wordStore.vocabularyList.isEmpty {
-                EmptyStateView(
-                    title: "No Vocabulary Words",
-                    systemImage: "text.book.closed",
-                    description: "Words you add to your vocabulary will appear here."
-                )
-            } else {
-                List {
-                    ForEach(wordStore.vocabularyList) { word in
-                        WordRow(word: word)
-                            .contextMenu {
-                                Button(role: .destructive) {
-                                    wordStore.removeFromVocabulary(word)
-                                } label: {
-                                    Label("Remove", systemImage: "trash")
-                                }
-                            }
-                    }
-                }
-                .listStyle(PlainListStyle())
-                .background(backgroundColor)
-            }
-        }
-        .navigationTitle("Vocabulary")
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(backgroundColor)
+        VocabularyHistoryView(initialTab: .vocabulary)
     }
 }
 
 struct HistoryView: View {
+    var body: some View {
+        VocabularyHistoryView(initialTab: .history)
+    }
+}
+
+struct VocabularyHistoryView: View {
     @EnvironmentObject private var wordStore: WordStore
-    
-    private let backgroundColor = Color(hex: "#111125")
+    let initialTab: StitchLibraryTab
+    @State private var selectedTab: StitchLibraryTab
+
+    private let backgroundColor = Color(hex: "#12121a")
     private let surfaceLow = Color(hex: "#1a1a2e")
-    private let surfaceHigh = Color(hex: "#28283d")
+    private let surfaceLower = Color(hex: "#0e0e16")
+    private let borderColor = Color(hex: "#252535")
     private let cyanAccent = Color(hex: "#00d4ff")
-    private let onSurface = Color(hex: "#e2e0fc")
-    private let onSurfaceVariant = Color(hex: "#bbc9cf")
+    private let onSurface = Color(hex: "#ffffff")
+    private let onSurfaceMuted = Color(hex: "#cccccc")
+    private let onSurfaceVariant = Color(hex: "#888899")
+
+    init(initialTab: StitchLibraryTab) {
+        self.initialTab = initialTab
+        _selectedTab = State(initialValue: initialTab)
+    }
+
+    private var displayedWords: [Word] {
+        switch selectedTab {
+        case .vocabulary:
+            return wordStore.vocabularyList
+        case .history:
+            return wordStore.searchHistory
+        }
+    }
+
+    private var emptyDescription: String {
+        switch selectedTab {
+        case .vocabulary:
+            return "Words you add from the dictionary or menu bar will appear here."
+        case .history:
+            return "Your recent lookups will appear here after you search."
+        }
+    }
 
     var body: some View {
-        VStack {
-            if wordStore.searchHistory.isEmpty {
+        VStack(alignment: .leading, spacing: 24) {
+            header
+            tabBar
+
+            if displayedWords.isEmpty {
                 EmptyStateView(
-                    title: "No Search History",
-                    systemImage: "clock",
-                    description: "Words you search for will appear here."
+                    title: selectedTab == .vocabulary ? "No Vocabulary Saved" : "No History Yet",
+                    systemImage: selectedTab == .vocabulary ? "text.book.closed" : "clock",
+                    description: emptyDescription
                 )
             } else {
-                VStack(spacing: 0) {
-                    HStack {
-                        Text("\(wordStore.searchHistory.count) words looked up · Auto-cleared after 30 days")
-                            .font(.system(size: 13))
-                            .foregroundColor(onSurfaceVariant)
-                        
-                        Spacer()
-                        
-                        Button("Clear History") {
-                            wordStore.clearHistory()
-                        }
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(onSurfaceVariant)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(surfaceHigh)
-                        .cornerRadius(6)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                        )
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
-                    .background(surfaceLow)
+                libraryTable
+            }
+        }
+        .padding(32)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(backgroundColor)
+        .onChange(of: initialTab) { newValue in
+            selectedTab = newValue
+        }
+    }
 
-                    List {
-                        ForEach(wordStore.searchHistory) { word in
-                            WordRow(word: word)
+    private var header: some View {
+        HStack(alignment: .bottom) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Vocabulary & History")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundColor(onSurface)
+
+                Text("Manage your learned words and lookup history")
+                    .font(.system(size: 14))
+                    .foregroundColor(onSurfaceVariant)
+            }
+
+            Spacer()
+
+            if selectedTab == .history {
+                Button(action: { wordStore.clearHistory() }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "trash")
+                            .font(.system(size: 14, weight: .medium))
+                        Text("Clear History")
+                            .font(.system(size: 14, weight: .medium))
+                    }
+                    .foregroundColor(onSurfaceVariant)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(surfaceLow)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .stroke(borderColor, lineWidth: 1)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private var tabBar: some View {
+        HStack(spacing: 0) {
+            ForEach(StitchLibraryTab.allCases) { tab in
+                Button(action: { selectedTab = tab }) {
+                    Text(tab.title)
+                        .font(.system(size: 14, weight: tab == selectedTab ? .semibold : .regular))
+                        .foregroundColor(tab == selectedTab ? backgroundColor : onSurfaceVariant)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(tab == selectedTab ? cyanAccent : surfaceLow)
+                }
+                .buttonStyle(.plain)
+            }
+
+            Spacer()
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+    }
+
+    private var libraryTable: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 16) {
+                tableHeader("Word", width: 220, alignment: .leading)
+                tableHeader("Definition", width: nil, alignment: .leading)
+                tableHeader("Date Added", width: 120, alignment: .leading)
+                Spacer()
+                    .frame(width: 44)
+            }
+            .padding(.horizontal, 16)
+            .frame(height: 48)
+            .background(surfaceLower)
+
+            ScrollView(showsIndicators: false) {
+                LazyVStack(spacing: 0) {
+                    ForEach(displayedWords) { word in
+                        LibraryWordRow(
+                            word: word,
+                            showsRemoveAction: selectedTab == .vocabulary,
+                            onRemove: {
+                                if selectedTab == .vocabulary {
+                                    wordStore.removeFromVocabulary(word)
+                                }
+                            },
+                            onOpen: {
+                                NotificationCenter.default.post(
+                                    name: NSNotification.Name("OpenWordInDictionary"),
+                                    object: nil,
+                                    userInfo: ["word": word]
+                                )
+                            }
+                        )
+
+                        if word.id != displayedWords.last?.id {
+                            Divider()
+                                .background(borderColor)
                         }
                     }
-                    .listStyle(PlainListStyle())
-                    .background(backgroundColor)
                 }
             }
         }
-        .navigationTitle("History")
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(backgroundColor)
+        .background(surfaceLow)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+
+    private func tableHeader(_ title: String, width: CGFloat?, alignment: Alignment) -> some View {
+        Group {
+            if let width {
+                Text(title)
+                    .frame(width: width, alignment: alignment)
+            } else {
+                Text(title)
+                    .frame(maxWidth: .infinity, alignment: alignment)
+            }
+        }
+        .font(.system(size: 12, weight: .semibold))
+        .foregroundColor(Color(hex: "#666680"))
+    }
+}
+
+private struct FavoriteWordCard: View {
+    let word: Word
+
+    private let surfaceLow = Color(hex: "#1a1a2e")
+    private let surfaceHigh = Color(hex: "#28283d")
+    private let cyanAccent = Color(hex: "#00d4ff")
+    private let onSurface = Color(hex: "#ffffff")
+    private let onSurfaceVariant = Color(hex: "#888899")
+
+    var body: some View {
+        Button {
+            NotificationCenter.default.post(
+                name: NSNotification.Name("OpenWordInDictionary"),
+                object: nil,
+                userInfo: ["word": word]
+            )
+        } label: {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text(word.term)
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(cyanAccent)
+
+                    Spacer()
+
+                    Text(StitchUIHelpers.historyDateString(from: word.timestamp))
+                        .font(.system(size: 11))
+                        .foregroundColor(onSurfaceVariant)
+                }
+
+                Text(StitchUIHelpers.trimmedDefinition(word.definition, limit: 180))
+                    .font(.system(size: 14))
+                    .foregroundColor(onSurface.opacity(0.82))
+                    .lineSpacing(3)
+
+                HStack(spacing: 8) {
+                    ForEach(StitchUIHelpers.keywordChips(from: word.definition, excluding: word.term), id: \.self) { chip in
+                        Text(chip.uppercased())
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundColor(onSurfaceVariant)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 5)
+                            .background(surfaceHigh)
+                            .clipShape(Capsule())
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(18)
+            .background(surfaceLow)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private struct LibraryWordRow: View {
+    let word: Word
+    let showsRemoveAction: Bool
+    let onRemove: () -> Void
+    let onOpen: () -> Void
+
+    private let cyanAccent = Color(hex: "#00d4ff")
+    private let onSurfaceMuted = Color(hex: "#cccccc")
+    private let onSurfaceVariant = Color(hex: "#888899")
+
+    var body: some View {
+        HStack(spacing: 16) {
+            Button(action: onOpen) {
+                Text(word.term)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(cyanAccent)
+                    .frame(width: 220, alignment: .leading)
+            }
+            .buttonStyle(.plain)
+
+            Text(StitchUIHelpers.trimmedDefinition(word.definition, limit: 90))
+                .font(.system(size: 14))
+                .foregroundColor(onSurfaceMuted)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            Text(StitchUIHelpers.historyDateString(from: word.timestamp))
+                .font(.system(size: 13))
+                .foregroundColor(onSurfaceVariant)
+                .frame(width: 120, alignment: .leading)
+
+            Button(action: showsRemoveAction ? onRemove : onOpen) {
+                Image(systemName: showsRemoveAction ? "trash" : "arrow.up.forward.square")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(onSurfaceVariant)
+                    .frame(width: 32, height: 32)
+                    .background(Color.white.opacity(0.01))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 16)
+        .frame(height: 64)
     }
 }
 
 struct UnknownWordsView: View {
     @EnvironmentObject private var wordStore: WordStore
-    
-    private let backgroundColor = Color(hex: "#111125")
+
+    private let backgroundColor = Color(hex: "#12121a")
     private let surfaceLow = Color(hex: "#1a1a2e")
     private let surfaceHigh = Color(hex: "#28283d")
     private let cyanAccent = Color(hex: "#00d4ff")
-    private let onSurface = Color(hex: "#e2e0fc")
-    private let onSurfaceVariant = Color(hex: "#bbc9cf")
-    private let errorColor = Color(hex: "#B54A4A")
+    private let onSurface = Color(hex: "#ffffff")
+    private let onSurfaceVariant = Color(hex: "#888899")
+    private let errorColor = Color(hex: "#ff8f8f")
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Unknown Words")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(onSurface)
+
+                Text("Words you mark as unknown are collected here and used to simplify future explanations.")
+                    .font(.system(size: 14))
+                    .foregroundColor(onSurfaceVariant)
+            }
+
             if wordStore.unknownWords.isEmpty {
                 EmptyStateView(
                     title: "No Unknown Words",
                     systemImage: "questionmark.circle",
-                    description: "Words you mark as unknown will appear here."
+                    description: "Tap words in definitions to mark them and build your review list."
                 )
             } else {
-                VStack(alignment: .leading, spacing: 16) {
-                    HStack {
-                        Text("\(wordStore.unknownWords.count) words marked · Used to filter AI explanations")
-                            .font(.system(size: 13))
-                            .foregroundColor(onSurfaceVariant)
-                        Spacer()
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 16)
-                    
+                VStack(alignment: .leading, spacing: 18) {
                     HStack(spacing: 12) {
-                        Image(systemName: "info.circle")
-                            .font(.system(size: 18))
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(cyanAccent)
-                        
-                        Text("When you mark words in definitions as unknown, they appear here. The AI will avoid using these words when generating new explanations.")
-                            .font(.system(size: 13))
+
+                        Text("\(wordStore.unknownWords.count) saved words will be filtered out when you regenerate explanations.")
+                            .font(.system(size: 14))
                             .foregroundColor(onSurfaceVariant)
-                            .lineSpacing(2)
-                        
-                        Spacer()
                     }
-                    .padding(16)
+                    .padding(18)
                     .background(surfaceLow)
-                    .cornerRadius(10)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                    )
-                    .padding(.horizontal, 20)
-                    
-                    List {
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+                    FlowLayout(spacing: 10) {
                         ForEach(wordStore.unknownWords, id: \.self) { word in
-                            Button(action: {
+                            Button {
                                 NotificationCenter.default.post(
                                     name: NSNotification.Name("OpenWordInDictionary"),
                                     object: nil,
-                                    userInfo: ["word": Word(
-                                        term: word,
-                                        definition: "",
-                                        timestamp: Date()
-                                    )]
+                                    userInfo: ["word": Word(term: word, definition: "", timestamp: Date())]
                                 )
-                            }) {
-                                HStack {
-                                    Text(word)
-                                        .font(.system(size: 15, weight: .semibold))
-                                        .foregroundColor(errorColor)
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(onSurfaceVariant)
-                                }
-                                .padding(.vertical, 8)
+                            } label: {
+                                Text(word)
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(errorColor)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 10)
+                                    .background(surfaceHigh)
+                                    .clipShape(Capsule())
                             }
                             .buttonStyle(.plain)
-                            .listRowBackground(surfaceLow)
                         }
                     }
-                    .listStyle(PlainListStyle())
-                    .background(backgroundColor)
                 }
             }
         }
-        .navigationTitle("Unknown Words")
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(32)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(backgroundColor)
         .onAppear {
             Task {
@@ -235,74 +415,41 @@ struct EmptyStateView: View {
     let title: String
     let systemImage: String
     let description: String
-    
-    private let onSurface = Color(hex: "#e2e0fc")
-    private let onSurfaceVariant = Color(hex: "#bbc9cf")
+
+    private let surfaceLow = Color(hex: "#1a1a2e")
+    private let onSurface = Color(hex: "#ffffff")
+    private let onSurfaceVariant = Color(hex: "#888899")
+    private let cyanAccent = Color(hex: "#00d4ff")
 
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: systemImage)
-                .font(.system(size: 56))
-                .foregroundColor(onSurfaceVariant.opacity(0.5))
-            
+                .font(.system(size: 42))
+                .foregroundColor(cyanAccent.opacity(0.7))
+
             Text(title)
-                .font(.system(size: 18, weight: .semibold))
+                .font(.system(size: 20, weight: .semibold))
                 .foregroundColor(onSurface)
-            
+
             Text(description)
                 .font(.system(size: 14))
                 .foregroundColor(onSurfaceVariant)
                 .multilineTextAlignment(.center)
+                .frame(maxWidth: 360)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(40)
-    }
-}
-
-struct WordRow: View {
-    let word: Word
-    
-    private let surfaceLow = Color(hex: "#1a1a2e")
-    private let surfaceHigh = Color(hex: "#28283d")
-    private let cyanAccent = Color(hex: "#00d4ff")
-    private let onSurface = Color(hex: "#e2e0fc")
-    private let onSurfaceVariant = Color(hex: "#bbc9cf")
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(word.term)
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(cyanAccent)
-
-            Text(word.definition)
-                .font(.system(size: 14))
-                .foregroundColor(onSurface.opacity(0.8))
-                .lineLimit(2)
-                .lineSpacing(2)
-
-            Text(formattedDate(word.timestamp))
-                .font(.system(size: 11))
-                .foregroundColor(onSurfaceVariant)
-        }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 8)
         .background(surfaceLow)
-        .cornerRadius(8)
-        .listRowBackground(Color.clear)
-        .listRowSeparator(.hidden)
-    }
-
-    private func formattedDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        return formatter.string(from: date)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
 
 struct WordDisplayView: View {
     let word: String
     let definition: String
+    let pronunciation: String?
+    let partOfSpeech: String?
+    let exampleSentences: [String]
     let isLoading: Bool
     let error: String?
     @Binding var markedWords: Set<String>
@@ -310,14 +457,25 @@ struct WordDisplayView: View {
     let onAddToFavorites: (() -> Void)?
     let onAddToVocabulary: (() -> Void)?
     let showFavoritesButton: Bool
-    
-    private let backgroundColor = Color(hex: "#111125")
+
     private let surfaceLow = Color(hex: "#1a1a2e")
     private let surfaceHigh = Color(hex: "#28283d")
     private let cyanAccent = Color(hex: "#00d4ff")
     private let onSurface = Color(hex: "#e2e0fc")
     private let onSurfaceVariant = Color(hex: "#bbc9cf")
     private let errorColor = Color(hex: "#B54A4A")
+    @ObservedObject private var speechCoordinator = SpeechCoordinator.shared
+
+    private var renderedWord: Word {
+        Word(
+            term: word,
+            definition: definition,
+            pronunciation: pronunciation,
+            partOfSpeech: partOfSpeech,
+            exampleSentences: exampleSentences,
+            timestamp: Date()
+        )
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -327,16 +485,27 @@ struct WordDisplayView: View {
                         .font(.system(size: 36, weight: .black))
                         .foregroundColor(cyanAccent)
                         .tracking(-0.5)
-                    
-                    Text("/phonetic/ • adjective")
-                        .font(.system(size: 12, design: .monospaced))
-                        .foregroundColor(onSurfaceVariant)
+
+                    HStack(spacing: 8) {
+                        Text("\(StitchUIHelpers.pronunciationLabel(for: renderedWord)) • \(partOfSpeech ?? "entry")")
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundColor(onSurfaceVariant)
+
+                        Button {
+                            speechCoordinator.speak(word)
+                        } label: {
+                            Image(systemName: speechCoordinator.speakingText == word ? "speaker.wave.2.fill" : "speaker.wave.2")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(cyanAccent)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
 
                 Spacer()
 
                 HStack(spacing: 10) {
-                    if showFavoritesButton, let onAddToFavorites = onAddToFavorites {
+                    if showFavoritesButton, let onAddToFavorites {
                         Button(action: onAddToFavorites) {
                             Image(systemName: "star")
                                 .font(.system(size: 18))
@@ -347,11 +516,9 @@ struct WordDisplayView: View {
                         .background(surfaceHigh)
                         .cornerRadius(8)
                     }
-                    
+
                     if !markedWords.isEmpty {
-                        Button {
-                            onRegenerate()
-                        } label: {
+                        Button(action: onRegenerate) {
                             Image(systemName: "arrow.clockwise")
                                 .font(.system(size: 16))
                                 .foregroundColor(onSurfaceVariant)
@@ -363,7 +530,7 @@ struct WordDisplayView: View {
                         .help("Regenerate definition")
                     }
 
-                    if let onAddToVocabulary = onAddToVocabulary {
+                    if let onAddToVocabulary {
                         Button(action: onAddToVocabulary) {
                             Image(systemName: "plus")
                                 .font(.system(size: 18, weight: .medium))
@@ -387,7 +554,7 @@ struct WordDisplayView: View {
                     Spacer()
                 }
                 .padding(40)
-            } else if let error = error {
+            } else if let error {
                 Text(error)
                     .foregroundColor(errorColor)
                     .padding()
@@ -398,6 +565,50 @@ struct WordDisplayView: View {
                     text: definition,
                     markedWords: $markedWords
                 )
+
+                let listeningSentences = StitchUIHelpers.listeningSentences(for: renderedWord)
+
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Text(StitchUIHelpers.listeningSectionTitle(for: renderedWord))
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(onSurface)
+
+                        Spacer()
+
+                        Button {
+                            speechCoordinator.speak(listeningSentences.joined(separator: " "))
+                        } label: {
+                            Image(systemName: speechCoordinator.speakingText == listeningSentences.joined(separator: " ") ? "speaker.wave.2.fill" : "speaker.wave.2")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(cyanAccent)
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    ForEach(Array(listeningSentences.enumerated()), id: \.offset) { _, sentence in
+                        HStack(alignment: .top, spacing: 10) {
+                            Text(sentence)
+                                .font(.system(size: 13))
+                                .foregroundColor(onSurface.opacity(0.88))
+                                .fixedSize(horizontal: false, vertical: true)
+
+                            Spacer(minLength: 0)
+
+                            Button {
+                                speechCoordinator.speak(sentence)
+                            } label: {
+                                Image(systemName: speechCoordinator.speakingText == sentence ? "speaker.wave.2.fill" : "speaker.wave.2")
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundColor(cyanAccent)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .padding(10)
+                        .background(surfaceHigh.opacity(0.45))
+                        .cornerRadius(8)
+                    }
+                }
 
                 if !markedWords.isEmpty {
                     HStack {
@@ -425,5 +636,8 @@ struct WordDisplayView: View {
 
             Spacer(minLength: 0)
         }
+        .padding(24)
+        .background(surfaceLow)
+        .cornerRadius(12)
     }
 }
