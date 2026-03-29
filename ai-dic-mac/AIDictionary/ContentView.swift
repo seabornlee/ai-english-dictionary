@@ -1,5 +1,13 @@
 import SwiftUI
 
+enum SidebarSelection: String, Hashable {
+    case dictionary
+    case favorites
+    case vocabulary
+    case history
+    case unknownWords
+}
+
 struct ContentView: View {
     @EnvironmentObject private var wordStore: WordStore
     @EnvironmentObject private var networkMonitor: NetworkMonitor
@@ -10,6 +18,7 @@ struct ContentView: View {
     @State private var markedWords = Set<String>()
     @State private var isLoading = false
     @State private var errorMessage: String?
+    @State private var sidebarSelection: SidebarSelection? = .dictionary
     
     private let backgroundColor = Color(hex: "#111125")
     private let surfaceLow = Color(hex: "#1a1a2e")
@@ -20,11 +29,11 @@ struct ContentView: View {
 
     var body: some View {
         NavigationView {
-            SidebarView()
+            SidebarView(selection: $sidebarSelection)
                 .frame(minWidth: 240)
                 .background(backgroundColor)
 
-            mainContentView
+            detailView
         }
         .navigationTitle("CleverDict")
         .frame(minWidth: 900, minHeight: 600)
@@ -40,8 +49,29 @@ struct ContentView: View {
                     self.searchResult = word
                     self.searchText = word.term
                     self.markedWords.removeAll()
+                    self.sidebarSelection = .dictionary
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private var detailView: some View {
+        switch sidebarSelection {
+        case .dictionary, .none:
+            mainContentView
+        case .favorites:
+            FavoritesView()
+                .environmentObject(wordStore)
+        case .vocabulary:
+            VocabularyView()
+                .environmentObject(wordStore)
+        case .history:
+            HistoryView()
+                .environmentObject(wordStore)
+        case .unknownWords:
+            UnknownWordsView()
+                .environmentObject(wordStore)
         }
     }
     
@@ -510,6 +540,8 @@ struct FlowLayout: Layout {
 }
 
 struct SidebarView: View {
+    @Binding var selection: SidebarSelection?
+
     private let backgroundColor = Color(hex: "#0e0e16")
     private let surfaceLow = Color(hex: "#1a1a2e")
     private let cyanAccent = Color(hex: "#00d4ff")
@@ -541,11 +573,11 @@ struct SidebarView: View {
                     .foregroundColor(Color(hex: "#666680"))
                     .tracking(1)
 
-                sidebarLabel("Dictionary", systemImage: "book.closed", emphasized: true)
-                sidebarItem("Favorites", systemImage: "star", destination: FavoritesView())
-                sidebarItem("Vocabulary", systemImage: "text.book.closed", destination: VocabularyView())
-                sidebarItem("History", systemImage: "clock.arrow.circlepath", destination: HistoryView())
-                sidebarItem("Unknown Words", systemImage: "questionmark.circle", destination: UnknownWordsView())
+                sidebarButton("Dictionary", systemImage: "book.closed", item: .dictionary)
+                sidebarButton("Favorites", systemImage: "star", item: .favorites)
+                sidebarButton("Vocabulary", systemImage: "text.book.closed", item: .vocabulary)
+                sidebarButton("History", systemImage: "clock.arrow.circlepath", item: .history)
+                sidebarButton("Unknown Words", systemImage: "questionmark.circle", item: .unknownWords)
             }
             .padding(.horizontal, 24)
 
@@ -554,36 +586,30 @@ struct SidebarView: View {
         .background(backgroundColor)
     }
 
-    private func sidebarLabel(
+    private func sidebarButton(
         _ title: String,
         systemImage: String,
-        emphasized: Bool = false
+        item: SidebarSelection
     ) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: systemImage)
-                .font(.system(size: 15, weight: .medium))
-                .foregroundColor(emphasized ? cyanAccent : onSurfaceVariant)
+        let isSelected = selection == item
+        return Button(action: {
+            selection = item
+        }) {
+            HStack(spacing: 12) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(isSelected ? cyanAccent : onSurfaceVariant)
 
-            Text(title)
-                .font(.system(size: 14, weight: emphasized ? .semibold : .regular))
-                .foregroundColor(emphasized ? onSurface : onSurfaceVariant)
+                Text(title)
+                    .font(.system(size: 14, weight: isSelected ? .semibold : .regular))
+                    .foregroundColor(isSelected ? onSurface : onSurfaceVariant)
 
-            Spacer()
-        }
-        .padding(.horizontal, 12)
-        .frame(height: 40)
-        .background(emphasized ? surfaceLow : Color.clear)
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-    }
-
-    private func sidebarItem<Destination: View>(
-        _ title: String,
-        systemImage: String,
-        destination: Destination,
-        emphasized: Bool = false
-    ) -> some View {
-        NavigationLink(destination: destination) {
-            sidebarLabel(title, systemImage: systemImage, emphasized: emphasized)
+                Spacer()
+            }
+            .padding(.horizontal, 12)
+            .frame(height: 40)
+            .background(isSelected ? surfaceLow : Color.clear)
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         }
         .buttonStyle(.plain)
     }
