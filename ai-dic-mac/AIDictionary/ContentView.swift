@@ -309,11 +309,18 @@ struct HighlightableText: View {
                     }) {
                         Text(cleanWord)
                             .font(.system(size: 15))
-                            .foregroundColor(markedWords.contains(cleanWord) ? Color(hex: "#B54A4A") : onSurface)
+                            .foregroundColor(markedWords.contains(cleanWord) ? .white : onSurface)
+                            .strikethrough(markedWords.contains(cleanWord), color: .white.opacity(0.6))
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(markedWords.contains(cleanWord) ? Color(hex: "#B54A4A").opacity(0.2) : surfaceHigh.opacity(0.5))
+                            .background(markedWords.contains(cleanWord) ? Color(hex: "#ef4444").opacity(0.5) : surfaceHigh.opacity(0.5))
                             .cornerRadius(4)
+                            .overlay(
+                                markedWords.contains(cleanWord) ?
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .stroke(Color(hex: "#ef4444").opacity(0.8), lineWidth: 1.5)
+                                    : nil
+                            )
                     }
                     .buttonStyle(.plain)
 

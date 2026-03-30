@@ -88,17 +88,19 @@ function normalizeWordDefinition(word, rawContent) {
  * @returns {Promise<Object>} Word definition object
  */
 async function getWordDefinition(word, unknownWords = []) {
-  let prompt = `Define the word "${word}" in a simple way. `;
+  let avoidClause = '';
 
   if (unknownWords.length > 0) {
-    prompt += `The student do NOT know these words: ${unknownWords.join(', ')}. `;
+    avoidClause = ` The student does NOT know these words, so do NOT use them: ${unknownWords.join(', ')}.`;
   }
 
-  prompt +=
-    'Return valid JSON only with exactly these keys: definition, pronunciation, partOfSpeech, exampleSentences. ' +
-    'Use an IPA-style pronunciation string when possible. ' +
-    'Set exampleSentences to an array of 2 short natural sentences that use the word clearly. ' +
-    'Do not include markdown or extra commentary. If a field is unknown, use an empty string or an empty array.';
+  const prompt =
+    `Define "${word}" simply.${avoidClause} ` +
+    'You MUST respond with ONLY a JSON object (no markdown, no backticks, no commentary) using exactly these keys: ' +
+    '{"definition":"...","pronunciation":"...","partOfSpeech":"...","exampleSentences":["...","..."]}. ' +
+    'pronunciation: IPA transcription (e.g. "həˈloʊ"). ' +
+    'partOfSpeech: one of noun, verb, adjective, adverb, etc. ' +
+    'exampleSentences: array of 2 short natural sentences using the word.';
 
   console.log('Prompt:', prompt);
 
@@ -108,7 +110,8 @@ async function getWordDefinition(word, unknownWords = []) {
       model: 'deepseek-ai/DeepSeek-V3',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.3,
-      max_tokens: 220,
+      max_tokens: 400,
+      response_format: { type: 'json_object' },
     },
     {
       headers: {
