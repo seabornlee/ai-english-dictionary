@@ -28,14 +28,16 @@ struct ContentView: View {
     private let onSurfaceVariant = Color(hex: "#bbc9cf")
 
     var body: some View {
-        NavigationView {
+        HStack(spacing: 0) {
             SidebarView(selection: $sidebarSelection)
-                .frame(minWidth: 240)
+                .frame(width: 240)
                 .background(backgroundColor)
 
+            Divider()
+
             detailView
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .navigationTitle("CleverDict")
         .frame(minWidth: 900, minHeight: 600)
         .background(backgroundColor)
         .onAppear {
@@ -84,31 +86,16 @@ struct ContentView: View {
     }
     
     private var headerView: some View {
-        HStack(spacing: 16) {
-            HStack(spacing: 4) {
-                Image(systemName: networkMonitor.isOnline ? "wifi" : "wifi.slash")
-                    .font(.system(size: 12))
-                    .foregroundColor(networkMonitor.isOnline ? cyanAccent : onSurfaceVariant)
-                
-                Text(networkMonitor.isOnline ? "Online" : "Offline")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(onSurfaceVariant)
-            }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(surfaceHigh.opacity(0.5))
-            .cornerRadius(6)
-            
-            Spacer()
-            
+        HStack(spacing: 10) {
             HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 14))
                     .foregroundColor(onSurfaceVariant)
                 
                 TextField("", text: $searchText)
+                    .textFieldStyle(.plain)
                     .font(.system(size: 14))
-                    .foregroundColor(onSurface)
+                    .foregroundColor(.white)
                     .placeholder(when: searchText.isEmpty) {
                         Text("Type a word to look up...")
                             .foregroundColor(onSurfaceVariant)
@@ -117,12 +104,11 @@ struct ContentView: View {
                     .onSubmit {
                         performSearch()
                     }
-                    .frame(maxWidth: 300)
                 
                 Button(action: performSearch) {
                     Text("Search")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(Color(hex: "#003642"))
+                        .foregroundColor(.white)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 6)
                         .background(cyanAccent)
@@ -134,29 +120,59 @@ struct ContentView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(surfaceHigh.opacity(0.5))
+            .background(surfaceHigh)
             .cornerRadius(10)
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(cyanAccent.opacity(0.2), lineWidth: 1)
+                    .stroke(cyanAccent.opacity(0.15), lineWidth: 1)
             )
+            .frame(maxWidth: 400)
             
             Spacer()
+            
+            HStack(spacing: 4) {
+                Circle()
+                    .fill(networkMonitor.isOnline ? Color(hex: "#34d399") : Color(hex: "#f87171"))
+                    .frame(width: 6, height: 6)
+
+                Text(networkMonitor.isOnline ? "Online" : "Offline")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(onSurfaceVariant)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 16)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
         .background(surfaceLow)
     }
     
     private var contentAreaView: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 20) {
-                if isLoading {
-                    loadingView
-                } else if let error = errorMessage {
+                if let error = errorMessage, !isLoading {
                     errorView(message: error)
                 } else if let word = searchResult {
-                    wordResultView(word: word)
+                    WordDisplayView(
+                        word: word.term,
+                        definition: word.definition,
+                        pronunciation: word.pronunciation,
+                        partOfSpeech: word.partOfSpeech,
+                        exampleSentences: word.exampleSentences,
+                        isLoading: isLoading,
+                        error: nil,
+                        markedWords: $markedWords,
+                        onRegenerate: regenerateDefinition,
+                        onAddToFavorites: {
+                            wordStore.addToFavorites(word)
+                        },
+                        onAddToVocabulary: {
+                            wordStore.addToVocabulary(word)
+                        },
+                        showFavoritesButton: true
+                    )
+                } else if isLoading {
+                    loadingView
                 } else {
                     emptyStateView
                 }
@@ -170,7 +186,7 @@ struct ContentView: View {
     private var loadingView: some View {
         VStack(spacing: 16) {
             ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: cyanAccent))
+                .progressViewStyle(CircularProgressViewStyle(tint: .white))
                 .scaleEffect(1.2)
             Text("Loading...")
                 .font(.system(size: 14))
@@ -192,187 +208,6 @@ struct ContentView: View {
         .padding(40)
         .background(surfaceLow)
         .cornerRadius(12)
-    }
-    
-    private func wordResultView(word: Word) -> some View {
-        VStack(alignment: .leading, spacing: 20) {
-            wordHeaderView(word: word)
-            definitionView(word: word)
-            actionButtonsView(word: word)
-        }
-        .padding(24)
-        .background(surfaceLow)
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(cyanAccent.opacity(0.15), lineWidth: 1)
-        )
-    }
-    
-    private func wordHeaderView(word: Word) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(word.term)
-                    .font(.system(size: 36, weight: .black, design: .default))
-                    .foregroundColor(cyanAccent)
-                    .tracking(-0.5)
-                
-                HStack(spacing: 10) {
-                    Text("\(StitchUIHelpers.pronunciationLabel(for: word)) • \(word.partOfSpeech ?? "entry")")
-                        .font(.system(size: 12, design: .monospaced))
-                        .foregroundColor(onSurfaceVariant)
-
-                    Button {
-                        speechCoordinator.speak(word.term)
-                    } label: {
-                        Image(systemName: speechCoordinator.speakingText == word.term ? "speaker.wave.2.fill" : "speaker.wave.2")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(cyanAccent)
-                    }
-                    .buttonStyle(.plain)
-                    .help("Speak the word aloud")
-                }
-            }
-            
-            Spacer()
-            
-            HStack(spacing: 10) {
-                Button(action: {
-                    wordStore.addToFavorites(word)
-                }) {
-                    Image(systemName: wordStore.isFavorite(word) ? "star.fill" : "star")
-                        .font(.system(size: 18))
-                        .foregroundColor(wordStore.isFavorite(word) ? cyanAccent : onSurfaceVariant)
-                }
-                .buttonStyle(.plain)
-                .frame(width: 40, height: 40)
-                .background(surfaceHigh)
-                .cornerRadius(8)
-                
-                Button(action: {
-                    wordStore.addToVocabulary(word)
-                }) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(Color(hex: "#003642"))
-                }
-                .buttonStyle(.plain)
-                .frame(width: 40, height: 40)
-                .background(cyanAccent)
-                .cornerRadius(8)
-                .shadow(color: cyanAccent.opacity(0.3), radius: 8, x: 0, y: 2)
-            }
-        }
-    }
-    
-    private func definitionView(word: Word) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(word.definition)
-                .font(.system(size: 17, weight: .light))
-                .foregroundColor(onSurface.opacity(0.9))
-                .lineSpacing(6)
-                .fixedSize(horizontal: false, vertical: true)
-            
-            FlowLayout(spacing: 8) {
-                ForEach(extractKeywords(from: word.definition), id: \.self) { keyword in
-                    Button(action: {
-                        let lowerKeyword = keyword.lowercased()
-                        if markedWords.contains(lowerKeyword) {
-                            markedWords.remove(lowerKeyword)
-                        } else {
-                            markedWords.insert(lowerKeyword)
-                        }
-                    }) {
-                        Text(keyword)
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(markedWords.contains(keyword.lowercased()) ? Color(hex: "#B54A4A") : onSurface)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(markedWords.contains(keyword.lowercased()) ? Color(hex: "#B54A4A").opacity(0.15) : surfaceHigh)
-                            .cornerRadius(6)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(markedWords.contains(keyword.lowercased()) ? Color(hex: "#B54A4A").opacity(0.3) : Color.clear, lineWidth: 1)
-                            )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Text(StitchUIHelpers.listeningSectionTitle(for: word))
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(onSurface)
-
-                    Spacer()
-
-                    Button {
-                        speechCoordinator.speak(StitchUIHelpers.listeningSentences(for: word).joined(separator: " "))
-                    } label: {
-                        Label("Listen", systemImage: speechCoordinator.speakingText == StitchUIHelpers.listeningSentences(for: word).joined(separator: " ") ? "speaker.wave.2.fill" : "speaker.wave.2")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(cyanAccent)
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                ForEach(Array(StitchUIHelpers.listeningSentences(for: word).enumerated()), id: \.offset) { index, sentence in
-                    HStack(alignment: .top, spacing: 12) {
-                        Text("\(index + 1).")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(onSurfaceVariant)
-
-                        Text(sentence)
-                            .font(.system(size: 14))
-                            .foregroundColor(onSurface.opacity(0.92))
-                            .fixedSize(horizontal: false, vertical: true)
-
-                        Spacer(minLength: 0)
-
-                        Button {
-                            speechCoordinator.speak(sentence)
-                        } label: {
-                            Image(systemName: speechCoordinator.speakingText == sentence ? "speaker.wave.2.fill" : "speaker.wave.2")
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(cyanAccent)
-                        }
-                        .buttonStyle(.plain)
-                            .help("Speak sentence aloud")
-                    }
-                    .padding(12)
-                    .background(surfaceHigh.opacity(0.55))
-                    .cornerRadius(8)
-                }
-            }
-        }
-    }
-    
-    private func actionButtonsView(word: Word) -> some View {
-        HStack(spacing: 12) {
-            Button(action: regenerateDefinition) {
-                HStack(spacing: 6) {
-                    Image(systemName: "arrow.clockwise")
-                        .font(.system(size: 12))
-                    Text("Regenerate without marked words")
-                        .font(.system(size: 12, weight: .medium))
-                }
-                .foregroundColor(onSurfaceVariant)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .background(surfaceHigh)
-                .cornerRadius(6)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                )
-            }
-            .buttonStyle(.plain)
-            .disabled(markedWords.isEmpty || isLoading)
-            .opacity(markedWords.isEmpty || isLoading ? 0.5 : 1)
-            
-            Spacer()
-        }
     }
     
     private var emptyStateView: some View {
@@ -608,6 +443,7 @@ struct SidebarView: View {
             }
             .padding(.horizontal, 12)
             .frame(height: 40)
+            .contentShape(Rectangle())
             .background(isSelected ? surfaceLow : Color.clear)
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         }

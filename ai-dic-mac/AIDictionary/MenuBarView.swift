@@ -51,7 +51,7 @@ struct MenuBarView: View {
 
     private var headerView: some View {
         HStack(alignment: .top) {
-            Text("Scholar")
+            Text("CleverDict")
                 .font(.system(size: 20, weight: .black))
                 .foregroundColor(.white)
                 .tracking(-0.8)
@@ -194,7 +194,7 @@ struct MenuBarView: View {
     private var loadingCard: some View {
         VStack(spacing: 12) {
             ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: cyanAccent))
+                .progressViewStyle(CircularProgressViewStyle(tint: .white))
             Text("Looking up your word...")
                 .font(.system(size: 12, weight: .medium))
                 .foregroundColor(onSurfaceVariant)

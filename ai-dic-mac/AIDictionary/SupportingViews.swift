@@ -549,7 +549,7 @@ struct WordDisplayView: View {
                 HStack {
                     Spacer()
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: cyanAccent))
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         .scaleEffect(1.2)
                     Spacer()
                 }
