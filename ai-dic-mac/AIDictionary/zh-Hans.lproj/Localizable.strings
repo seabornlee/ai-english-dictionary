@@ -1,0 +1,123 @@
+// MARK: - App Name
+"app.name" = "浪溪词典";
+
+// MARK: - Menu Bar
+"menubar.title" = "词典";
+
+// MARK: - Sidebar
+"sidebar.learning" = "学习";
+"sidebar.dictionary" = "词典";
+"sidebar.favorites" = "收藏";
+"sidebar.vocabulary" = "词汇本";
+"sidebar.history" = "历史";
+"sidebar.unknown_words" = "生词";
+
+// MARK: - Search
+"search.placeholder" = "输入单词查询...";
+"search.button" = "搜索";
+"search.empty_state" = "搜索单词开始学习";
+
+// MARK: - Status
+"status.online" = "在线";
+"status.offline" = "离线";
+
+// MARK: - Loading
+"loading.title" = "加载中...";
+"loading.looking_up" = "正在查询单词...";
+
+// MARK: - Word Display
+"word.pronunciation_unavailable" = "发音不可用";
+"word.entry" = "词条";
+"word.unknown_words" = "生词:";
+
+// MARK: - Section Titles
+"section.example_sentences" = "例句";
+"section.definition_to_hear" = "朗读释义";
+
+// MARK: - Menu Bar Tabs
+"tab.define" = "查词";
+"tab.favorites" = "收藏";
+"tab.history" = "历史";
+
+// MARK: - Library Tabs
+"tab.vocabulary" = "词汇本";
+
+// MARK: - Favorites View
+"favorites.title" = "收藏";
+"favorites.subtitle" = "快速访问你想复习的单词。";
+"favorites.empty_title" = "暂无收藏";
+"favorites.empty_description" = "从词典或菜单栏收藏单词，它们会显示在这里。";
+
+// MARK: - Vocabulary & History View
+"vocabulary_history.title" = "词汇本与历史";
+"vocabulary_history.subtitle" = "管理你的学习单词和查询历史";
+"vocabulary.empty_title" = "暂无词汇";
+"history.empty_title" = "暂无历史";
+"vocabulary.empty_description" = "从词典或菜单栏添加的单词会显示在这里。";
+"history.empty_description" = "你的查询历史会在这里显示。";
+"vocabulary.clear_history" = "清空历史";
+
+// MARK: - Table Headers
+"table.word" = "单词";
+"table.definition" = "释义";
+"table.date_added" = "添加日期";
+
+// MARK: - Unknown Words View
+"unknown_words.title" = "生词";
+"unknown_words.subtitle" = "你标记为生词的单词会收集在这里，用于简化未来的解释。";
+"unknown_words.empty_title" = "暂无生词";
+"unknown_words.empty_description" = "点击释义中的单词来标记它们，建立你的复习清单。";
+"unknown_words.filter_message" = "重新生成解释时，将过滤掉 %d 个已保存的单词。";
+
+// MARK: - Menu Bar View
+"menubar.search_placeholder" = "搜索词汇...";
+"menubar.frequency_score" = "词频分数";
+"menubar.top_percentage" = "前 12%%";
+"menubar.open_full" = "打开完整词典";
+"menubar.quit" = "退出";
+"menubar.ai_engine" = "AI 引擎已激活";
+"menubar.lookup_failed" = "查询失败";
+"menubar.search_prompt" = "搜索单词";
+
+// MARK: - Offline Indicator
+"offline.title" = "离线";
+"offline.cached" = "(已缓存 %d 个)";
+"offline.new_word" = "新单词";
+
+// MARK: - Preferences
+"preferences.title" = "偏好设置";
+"preferences.general" = "通用";
+"preferences.about" = "关于";
+"preferences.language" = "语言";
+"preferences.api_settings" = "API 设置";
+"preferences.api_key_placeholder" = "DeepSeek API 密钥";
+"preferences.api_key_hint" = "你可以从 DeepSeek 网站获取 API 密钥。";
+"preferences.display" = "显示";
+"preferences.dark_mode" = "深色模式";
+"preferences.font_size" = "字体大小: %dpt";
+"preferences.font_size_slider" = "字体大小";
+
+// MARK: - About
+"about.version" = "版本 1.0.0";
+"about.description" = "一款 AI 驱动的英英词典，帮助用户通过纯英语解释学习和理解英语单词。";
+"about.copyright" = "© 2025 浪溪词典";
+
+// MARK: - Actions
+"action.regenerate" = "重新生成释义";
+"action.open_in_dictionary" = "在词典中打开";
+"action.share" = "分享单词卡片";
+
+// MARK: - Share Feature
+"share.theme.blue" = "海洋";
+"share.theme.purple" = "极光";
+"share.theme.dark" = "午夜";
+"share.theme.gradient" = "翡翠";
+"share.preview_title" = "分享单词卡片";
+"share.copy_image" = "复制图片";
+"share.save_image" = "保存图片";
+"share.share" = "分享";
+"share.definition" = "释义";
+"share.example" = "例句";
+
+// MARK: - Error Messages
+"error.lookup_failed" = "查询失败";

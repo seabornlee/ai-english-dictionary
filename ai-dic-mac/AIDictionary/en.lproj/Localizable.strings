@@ -1,0 +1,123 @@
+// MARK: - App Name
+"app.name" = "CleverDict";
+
+// MARK: - Menu Bar
+"menubar.title" = "Dictionary";
+
+// MARK: - Sidebar
+"sidebar.learning" = "LEARNING";
+"sidebar.dictionary" = "Dictionary";
+"sidebar.favorites" = "Favorites";
+"sidebar.vocabulary" = "Vocabulary";
+"sidebar.history" = "History";
+"sidebar.unknown_words" = "Unknown Words";
+
+// MARK: - Search
+"search.placeholder" = "Type a word to look up...";
+"search.button" = "Search";
+"search.empty_state" = "Search for a word to begin";
+
+// MARK: - Status
+"status.online" = "Online";
+"status.offline" = "Offline";
+
+// MARK: - Loading
+"loading.title" = "Loading...";
+"loading.looking_up" = "Looking up your word...";
+
+// MARK: - Word Display
+"word.pronunciation_unavailable" = "Pronunciation unavailable";
+"word.entry" = "entry";
+"word.unknown_words" = "Unknown words:";
+
+// MARK: - Section Titles
+"section.example_sentences" = "Example Sentences";
+"section.definition_to_hear" = "Definition to Hear";
+
+// MARK: - Menu Bar Tabs
+"tab.define" = "Define";
+"tab.favorites" = "Favorites";
+"tab.history" = "History";
+
+// MARK: - Library Tabs
+"tab.vocabulary" = "Vocabulary";
+
+// MARK: - Favorites View
+"favorites.title" = "Favorites";
+"favorites.subtitle" = "Quick access to the words you want to revisit.";
+"favorites.empty_title" = "No Favorites Yet";
+"favorites.empty_description" = "Star a word from the dictionary or menu bar to pin it here.";
+
+// MARK: - Vocabulary & History View
+"vocabulary_history.title" = "Vocabulary & History";
+"vocabulary_history.subtitle" = "Manage your learned words and lookup history";
+"vocabulary.empty_title" = "No Vocabulary Saved";
+"history.empty_title" = "No History Yet";
+"vocabulary.empty_description" = "Words you add from the dictionary or menu bar will appear here.";
+"history.empty_description" = "Your recent lookups will appear here after you search.";
+"vocabulary.clear_history" = "Clear History";
+
+// MARK: - Table Headers
+"table.word" = "Word";
+"table.definition" = "Definition";
+"table.date_added" = "Date Added";
+
+// MARK: - Unknown Words View
+"unknown_words.title" = "Unknown Words";
+"unknown_words.subtitle" = "Words you mark as unknown are collected here and used to simplify future explanations.";
+"unknown_words.empty_title" = "No Unknown Words";
+"unknown_words.empty_description" = "Tap words in definitions to mark them and build your review list.";
+"unknown_words.filter_message" = "%d saved words will be filtered out when you regenerate explanations.";
+
+// MARK: - Menu Bar View
+"menubar.search_placeholder" = "Search lexicon...";
+"menubar.frequency_score" = "Frequency Score";
+"menubar.top_percentage" = "Top 12%%";
+"menubar.open_full" = "Open Full Dictionary";
+"menubar.quit" = "Quit";
+"menubar.ai_engine" = "AI Engine Active";
+"menubar.lookup_failed" = "Lookup Failed";
+"menubar.search_prompt" = "Search for a word";
+
+// MARK: - Offline Indicator
+"offline.title" = "Offline";
+"offline.cached" = "(%d cached)";
+"offline.new_word" = "New word";
+
+// MARK: - Preferences
+"preferences.title" = "Preferences";
+"preferences.general" = "General";
+"preferences.about" = "About";
+"preferences.language" = "Language";
+"preferences.api_settings" = "API Settings";
+"preferences.api_key_placeholder" = "DeepSeek API Key";
+"preferences.api_key_hint" = "You can obtain an API key from DeepSeek's website.";
+"preferences.display" = "Display";
+"preferences.dark_mode" = "Dark Mode";
+"preferences.font_size" = "Font Size: %dpt";
+"preferences.font_size_slider" = "Font Size";
+
+// MARK: - About
+"about.version" = "Version 1.0.0";
+"about.description" = "An AI-powered English-to-English dictionary that helps users learn and understand English words through pure English explanations.";
+"about.copyright" = "© 2025 CleverDict";
+
+// MARK: - Actions
+"action.regenerate" = "Regenerate definition";
+"action.open_in_dictionary" = "Open in Dictionary";
+"action.share" = "Share Word Card";
+
+// MARK: - Share Feature
+"share.theme.blue" = "Ocean";
+"share.theme.purple" = "Aurora";
+"share.theme.dark" = "Midnight";
+"share.theme.gradient" = "Emerald";
+"share.preview_title" = "Share Word Card";
+"share.copy_image" = "Copy Image";
+"share.save_image" = "Save Image";
+"share.share" = "Share";
+"share.definition" = "Definition";
+"share.example" = "Example";
+
+// MARK: - Error Messages
+"error.lookup_failed" = "Lookup Failed";

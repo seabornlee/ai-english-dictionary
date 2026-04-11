@@ -40,7 +40,7 @@ class FloatingWindowService {
         window.titlebarAppearsTransparent = true
         window.standardWindowButton(.miniaturizeButton)?.isHidden = true
         window.standardWindowButton(.zoomButton)?.isHidden = true
-        window.title = "CleverDict"
+        window.title = LocalizationManager.shared.appName
 
         // Position window near the cursor
         if let screenFrame = NSScreen.main?.frame {
@@ -156,7 +156,7 @@ struct FloatingWordView: View {
                         .foregroundColor(.blue)
                 }
                 .buttonStyle(.plain)
-                .help("Open in Dictionary")
+                .help(NSLocalizedString("action.open_in_dictionary", comment: ""))
             }
         }
         .padding()

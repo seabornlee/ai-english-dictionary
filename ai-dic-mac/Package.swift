@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "AIDictionary",
+    defaultLocalization: "en",
     platforms: [
         .macOS(.v13),
     ],
@@ -19,6 +20,8 @@ let package = Package(
             resources: [
                 .process("Assets.xcassets"),
                 .process("AIDictionary.entitlements"),
+                .process("en.lproj"),
+                .process("zh-Hans.lproj"),
             ],
             swiftSettings: [
                 .enableUpcomingFeature("BareSlashRegexLiterals"),

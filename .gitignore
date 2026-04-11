@@ -12,3 +12,12 @@ ai-dic-server/.env
 ai-dic-server/.nyc_output
 ai-dic-server/test-reports
 .gstack/
+.env
+
+# Ruflo / claude-flow residuals
+.claude-flow/
+.swarm/
+.sisyphus/
+.minimax/
+ruvector.db
+config.yaml

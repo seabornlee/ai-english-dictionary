@@ -11,11 +11,11 @@ enum StitchMenuBarTab: Int, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .define:
-            return "Define"
+            return NSLocalizedString("tab.define", comment: "")
         case .favorites:
-            return "Favorites"
+            return NSLocalizedString("tab.favorites", comment: "")
         case .history:
-            return "History"
+            return NSLocalizedString("tab.history", comment: "")
         }
     }
 }
@@ -29,9 +29,9 @@ enum StitchLibraryTab: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .vocabulary:
-            return "Vocabulary"
+            return NSLocalizedString("tab.vocabulary", comment: "")
         case .history:
-            return "History"
+            return NSLocalizedString("tab.history", comment: "")
         }
     }
 }
@@ -74,7 +74,7 @@ enum StitchUIHelpers {
 
     static func exampleSentence(for word: Word?) -> String {
         guard let word else {
-            return "Search for a word to see a quick example in context."
+            return NSLocalizedString("search.empty_state", comment: "")
         }
 
         return listeningSentences(for: word).first ?? "The \(word.term.lowercased()) entry is ready for your next review session."
@@ -98,7 +98,7 @@ enum StitchUIHelpers {
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .contains { !$0.isEmpty }
 
-        return hasExamples ? "Example Sentences" : "Definition to Hear"
+        return hasExamples ? NSLocalizedString("section.example_sentences", comment: "") : NSLocalizedString("section.definition_to_hear", comment: "")
     }
 
     static func pronunciationLabel(for word: Word) -> String {
@@ -106,7 +106,7 @@ enum StitchUIHelpers {
             return "/\(pronunciation)/"
         }
 
-        return "Pronunciation unavailable"
+        return NSLocalizedString("word.pronunciation_unavailable", comment: "")
     }
 
     static func trimmedDefinition(_ definition: String, limit: Int) -> String {

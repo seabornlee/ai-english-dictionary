@@ -4,6 +4,7 @@ struct MenuBarView: View {
     @EnvironmentObject private var wordStore: WordStore
     @EnvironmentObject private var networkMonitor: NetworkMonitor
     @EnvironmentObject private var clipboardManager: ClipboardManager
+    @EnvironmentObject var localizationManager: LocalizationManager
     @ObservedObject private var speechCoordinator = SpeechCoordinator.shared
 
     @State private var searchText = ""
@@ -51,7 +52,7 @@ struct MenuBarView: View {
 
     private var headerView: some View {
         HStack(alignment: .top) {
-            Text("CleverDict")
+            Text(localizationManager.appName)
                 .font(.system(size: 20, weight: .black))
                 .foregroundColor(.white)
                 .tracking(-0.8)
@@ -86,7 +87,7 @@ struct MenuBarView: View {
                 .font(.system(size: 11, weight: .bold))
                 .foregroundColor(networkMonitor.isOnline ? cyanAccent : onSurfaceVariant)
 
-            Text(networkMonitor.isOnline ? "Online" : "Offline")
+            Text(networkMonitor.isOnline ? NSLocalizedString("status.online", comment: "") : NSLocalizedString("status.offline", comment: ""))
                 .font(.system(size: 9, weight: .black))
                 .foregroundColor(onSurfaceVariant)
                 .tracking(0.8)
@@ -112,7 +113,7 @@ struct MenuBarView: View {
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(onSurface)
                     .placeholder(when: searchText.isEmpty) {
-                        Text("Search lexicon...")
+                        Text(NSLocalizedString("menubar.search_placeholder", comment: ""))
                             .foregroundColor(onSurfaceVariant)
                             .font(.system(size: 13, weight: .medium))
                     }
@@ -158,15 +159,15 @@ struct MenuBarView: View {
                     defineContent
                 case .favorites:
                     collectionCard(
-                        title: "Favorites",
+                        title: NSLocalizedString("tab.favorites", comment: ""),
                         words: wordStore.favorites,
-                        emptyMessage: "Starred words will appear here."
+                        emptyMessage: NSLocalizedString("favorites.empty_description", comment: "")
                     )
                 case .history:
                     collectionCard(
-                        title: "History",
+                        title: NSLocalizedString("tab.history", comment: ""),
                         words: wordStore.searchHistory,
-                        emptyMessage: "Recent lookups will appear here."
+                        emptyMessage: NSLocalizedString("history.empty_description", comment: "")
                     )
                 }
             }
@@ -195,7 +196,7 @@ struct MenuBarView: View {
         VStack(spacing: 12) {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
-            Text("Looking up your word...")
+            Text(NSLocalizedString("loading.looking_up", comment: ""))
                 .font(.system(size: 12, weight: .medium))
                 .foregroundColor(onSurfaceVariant)
         }
@@ -207,7 +208,7 @@ struct MenuBarView: View {
 
     private func errorCard(message: String) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Lookup Failed", systemImage: "exclamationmark.triangle.fill")
+            Label(NSLocalizedString("menubar.lookup_failed", comment: ""), systemImage: "exclamationmark.triangle.fill")
                 .font(.system(size: 12, weight: .bold))
                 .foregroundColor(Color(hex: "#ffb4ab"))
 
@@ -238,7 +239,7 @@ struct MenuBarView: View {
                         .textCase(.uppercase)
 
                     HStack(spacing: 8) {
-                        Text("\(StitchUIHelpers.pronunciationLabel(for: word)) • \(word.partOfSpeech ?? "entry")")
+                        Text("\(StitchUIHelpers.pronunciationLabel(for: word)) • \(word.partOfSpeech ?? NSLocalizedString("word.entry", comment: ""))")
                             .font(.system(size: 10, weight: .medium, design: .monospaced))
                             .foregroundColor(onSurfaceVariant)
 
@@ -316,7 +317,7 @@ struct MenuBarView: View {
     private var frequencyCard: some View {
         HStack {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Frequency Score")
+                Text(NSLocalizedString("menubar.frequency_score", comment: ""))
                     .font(.system(size: 9, weight: .black))
                     .foregroundColor(Color(hex: "#7b8199"))
                     .tracking(1.1)
@@ -337,7 +338,7 @@ struct MenuBarView: View {
 
             Spacer()
 
-            Text("Top 12%")
+            Text(NSLocalizedString("menubar.top_percentage", comment: ""))
                 .font(.system(size: 11, weight: .bold))
                 .foregroundColor(onSurface)
         }
@@ -400,7 +401,7 @@ struct MenuBarView: View {
                 .font(.system(size: 28))
                 .foregroundColor(onSurfaceVariant.opacity(0.7))
 
-            Text("Search for a word")
+            Text(NSLocalizedString("menubar.search_prompt", comment: ""))
                 .font(.system(size: 16, weight: .bold))
                 .foregroundColor(onSurface)
 
@@ -479,7 +480,7 @@ struct MenuBarView: View {
                         .font(.system(size: 13, weight: .bold))
                         .foregroundColor(cyanAccent)
 
-                    Text("Open Full Dictionary")
+                    Text(NSLocalizedString("menubar.open_full", comment: ""))
                         .font(.system(size: 11, weight: .black))
                         .foregroundColor(Color(hex: "#d1d5db"))
                         .tracking(1)
@@ -503,7 +504,7 @@ struct MenuBarView: View {
                     HStack(spacing: 6) {
                         Image(systemName: "power")
                             .font(.system(size: 12, weight: .bold))
-                        Text("Quit")
+                        Text(NSLocalizedString("menubar.quit", comment: ""))
                             .font(.system(size: 10, weight: .black))
                             .tracking(0.8)
                             .textCase(.uppercase)
@@ -518,7 +519,7 @@ struct MenuBarView: View {
                     Circle()
                         .fill(cyanAccent)
                         .frame(width: 6, height: 6)
-                    Text("AI Engine Active")
+                    Text(NSLocalizedString("menubar.ai_engine", comment: ""))
                         .font(.system(size: 8, weight: .medium, design: .monospaced))
                         .foregroundColor(Color(hex: "#8a8fa5"))
                         .tracking(1)

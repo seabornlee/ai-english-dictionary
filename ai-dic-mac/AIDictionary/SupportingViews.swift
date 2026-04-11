@@ -13,20 +13,20 @@ struct FavoritesView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Favorites")
+                Text(NSLocalizedString("favorites.title", comment: ""))
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(onSurface)
 
-                Text("Quick access to the words you want to revisit.")
+                Text(NSLocalizedString("favorites.subtitle", comment: ""))
                     .font(.system(size: 14))
                     .foregroundColor(onSurfaceVariant)
             }
 
             if wordStore.favorites.isEmpty {
                 EmptyStateView(
-                    title: "No Favorites Yet",
+                    title: NSLocalizedString("favorites.empty_title", comment: ""),
                     systemImage: "star.slash",
-                    description: "Star a word from the dictionary or menu bar to pin it here."
+                    description: NSLocalizedString("favorites.empty_description", comment: "")
                 )
             } else {
                 ScrollView(showsIndicators: false) {
@@ -87,9 +87,9 @@ struct VocabularyHistoryView: View {
     private var emptyDescription: String {
         switch selectedTab {
         case .vocabulary:
-            return "Words you add from the dictionary or menu bar will appear here."
+                return NSLocalizedString("vocabulary.empty_description", comment: "")
         case .history:
-            return "Your recent lookups will appear here after you search."
+                return NSLocalizedString("history.empty_description", comment: "")
         }
     }
 
@@ -100,7 +100,7 @@ struct VocabularyHistoryView: View {
 
             if displayedWords.isEmpty {
                 EmptyStateView(
-                    title: selectedTab == .vocabulary ? "No Vocabulary Saved" : "No History Yet",
+                    title: selectedTab == .vocabulary ? NSLocalizedString("vocabulary.empty_title", comment: "") : NSLocalizedString("history.empty_title", comment: ""),
                     systemImage: selectedTab == .vocabulary ? "text.book.closed" : "clock",
                     description: emptyDescription
                 )
@@ -119,11 +119,11 @@ struct VocabularyHistoryView: View {
     private var header: some View {
         HStack(alignment: .bottom) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Vocabulary & History")
+                Text(NSLocalizedString("vocabulary_history.title", comment: ""))
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(onSurface)
 
-                Text("Manage your learned words and lookup history")
+                Text(NSLocalizedString("vocabulary_history.subtitle", comment: ""))
                     .font(.system(size: 14))
                     .foregroundColor(onSurfaceVariant)
             }
@@ -135,7 +135,7 @@ struct VocabularyHistoryView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "trash")
                             .font(.system(size: 14, weight: .medium))
-                        Text("Clear History")
+                        Text(NSLocalizedString("vocabulary.clear_history", comment: ""))
                             .font(.system(size: 14, weight: .medium))
                     }
                     .foregroundColor(onSurfaceVariant)
@@ -175,9 +175,9 @@ struct VocabularyHistoryView: View {
     private var libraryTable: some View {
         VStack(spacing: 0) {
             HStack(spacing: 16) {
-                tableHeader("Word", width: 220, alignment: .leading)
-                tableHeader("Definition", width: nil, alignment: .leading)
-                tableHeader("Date Added", width: 120, alignment: .leading)
+                tableHeader(NSLocalizedString("table.word", comment: ""), width: 220, alignment: .leading)
+                tableHeader(NSLocalizedString("table.definition", comment: ""), width: nil, alignment: .leading)
+                tableHeader(NSLocalizedString("table.date_added", comment: ""), width: 120, alignment: .leading)
                 Spacer()
                     .frame(width: 44)
             }
@@ -240,6 +240,8 @@ private struct FavoriteWordCard: View {
     private let cyanAccent = Color(hex: "#00d4ff")
     private let onSurface = Color(hex: "#ffffff")
     private let onSurfaceVariant = Color(hex: "#888899")
+    @State private var showingShareCard = false
+    @State private var selectedShareTheme: ShareCardTheme = .blue
 
     var body: some View {
         Button {
@@ -257,9 +259,18 @@ private struct FavoriteWordCard: View {
 
                     Spacer()
 
-                    Text(StitchUIHelpers.historyDateString(from: word.timestamp))
-                        .font(.system(size: 11))
-                        .foregroundColor(onSurfaceVariant)
+                    HStack(spacing: 12) {
+                        Text(StitchUIHelpers.historyDateString(from: word.timestamp))
+                            .font(.system(size: 11))
+                            .foregroundColor(onSurfaceVariant)
+
+                        Button(action: { showingShareCard = true }) {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.system(size: 12))
+                                .foregroundColor(onSurfaceVariant)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
 
                 Text(StitchUIHelpers.trimmedDefinition(word.definition, limit: 180))
@@ -285,6 +296,9 @@ private struct FavoriteWordCard: View {
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
         .buttonStyle(.plain)
+        .sheet(isPresented: $showingShareCard) {
+            ShareCardPreviewView(word: word, selectedTheme: $selectedShareTheme)
+        }
     }
 }
 
@@ -347,20 +361,20 @@ struct UnknownWordsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Unknown Words")
+                Text(NSLocalizedString("unknown_words.title", comment: ""))
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(onSurface)
 
-                Text("Words you mark as unknown are collected here and used to simplify future explanations.")
+                Text(NSLocalizedString("unknown_words.subtitle", comment: ""))
                     .font(.system(size: 14))
                     .foregroundColor(onSurfaceVariant)
             }
 
             if wordStore.unknownWords.isEmpty {
                 EmptyStateView(
-                    title: "No Unknown Words",
+                    title: NSLocalizedString("unknown_words.empty_title", comment: ""),
                     systemImage: "questionmark.circle",
-                    description: "Tap words in definitions to mark them and build your review list."
+                    description: NSLocalizedString("unknown_words.empty_description", comment: "")
                 )
             } else {
                 VStack(alignment: .leading, spacing: 18) {
@@ -369,7 +383,7 @@ struct UnknownWordsView: View {
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(cyanAccent)
 
-                        Text("\(wordStore.unknownWords.count) saved words will be filtered out when you regenerate explanations.")
+                        Text(String(format: NSLocalizedString("unknown_words.filter_message", comment: ""), wordStore.unknownWords.count))
                             .font(.system(size: 14))
                             .foregroundColor(onSurfaceVariant)
                     }
@@ -465,6 +479,8 @@ struct WordDisplayView: View {
     private let onSurfaceVariant = Color(hex: "#bbc9cf")
     private let errorColor = Color(hex: "#B54A4A")
     @ObservedObject private var speechCoordinator = SpeechCoordinator.shared
+    @State private var showingShareCard = false
+    @State private var selectedShareTheme: ShareCardTheme = .blue
 
     private var renderedWord: Word {
         Word(
@@ -487,7 +503,7 @@ struct WordDisplayView: View {
                         .tracking(-0.5)
 
                     HStack(spacing: 8) {
-                        Text("\(StitchUIHelpers.pronunciationLabel(for: renderedWord)) • \(partOfSpeech ?? "entry")")
+                        Text("\(StitchUIHelpers.pronunciationLabel(for: renderedWord)) • \(partOfSpeech ?? NSLocalizedString("word.entry", comment: ""))")
                             .font(.system(size: 12, design: .monospaced))
                             .foregroundColor(onSurfaceVariant)
 
@@ -517,6 +533,17 @@ struct WordDisplayView: View {
                         .cornerRadius(8)
                     }
 
+                    Button(action: { showingShareCard = true }) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 16))
+                            .foregroundColor(onSurfaceVariant)
+                    }
+                    .buttonStyle(.plain)
+                    .frame(width: 40, height: 40)
+                    .background(surfaceHigh)
+                    .cornerRadius(8)
+                    .help(NSLocalizedString("action.share", comment: ""))
+
                     if !markedWords.isEmpty {
                         Button(action: onRegenerate) {
                             Image(systemName: "arrow.clockwise")
@@ -527,7 +554,7 @@ struct WordDisplayView: View {
                         .frame(width: 40, height: 40)
                         .background(surfaceHigh)
                         .cornerRadius(8)
-                        .help("Regenerate definition")
+                        .help(NSLocalizedString("action.regenerate", comment: ""))
                     }
 
                     if let onAddToVocabulary {
@@ -612,7 +639,7 @@ struct WordDisplayView: View {
 
                 if !markedWords.isEmpty {
                     HStack {
-                        Text("Unknown words:")
+                        Text(NSLocalizedString("word.unknown_words", comment: ""))
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(onSurfaceVariant)
 
@@ -639,5 +666,8 @@ struct WordDisplayView: View {
         .padding(24)
         .background(surfaceLow)
         .cornerRadius(12)
+        .sheet(isPresented: $showingShareCard) {
+            ShareCardPreviewView(word: renderedWord, selectedTheme: $selectedShareTheme)
+        }
     }
 }

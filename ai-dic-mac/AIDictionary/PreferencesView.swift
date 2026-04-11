@@ -4,6 +4,7 @@ struct PreferencesView: View {
     @AppStorage("apiKey") private var apiKey: String = ""
     @AppStorage("darkModeEnabled") private var darkModeEnabled: Bool = true
     @AppStorage("fontSize") private var fontSize: Double = 14.0
+    @EnvironmentObject private var localizationManager: LocalizationManager
     
     private let backgroundColor = Color(hex: "#111125")
     private let surfaceLow = Color(hex: "#1a1a2e")
@@ -24,7 +25,7 @@ struct PreferencesView: View {
     
     private var generalTab: some View {
         Form {
-            Section(header: sectionHeader("API Settings")) {
+            Section(header: sectionHeader(NSLocalizedString("preferences.api_settings", comment: ""))) {
                 VStack(alignment: .leading, spacing: 8) {
                     TextField("", text: $apiKey)
                         .font(.system(size: 13))
@@ -37,28 +38,38 @@ struct PreferencesView: View {
                                 .stroke(cyanAccent.opacity(0.2), lineWidth: 1)
                         )
                         .placeholder(when: apiKey.isEmpty) {
-                            Text("DeepSeek API Key")
+                            Text(NSLocalizedString("preferences.api_key_placeholder", comment: ""))
                                 .foregroundColor(onSurfaceVariant)
                         }
 
-                    Text("You can obtain an API key from DeepSeek's website.")
+                    Text(NSLocalizedString("preferences.api_key_hint", comment: ""))
                         .font(.system(size: 11))
                         .foregroundColor(onSurfaceVariant)
                 }
             }
 
-            Section(header: sectionHeader("Display")) {
-                Toggle("Dark Mode", isOn: $darkModeEnabled)
+            Section(header: sectionHeader(NSLocalizedString("preferences.language", comment: ""))) {
+                Picker("", selection: $localizationManager.currentLanguage) {
+                    ForEach(LocalizationManager.supportedLanguages, id: \.self) { code in
+                        Text(LocalizationManager.languageNames[code] ?? code)
+                            .tag(code)
+                    }
+                }
+                .pickerStyle(SegmentedPickerStyle())
+            }
+
+            Section(header: sectionHeader(NSLocalizedString("preferences.display", comment: ""))) {
+                Toggle(NSLocalizedString("preferences.dark_mode", comment: ""), isOn: $darkModeEnabled)
                     .toggleStyle(SwitchToggleStyle(tint: cyanAccent))
                     .foregroundColor(onSurface)
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Font Size: \(Int(fontSize))pt")
+                    Text(String(format: NSLocalizedString("preferences.font_size", comment: ""), Int(fontSize)))
                         .font(.system(size: 13))
                         .foregroundColor(onSurface)
 
                     Slider(value: $fontSize, in: 10 ... 24, step: 1) {
-                        Text("Font Size")
+                        Text(NSLocalizedString("preferences.font_size_slider", comment: ""))
                     }
                     .tint(cyanAccent)
                 }
@@ -66,7 +77,7 @@ struct PreferencesView: View {
         }
         .formStyle(GroupedFormStyle())
         .tabItem {
-            Label("General", systemImage: "gear")
+            Label(NSLocalizedString("preferences.general", comment: ""), systemImage: "gear")
         }
     }
     
@@ -74,7 +85,7 @@ struct PreferencesView: View {
     private var aboutTab: some View {
         AboutView()
             .tabItem {
-                Label("About", systemImage: "info.circle")
+                Label(NSLocalizedString("preferences.about", comment: ""), systemImage: "info.circle")
             }
     }
     
@@ -104,15 +115,15 @@ struct AboutView: View {
                     .foregroundColor(cyanAccent)
             }
 
-            Text("CleverDict")
+            Text(LocalizationManager.shared.appName)
                 .font(.system(size: 24, weight: .bold))
                 .foregroundColor(onSurface)
 
-            Text("Version 1.0.0")
+            Text(NSLocalizedString("about.version", comment: ""))
                 .font(.system(size: 14))
                 .foregroundColor(onSurfaceVariant)
 
-            Text("An AI-powered English-to-English dictionary that helps users learn and understand English words through pure English explanations.")
+            Text(NSLocalizedString("about.description", comment: ""))
                 .font(.system(size: 13))
                 .foregroundColor(onSurfaceVariant)
                 .multilineTextAlignment(.center)
@@ -121,7 +132,7 @@ struct AboutView: View {
 
             Spacer()
 
-            Text("© 2025 CleverDict")
+            Text(NSLocalizedString("about.copyright", comment: ""))
                 .font(.system(size: 11))
                 .foregroundColor(onSurfaceVariant.opacity(0.7))
         }

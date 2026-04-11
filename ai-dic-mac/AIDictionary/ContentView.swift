@@ -11,6 +11,7 @@ enum SidebarSelection: String, Hashable {
 struct ContentView: View {
     @EnvironmentObject private var wordStore: WordStore
     @EnvironmentObject private var networkMonitor: NetworkMonitor
+    @EnvironmentObject private var localizationManager: LocalizationManager
     @ObservedObject private var speechCoordinator = SpeechCoordinator.shared
     @State private var searchText = ""
     @State private var isSearching = false
@@ -97,7 +98,7 @@ struct ContentView: View {
                     .font(.system(size: 14))
                     .foregroundColor(.white)
                     .placeholder(when: searchText.isEmpty) {
-                        Text("Type a word to look up...")
+                        Text(NSLocalizedString("search.placeholder", comment: ""))
                             .foregroundColor(onSurfaceVariant)
                             .font(.system(size: 14))
                     }
@@ -106,7 +107,7 @@ struct ContentView: View {
                     }
                 
                 Button(action: performSearch) {
-                    Text("Search")
+                    Text(NSLocalizedString("search.button", comment: ""))
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 14)
@@ -135,7 +136,7 @@ struct ContentView: View {
                     .fill(networkMonitor.isOnline ? Color(hex: "#34d399") : Color(hex: "#f87171"))
                     .frame(width: 6, height: 6)
 
-                Text(networkMonitor.isOnline ? "Online" : "Offline")
+                Text(networkMonitor.isOnline ? NSLocalizedString("status.online", comment: "") : NSLocalizedString("status.offline", comment: ""))
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(onSurfaceVariant)
             }
@@ -188,7 +189,7 @@ struct ContentView: View {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                 .scaleEffect(1.2)
-            Text("Loading...")
+            Text(NSLocalizedString("loading.title", comment: ""))
                 .font(.system(size: 14))
                 .foregroundColor(onSurfaceVariant)
         }
@@ -216,7 +217,7 @@ struct ContentView: View {
                 .font(.system(size: 56))
                 .foregroundColor(onSurfaceVariant.opacity(0.4))
             
-            Text("Search for a word to begin")
+            Text(NSLocalizedString("search.empty_state", comment: ""))
                 .font(.system(size: 18, weight: .medium))
                 .foregroundColor(onSurfaceVariant)
         }
@@ -383,6 +384,7 @@ struct FlowLayout: Layout {
 
 struct SidebarView: View {
     @Binding var selection: SidebarSelection?
+    @EnvironmentObject private var localizationManager: LocalizationManager
 
     private let backgroundColor = Color(hex: "#0e0e16")
     private let surfaceLow = Color(hex: "#1a1a2e")
@@ -402,7 +404,7 @@ struct SidebarView: View {
                             .foregroundColor(Color(hex: "#003642"))
                     )
 
-                Text("CleverDict")
+                Text(localizationManager.appName)
                     .font(.system(size: 20, weight: .bold))
                     .foregroundColor(onSurface)
             }
@@ -410,16 +412,16 @@ struct SidebarView: View {
             .padding(.top, 24)
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("LEARNING")
+                Text(NSLocalizedString("sidebar.learning", comment: ""))
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(Color(hex: "#666680"))
                     .tracking(1)
 
-                sidebarButton("Dictionary", systemImage: "book.closed", item: .dictionary)
-                sidebarButton("Favorites", systemImage: "star", item: .favorites)
-                sidebarButton("Vocabulary", systemImage: "text.book.closed", item: .vocabulary)
-                sidebarButton("History", systemImage: "clock.arrow.circlepath", item: .history)
-                sidebarButton("Unknown Words", systemImage: "questionmark.circle", item: .unknownWords)
+                sidebarButton(NSLocalizedString("sidebar.dictionary", comment: ""), systemImage: "book.closed", item: .dictionary)
+                sidebarButton(NSLocalizedString("sidebar.favorites", comment: ""), systemImage: "star", item: .favorites)
+                sidebarButton(NSLocalizedString("sidebar.vocabulary", comment: ""), systemImage: "text.book.closed", item: .vocabulary)
+                sidebarButton(NSLocalizedString("sidebar.history", comment: ""), systemImage: "clock.arrow.circlepath", item: .history)
+                sidebarButton(NSLocalizedString("sidebar.unknown_words", comment: ""), systemImage: "questionmark.circle", item: .unknownWords)
             }
             .padding(.horizontal, 24)
 
@@ -449,7 +451,7 @@ struct SidebarView: View {
                 Spacer()
             }
             .padding(.horizontal, 12)
-            .frame(height: 40)
+            .frame(maxWidth: .infinity, minHeight: 40)
             .contentShape(Rectangle())
             .background(isSelected ? surfaceLow : Color.clear)
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
@@ -463,5 +465,6 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
             .environmentObject(WordStore())
             .environmentObject(NetworkMonitor.shared)
+            .environmentObject(LocalizationManager.shared)
     }
 }

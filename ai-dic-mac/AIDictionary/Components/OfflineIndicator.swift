@@ -14,11 +14,11 @@ struct OfflineIndicator: View {
                 Image(systemName: "wifi.slash")
                     .font(.system(size: 12, weight: .medium))
                 
-                Text("Offline")
+                Text(NSLocalizedString("offline.title", comment: ""))
                     .font(.system(size: 11, weight: .bold))
                 
                 if wordStore.offlineCacheCount > 0 {
-                    Text("(\(wordStore.offlineCacheCount) cached)")
+                    Text(String(format: NSLocalizedString("offline.cached", comment: ""), wordStore.offlineCacheCount))
                         .font(.system(size: 10))
                         .foregroundColor(onSurfaceVariant)
                 }
@@ -50,7 +50,7 @@ struct MenuBarClipboardBadge: View {
                 Image(systemName: "doc.on.clipboard")
                     .font(.system(size: 10))
                 
-                Text("New word")
+                Text(NSLocalizedString("offline.new_word", comment: ""))
                     .font(.system(size: 10, weight: .medium))
             }
             .foregroundColor(Color(hex: "#003642"))
