@@ -6,8 +6,8 @@
 set -e
 
 # Configuration
-APP_NAME="AIDictionary"
-BUNDLE_ID="site.waterlee.aidic.AIDictionary"
+APP_NAME="LexisDic"
+BUNDLE_ID="site.waterlee.aidic"
 BUILD_DIR="build"
 EXPORT_DIR="$BUILD_DIR/Export"
 VERSION=${1:-$(date +%Y.%m.%d)}
