@@ -12,8 +12,8 @@ on:
         type: string
 
 env:
-  APP_NAME: AIDictionary
-  BUNDLE_ID: com.seabornlee.AIDictionary
+  APP_NAME: LexisDic
+  BUNDLE_ID: site.waterlee.aidic
 
 jobs:
   build-mac:

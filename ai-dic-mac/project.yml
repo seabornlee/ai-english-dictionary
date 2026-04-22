@@ -1,4 +1,4 @@
-name: AIDictionary
+name: LexisDic
 options:
   bundleIdPrefix: site.waterlee.aidic
   deploymentTarget:
@@ -6,10 +6,10 @@ options:
   createIntermediateGroups: true
   xcodeVersion: "14.0"
 targets:
-  AIDictionary:
+  LexisDic:
     type: application
     platform: macOS
-    sources: 
+    sources:
       - path: AIDictionary
         excludes:
           - "**/*.md"
@@ -22,7 +22,7 @@ targets:
         CODE_SIGN_ENTITLEMENTS: AIDictionary/AIDictionary.entitlements
         CODE_SIGN_IDENTITY: "Mac Developer"
         DEVELOPMENT_TEAM: "6RT3UH94M6"
-        PRODUCT_NAME: CleverDict
+        PRODUCT_NAME: LexisDic
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         COMBINE_HIDPI_IMAGES: YES
         SDKROOT: macosx
@@ -70,8 +70,8 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: site.waterlee.aidic.AIDictionaryTests
         INFOPLIST_FILE: AIDictionaryTests/Info.plist
         MACOSX_DEPLOYMENT_TARGET: "13.0"
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/AIDictionary.app/Contents/MacOS/AIDictionary"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/LexisDic.app/Contents/MacOS/LexisDic"
     info:
       path: AIDictionaryTests/Info.plist
     dependencies:
-      - target: AIDictionary 
+      - target: LexisDic 

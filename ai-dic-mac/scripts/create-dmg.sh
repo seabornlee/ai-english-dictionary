@@ -6,7 +6,7 @@
 set -e
 
 VERSION=${1:-$(date +%Y.%m.%d)}
-APP_NAME="AIDictionary"
+APP_NAME="LexisDic"
 APP_PATH="build/Export/${APP_NAME}.app"
 DMG_NAME="${APP_NAME}-${VERSION}.dmg"
 DMG_PATH="build/${DMG_NAME}"
