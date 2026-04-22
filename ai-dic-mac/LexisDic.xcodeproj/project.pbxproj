@@ -1,0 +1,567 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2AD096EBF280371A23DE02EE /* OfflineIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1114F19853A2BDC1A31D35B4 /* OfflineIndicator.swift */; };
+		3BD2BB51662461E4DF6105F1 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96611BE37D3747192FFE777F /* NetworkMonitor.swift */; };
+		40BA02F7E505E54444226CD8 /* StitchUIHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC15872140E0A913CC8DC1B /* StitchUIHelpers.swift */; };
+		4A81E2D86912E3F4CD0C6640 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A59BB5F8803A5DDF2A8EA793 /* MenuBarView.swift */; };
+		501DF86AF90E4BF326D68700 /* StitchUIHelpersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDB8C08B3CF98C0B387E8195 /* StitchUIHelpersTests.swift */; };
+		58144E90672DC12AB5FEB8C3 /* Word.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FF5CF9F13632331D9EC1952 /* Word.swift */; };
+		5CF552531DDC4E5A2FE1D18C /* LocalizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F7DB1DC99791C86CCA8A3A /* LocalizationManager.swift */; };
+		69E46E6F3A128EA289BB0C15 /* ClipboardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A2375007815DF75A4481A6 /* ClipboardManager.swift */; };
+		74766976EAA00EAB13DA7D1E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC82DBBC0F583FBB3989F01 /* ContentView.swift */; };
+		7AB67E4D84B57BF184F9967C /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F7A7E6CA074410B18BE788 /* PreferencesView.swift */; };
+		8EB6A35C67BD99C053B5C7A1 /* WordStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D601D20BB7187BC53FCFC06 /* WordStore.swift */; };
+		8F915E6A29041EEAC05ABEAC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 43F7A50C8E78426294E04DD8 /* Assets.xcassets */; };
+		987E2EF2139472DC7BC7BAE6 /* FloatingWindowService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1B8E19973D86672478B952 /* FloatingWindowService.swift */; };
+		989424BF03A01D8373A2F482 /* TextValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46DA27AF9EFA1A24CC9A81E9 /* TextValidationTests.swift */; };
+		9A5BA62052A0F6838A422A75 /* SupportingViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 496D370836EF6ED6960ABA74 /* SupportingViews.swift */; };
+		9F2F7BDFCA246265151B2091 /* AIDictionaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF4BE0324C5A0163C348CCB9 /* AIDictionaryTests.swift */; };
+		A23B34450490B840DD5D7D75 /* AIDictionaryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BBCB85DC11F7559221032B6 /* AIDictionaryApp.swift */; };
+		A7694061FDB0A88A6CAE1568 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC4DF84DB46A7A3F1E63EE55 /* APIService.swift */; };
+		C3D0461F2BF47298ECAE5F78 /* ShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE566C8CEF9DCC1BFC8DDA7 /* ShareCardView.swift */; };
+		CCE0584B01A0140F2A59C6E8 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = DD354972989FD482CD5EFE2B /* Localizable.strings */; };
+		E1A40B9ECFDDCDD541DA23A9 /* WordLearningContentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00D690FCA379A738D986553 /* WordLearningContentTests.swift */; };
+		F7EB4EBC29A9239FD90E2FCD /* TextValidation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65337B82951D733CCF279084 /* TextValidation.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		26F548AD55A693739D8E1C95 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 06C6CAE3BAA7114AA332C969 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E52371C087577BFDAF8F5B2E;
+			remoteInfo = LexisDic;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		10F7A7E6CA074410B18BE788 /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
+		1114F19853A2BDC1A31D35B4 /* OfflineIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineIndicator.swift; sourceTree = "<group>"; };
+		11E687D1B44B301C0D30ABCD /* AIDictionaryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AIDictionaryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		15EA2A877B525D611F2CDEB1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		18F7DB1DC99791C86CCA8A3A /* LocalizationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationManager.swift; sourceTree = "<group>"; };
+		1E5C97ED82034F3B40E6C96A /* AIDictionary.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AIDictionary.entitlements; sourceTree = "<group>"; };
+		3A1B8E19973D86672478B952 /* FloatingWindowService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingWindowService.swift; sourceTree = "<group>"; };
+		3FF5CF9F13632331D9EC1952 /* Word.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Word.swift; sourceTree = "<group>"; };
+		43F7A50C8E78426294E04DD8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		46DA27AF9EFA1A24CC9A81E9 /* TextValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextValidationTests.swift; sourceTree = "<group>"; };
+		496D370836EF6ED6960ABA74 /* SupportingViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportingViews.swift; sourceTree = "<group>"; };
+		4CE566C8CEF9DCC1BFC8DDA7 /* ShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardView.swift; sourceTree = "<group>"; };
+		5BBCB85DC11F7559221032B6 /* AIDictionaryApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIDictionaryApp.swift; sourceTree = "<group>"; };
+		65337B82951D733CCF279084 /* TextValidation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextValidation.swift; sourceTree = "<group>"; };
+		83728C42699D077048E5AD7D /* LexisDic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LexisDic.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B24A72D33EA2471938551E6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		8D601D20BB7187BC53FCFC06 /* WordStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordStore.swift; sourceTree = "<group>"; };
+		8EC15872140E0A913CC8DC1B /* StitchUIHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchUIHelpers.swift; sourceTree = "<group>"; };
+		8EC82DBBC0F583FBB3989F01 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		96611BE37D3747192FFE777F /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
+		9B2908509C195CED2BB9AC0D /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		A00D690FCA379A738D986553 /* WordLearningContentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordLearningContentTests.swift; sourceTree = "<group>"; };
+		A59BB5F8803A5DDF2A8EA793 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		B04276E12A1104ECBCE3A8DA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		C7A2375007815DF75A4481A6 /* ClipboardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardManager.swift; sourceTree = "<group>"; };
+		DF4BE0324C5A0163C348CCB9 /* AIDictionaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIDictionaryTests.swift; sourceTree = "<group>"; };
+		FC4DF84DB46A7A3F1E63EE55 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
+		FDB8C08B3CF98C0B387E8195 /* StitchUIHelpersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchUIHelpersTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		07F9C8EE2D4F05E11D73AF61 /* AIDictionary */ = {
+			isa = PBXGroup;
+			children = (
+				1E5C97ED82034F3B40E6C96A /* AIDictionary.entitlements */,
+				5BBCB85DC11F7559221032B6 /* AIDictionaryApp.swift */,
+				FC4DF84DB46A7A3F1E63EE55 /* APIService.swift */,
+				43F7A50C8E78426294E04DD8 /* Assets.xcassets */,
+				8EC82DBBC0F583FBB3989F01 /* ContentView.swift */,
+				3A1B8E19973D86672478B952 /* FloatingWindowService.swift */,
+				B04276E12A1104ECBCE3A8DA /* Info.plist */,
+				DD354972989FD482CD5EFE2B /* Localizable.strings */,
+				A59BB5F8803A5DDF2A8EA793 /* MenuBarView.swift */,
+				10F7A7E6CA074410B18BE788 /* PreferencesView.swift */,
+				8EC15872140E0A913CC8DC1B /* StitchUIHelpers.swift */,
+				496D370836EF6ED6960ABA74 /* SupportingViews.swift */,
+				65337B82951D733CCF279084 /* TextValidation.swift */,
+				3647F86337D820FAAB52B299 /* Components */,
+				F20AAC344FA509C0E4B23511 /* Managers */,
+				6E44632EFD485EB471406B83 /* Models */,
+			);
+			path = AIDictionary;
+			sourceTree = "<group>";
+		};
+		3647F86337D820FAAB52B299 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				1114F19853A2BDC1A31D35B4 /* OfflineIndicator.swift */,
+				4CE566C8CEF9DCC1BFC8DDA7 /* ShareCardView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		6296649C48945F037E9F6989 = {
+			isa = PBXGroup;
+			children = (
+				07F9C8EE2D4F05E11D73AF61 /* AIDictionary */,
+				D5B81FC19904256FAF4624DB /* AIDictionaryTests */,
+				6ACF2854705400F8BAD75BD7 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6ACF2854705400F8BAD75BD7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				11E687D1B44B301C0D30ABCD /* AIDictionaryTests.xctest */,
+				83728C42699D077048E5AD7D /* LexisDic.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6E44632EFD485EB471406B83 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				3FF5CF9F13632331D9EC1952 /* Word.swift */,
+				8D601D20BB7187BC53FCFC06 /* WordStore.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		D5B81FC19904256FAF4624DB /* AIDictionaryTests */ = {
+			isa = PBXGroup;
+			children = (
+				DF4BE0324C5A0163C348CCB9 /* AIDictionaryTests.swift */,
+				15EA2A877B525D611F2CDEB1 /* Info.plist */,
+				FDB8C08B3CF98C0B387E8195 /* StitchUIHelpersTests.swift */,
+				46DA27AF9EFA1A24CC9A81E9 /* TextValidationTests.swift */,
+				A00D690FCA379A738D986553 /* WordLearningContentTests.swift */,
+			);
+			path = AIDictionaryTests;
+			sourceTree = "<group>";
+		};
+		F20AAC344FA509C0E4B23511 /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				C7A2375007815DF75A4481A6 /* ClipboardManager.swift */,
+				18F7DB1DC99791C86CCA8A3A /* LocalizationManager.swift */,
+				96611BE37D3747192FFE777F /* NetworkMonitor.swift */,
+			);
+			path = Managers;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6AB22D91CB86371C63759C0E /* AIDictionaryTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F96A5AF7AA8942E37E3942FD /* Build configuration list for PBXNativeTarget "AIDictionaryTests" */;
+			buildPhases = (
+				36EF5FC4420C54150B538B18 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FF5ED475E8151143522ED16B /* PBXTargetDependency */,
+			);
+			name = AIDictionaryTests;
+			packageProductDependencies = (
+			);
+			productName = AIDictionaryTests;
+			productReference = 11E687D1B44B301C0D30ABCD /* AIDictionaryTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		E52371C087577BFDAF8F5B2E /* LexisDic */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5B6E58854D90D6919A1A37BE /* Build configuration list for PBXNativeTarget "LexisDic" */;
+			buildPhases = (
+				170DFFFDD313883B9D0D7A19 /* Sources */,
+				710250D6679B5DA730AF6C3E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LexisDic;
+			packageProductDependencies = (
+			);
+			productName = LexisDic;
+			productReference = 83728C42699D077048E5AD7D /* LexisDic.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		06C6CAE3BAA7114AA332C969 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1400;
+				TargetAttributes = {
+					E52371C087577BFDAF8F5B2E = {
+						DevelopmentTeam = 6RT3UH94M6;
+					};
+				};
+			};
+			buildConfigurationList = 44D423049338FD4951322F88 /* Build configuration list for PBXProject "LexisDic" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+				"zh-Hans",
+			);
+			mainGroup = 6296649C48945F037E9F6989;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6AB22D91CB86371C63759C0E /* AIDictionaryTests */,
+				E52371C087577BFDAF8F5B2E /* LexisDic */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		710250D6679B5DA730AF6C3E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8F915E6A29041EEAC05ABEAC /* Assets.xcassets in Resources */,
+				CCE0584B01A0140F2A59C6E8 /* Localizable.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		170DFFFDD313883B9D0D7A19 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A23B34450490B840DD5D7D75 /* AIDictionaryApp.swift in Sources */,
+				A7694061FDB0A88A6CAE1568 /* APIService.swift in Sources */,
+				69E46E6F3A128EA289BB0C15 /* ClipboardManager.swift in Sources */,
+				74766976EAA00EAB13DA7D1E /* ContentView.swift in Sources */,
+				987E2EF2139472DC7BC7BAE6 /* FloatingWindowService.swift in Sources */,
+				5CF552531DDC4E5A2FE1D18C /* LocalizationManager.swift in Sources */,
+				4A81E2D86912E3F4CD0C6640 /* MenuBarView.swift in Sources */,
+				3BD2BB51662461E4DF6105F1 /* NetworkMonitor.swift in Sources */,
+				2AD096EBF280371A23DE02EE /* OfflineIndicator.swift in Sources */,
+				7AB67E4D84B57BF184F9967C /* PreferencesView.swift in Sources */,
+				C3D0461F2BF47298ECAE5F78 /* ShareCardView.swift in Sources */,
+				40BA02F7E505E54444226CD8 /* StitchUIHelpers.swift in Sources */,
+				9A5BA62052A0F6838A422A75 /* SupportingViews.swift in Sources */,
+				F7EB4EBC29A9239FD90E2FCD /* TextValidation.swift in Sources */,
+				58144E90672DC12AB5FEB8C3 /* Word.swift in Sources */,
+				8EB6A35C67BD99C053B5C7A1 /* WordStore.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		36EF5FC4420C54150B538B18 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9F2F7BDFCA246265151B2091 /* AIDictionaryTests.swift in Sources */,
+				501DF86AF90E4BF326D68700 /* StitchUIHelpersTests.swift in Sources */,
+				989424BF03A01D8373A2F482 /* TextValidationTests.swift in Sources */,
+				E1A40B9ECFDDCDD541DA23A9 /* WordLearningContentTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		FF5ED475E8151143522ED16B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E52371C087577BFDAF8F5B2E /* LexisDic */;
+			targetProxy = 26F548AD55A693739D8E1C95 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		DD354972989FD482CD5EFE2B /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8B24A72D33EA2471938551E6 /* en */,
+				9B2908509C195CED2BB9AC0D /* zh-Hans */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		3698F4D6395B0F3C1901DC5C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = AIDictionaryTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = site.waterlee.aidic.AIDictionaryTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LexisDic.app/Contents/MacOS/LexisDic";
+			};
+			name = Release;
+		};
+		511A3353A6369D370A154DA7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = AIDictionaryTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = site.waterlee.aidic.AIDictionaryTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LexisDic.app/Contents/MacOS/LexisDic";
+			};
+			name = Debug;
+		};
+		6ADE09F4012F6BFDAFDA2720 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_ENTITLEMENTS = AIDictionary/AIDictionary.entitlements;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 6RT3UH94M6;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = AIDictionary/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = site.waterlee.aidic;
+				PRODUCT_NAME = LexisDic;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		909405357AE1E7B7EA942C3E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_ENTITLEMENTS = AIDictionary/AIDictionary.entitlements;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 6RT3UH94M6;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = AIDictionary/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = site.waterlee.aidic;
+				PRODUCT_NAME = LexisDic;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		A21CA4B8D7EB86E714DC71AE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		B3F66DE712AC494032336FB3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		44D423049338FD4951322F88 /* Build configuration list for PBXProject "LexisDic" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B3F66DE712AC494032336FB3 /* Debug */,
+				A21CA4B8D7EB86E714DC71AE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		5B6E58854D90D6919A1A37BE /* Build configuration list for PBXNativeTarget "LexisDic" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6ADE09F4012F6BFDAFDA2720 /* Debug */,
+				909405357AE1E7B7EA942C3E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F96A5AF7AA8942E37E3942FD /* Build configuration list for PBXNativeTarget "AIDictionaryTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				511A3353A6369D370A154DA7 /* Debug */,
+				3698F4D6395B0F3C1901DC5C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 06C6CAE3BAA7114AA332C969 /* Project object */;
+}
