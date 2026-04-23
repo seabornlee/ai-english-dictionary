@@ -88,7 +88,7 @@ jobs:
         run: |
           flyctl deploy --remote-only
 
-  publish-homebrew-cask:
+  publish-homebrew-tap:
     runs-on: ubuntu-latest
     needs: build-mac
     if: startsWith(github.ref, 'refs/tags/')
@@ -106,26 +106,19 @@ jobs:
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "SHA256=$(shasum -a 256 LexisDic.dmg | cut -d' ' -f1)" >> $GITHUB_ENV
 
-      - name: Checkout homebrew-cask
+      - name: Checkout tap repo
         uses: actions/checkout@v4
         with:
-          repository: seabornlee/homebrew-cask
+          repository: seabornlee/lexis-dic
           token: ${{ secrets.HOMEBREW_TOKEN }}
-          path: homebrew-cask
-
-      - name: Create branch
-        working-directory: homebrew-cask
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git checkout -b lexis-dic-${{ env.VERSION }}
+          path: lexis-dic
 
       - name: Create Cask
         env:
           SHA256: ${{ env.SHA256 }}
           VERSION: ${{ env.VERSION }}
         run: |
-          cat > homebrew-cask/Casks/lexis-dic.rb << 'RUBY'
+          cat > lexis-dic/Formula/lexis-dic.rb << 'RUBY'
           class LexisDic < Cask
             version "{{ version }}"
             sha256 "{{ sha256 }}"
@@ -136,17 +129,23 @@ jobs:
             homepage "https://github.com/seabornlee/ai-dic-repos"
 
             app "LexisDic.app"
+
+            zap trash: [
+              "~/Library/Application Support/LexisDic",
+              "~/Library/Preferences/site.waterlee.aidic.LexisDic.plist",
+            ]
           end
           RUBY
-          sed -i "s/{{ version }}/${{ env.VERSION }}/g" homebrew-cask/Casks/lexis-dic.rb
-          sed -i "s/{{ sha256 }}/${{ env.SHA256 }}/g" homebrew-cask/Casks/lexis-dic.rb
+          sed -i "s/{{ version }}/${{ env.VERSION }}/g" lexis-dic/Formula/lexis-dic.rb
+          sed -i "s/{{ sha256 }}/${{ env.SHA256 }}/g" lexis-dic/Formula/lexis-dic.rb
 
-      - name: Submit PR
-        working-directory: homebrew-cask
+      - name: Push to tap
+        working-directory: lexis-dic
         env:
           GH_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
         run: |
-          git add Casks/lexis-dic.rb
-          git commit -m "lexis-dic ${{ env.VERSION }}"
-          git push -u origin lexis-dic-${{ env.VERSION }}
-          echo "Branch pushed. Create PR manually at: https://github.com/Homebrew/homebrew-cask/compare/main...seabornlee:lexis-dic-${{ env.VERSION }}"
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add Formula/lexis-dic.rb
+          git commit -m "Update lexis-dic to ${{ env.VERSION }}"
+          git push origin main
