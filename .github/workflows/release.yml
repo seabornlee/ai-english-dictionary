@@ -60,13 +60,12 @@ jobs:
           path: ai-dic-mac/build/*.dmg
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: ai-dic-mac/build/*.dmg
-          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd ai-dic-mac/build
+          gh release create "${{ github.ref_name }}" *.dmg --title "${{ github.ref_name }}" --generate-notes
 
   deploy-server:
     runs-on: ubuntu-latest
