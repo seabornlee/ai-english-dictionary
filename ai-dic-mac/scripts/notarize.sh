@@ -5,8 +5,8 @@
 
 set -e
 
-APP_PATH=${1:-"build/Export/AIDictionary.app"}
-BUNDLE_ID="com.seabornlee.AIDictionary"
+APP_PATH=${1:-"build/Export/LexisDic.app"}
+BUNDLE_ID="site.waterlee.aidic"
 
 # Colors for output
 RED='\033[0;31m'
@@ -17,6 +17,13 @@ NC='\033[0m'
 if [ ! -d "$APP_PATH" ]; then
     echo -e "${RED}❌ App not found at ${APP_PATH}${NC}"
     exit 1
+fi
+
+# Skip notarization if secrets are not set (for Homebrew distribution)
+if [ -z "$APPLE_ID" ] || [ -z "$TEAM_ID" ] || [ -z "$APPLE_APP_PASSWORD" ]; then
+    echo -e "${YELLOW}⚠️ Notarization skipped - Apple credentials not configured${NC}"
+    echo -e "${YELLOW}For Homebrew distribution, notarization is optional${NC}"
+    exit 0
 fi
 
 echo -e "${GREEN}📦 Notarizing ${APP_PATH}${NC}"
