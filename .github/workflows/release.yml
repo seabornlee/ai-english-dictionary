@@ -11,6 +11,9 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: write
+
 env:
   APP_NAME: LexisDic
   BUNDLE_ID: site.waterlee.aidic
