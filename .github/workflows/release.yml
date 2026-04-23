@@ -149,7 +149,4 @@ jobs:
           git add Casks/lexis-dic.rb
           git commit -m "lexis-dic ${{ env.VERSION }}"
           git push -u origin lexis-dic-${{ env.VERSION }}
-          gh pr create --repo Homebrew/homebrew-cask \
-            --title "lexis-dic ${{ env.VERSION }}" \
-            --body "Created by GitHub Actions" \
-            --head seabornlee:lexis-dic-${{ env.VERSION }}
+          echo "Branch pushed. Create PR manually at: https://github.com/Homebrew/homebrew-cask/compare/main...seabornlee:lexis-dic-${{ env.VERSION }}"
