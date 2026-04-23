@@ -64,8 +64,6 @@ jobs:
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GH_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
         run: |
           cd ai-dic-mac/build
           gh release create "${{ github.ref_name }}" *.dmg --title "${{ github.ref_name }}" --generate-notes
