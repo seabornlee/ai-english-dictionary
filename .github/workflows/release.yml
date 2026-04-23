@@ -124,7 +124,7 @@ jobs:
             version "{{ version }}"
             sha256 "{{ sha256 }}"
 
-            url "https://github.com/seabornlee/ai-english-dictionary/releases/download/v{{ version }}/LexisDic-{{ version }}.dmg"
+            url "https://github.com/seabornlee/ai-english-dictionary/releases/download/v{{ version }}/LexisDic-v{{ version }}.dmg"
             name "LexisDic"
             desc "AI-powered English Dictionary for macOS"
             homepage "https://github.com/seabornlee/ai-english-dictionary"
