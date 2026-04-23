@@ -144,7 +144,7 @@ jobs:
       - name: Submit PR
         working-directory: homebrew-cask
         env:
-          GITHUB_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
+          GH_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
         run: |
           git add Casks/lexis-dic.rb
           git commit -m "lexis-dic ${{ env.VERSION }}"
