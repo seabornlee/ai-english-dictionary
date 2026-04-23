@@ -113,27 +113,33 @@ jobs:
           token: ${{ secrets.HOMEBREW_TOKEN }}
           path: lexis-dic
 
-      - name: Create Cask
+      - name: Create Formula
         env:
           SHA256: ${{ env.SHA256 }}
           VERSION: ${{ env.VERSION }}
         run: |
           cat > lexis-dic/Formula/lexis-dic.rb << 'RUBY'
-          class LexisDic < Cask
+          class LexisDic < Formula
             version "{{ version }}"
             sha256 "{{ sha256 }}"
 
-            url "https://github.com/seabornlee/ai-dic-repos/releases/download/v#{version}/LexisDic-#{version}.dmg"
+            url "https://github.com/seabornlee/ai-dic-repos/releases/download/v{{ version }}/LexisDic-{{ version }}.dmg"
             name "LexisDic"
             desc "AI-powered English Dictionary for macOS"
             homepage "https://github.com/seabornlee/ai-dic-repos"
+            license "MIT"
 
-            app "LexisDic.app"
+            def install
+              require "json"
+              plist = `/usr/bin/hdiutil attach -nobrowse -plist "#{cached_download}" 2>/dev/null`.chomp
+              vol = JSON.parse(plist)["system-entities"].find { |e| e["mount-point"] }["mount-point"]
+              FileUtils.cp_r "#{vol}/LexisDic.app", "/Applications/LexisDic.app"
+              system "hdiutil", "detach", vol, force: true
+            end
 
-            zap trash: [
-              "~/Library/Application Support/LexisDic",
-              "~/Library/Preferences/site.waterlee.aidic.LexisDic.plist",
-            ]
+            test do
+              assert_predicate File.exist?("/Applications/LexisDic.app"), "App should be installed"
+            end
           end
           RUBY
           sed -i "s/{{ version }}/${{ env.VERSION }}/g" lexis-dic/Formula/lexis-dic.rb
