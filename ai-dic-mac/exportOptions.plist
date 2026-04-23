@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>method</key>
-    <string>app-drop</string>
+    <string>mac-application</string>
     <key>signingStyle</key>
     <string>manual</string>
     <key>signingIdentity</key>
