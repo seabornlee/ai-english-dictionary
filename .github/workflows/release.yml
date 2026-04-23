@@ -118,15 +118,16 @@ jobs:
           SHA256: ${{ env.SHA256 }}
           VERSION: ${{ env.VERSION }}
         run: |
-          cat > lexis-dic/Formula/lexis-dic.rb << 'RUBY'
-          class LexisDic < Cask
+          mkdir -p lexis-dic/Casks
+          cat > lexis-dic/Casks/lexis-dic.rb << 'RUBY'
+          cask "lexis-dic" do
             version "{{ version }}"
             sha256 "{{ sha256 }}"
 
-            url "https://github.com/seabornlee/ai-dic-repos/releases/download/v{{ version }}/LexisDic-{{ version }}.dmg"
+            url "https://github.com/seabornlee/ai-english-dictionary/releases/download/v{{ version }}/LexisDic-{{ version }}.dmg"
             name "LexisDic"
             desc "AI-powered English Dictionary for macOS"
-            homepage "https://github.com/seabornlee/ai-dic-repos"
+            homepage "https://github.com/seabornlee/ai-english-dictionary"
 
             app "LexisDic.app"
 
@@ -136,8 +137,8 @@ jobs:
             ]
           end
           RUBY
-          sed -i "s/{{ version }}/${{ env.VERSION }}/g" lexis-dic/Formula/lexis-dic.rb
-          sed -i "s/{{ sha256 }}/${{ env.SHA256 }}/g" lexis-dic/Formula/lexis-dic.rb
+          sed -i "s/{{ version }}/${{ env.VERSION }}/g" lexis-dic/Casks/lexis-dic.rb
+          sed -i "s/{{ sha256 }}/${{ env.SHA256 }}/g" lexis-dic/Casks/lexis-dic.rb
 
       - name: Push to tap
         working-directory: lexis-dic
@@ -146,6 +147,6 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add Formula/lexis-dic.rb
+          git add Casks/lexis-dic.rb
           git commit -m "Update lexis-dic to ${{ env.VERSION }}"
           git push origin main
