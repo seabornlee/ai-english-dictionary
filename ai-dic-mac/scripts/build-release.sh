@@ -33,7 +33,8 @@ xcodebuild \
   -configuration Release \
   -archivePath "${BUILD_DIR}/${APP_NAME}.xcarchive" \
   archive \
-  CODE_SIGN_STYLE=Automatic \
+  CODE_SIGN_STYLE=Manual \
+  CODE_SIGN_IDENTITY="-" \
   DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM}"
 
 # Export signed app
