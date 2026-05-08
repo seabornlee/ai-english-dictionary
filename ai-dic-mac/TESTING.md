@@ -34,14 +34,15 @@ This document outlines the testing procedures to verify that the AI Dictionary m
 | Vocabulary management | 1. Add words to vocabulary<br>2. View in vocabulary list<br>3. Remove a word | Words appear in vocabulary list and can be removed |
 | Vocabulary export | 1. Add some words to vocabulary<br>2. Click "Export Vocabulary"<br>3. Choose save location | File is created with all vocabulary words and definitions |
 
-### 3. Text Selection and Floating Window
+### 3. Menu Bar and Services Menu
 
 | Test Case | Steps | Expected Result |
 |-----------|-------|-----------------|
-| Global text selection | 1. Open any application (e.g., Safari)<br>2. Select a word<br>3. Press Command+D | Floating window appears with the definition |
-| Window positioning | Check the floating window position | Window appears near the cursor position |
-| Window dismissal | 1. Click outside the floating window | Window disappears |
-| Response time | Measure time from Command+D to window appearance | Window appears in under 1 second |
+| Menu bar icon appears | 1. Launch the app | Menu bar icon (book) appears in the system menu bar |
+| Menu bar popup opens | 1. Click the menu bar icon | Popup window appears with search field |
+| Word lookup via menu bar | 1. Click menu bar icon<br>2. Type a word<br>3. Press Return | Definition appears in the popup |
+| Services menu integration | 1. Open any application (e.g., Safari)<br>2. Select a word<br>3. Right-click → Services → "Look up in LexisDic" | LexisDic activates with the selected word in the search field |
+| Response time | Measure time from search to definition display | Definition appears in under 5 seconds |
 
 ### 4. System Performance
 

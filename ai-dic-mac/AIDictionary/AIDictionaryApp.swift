@@ -7,7 +7,6 @@ struct AIDictionaryApp: App {
     @StateObject private var clipboardManager = ClipboardManager.shared
     @StateObject private var localizationManager = LocalizationManager.shared
     @State private var initialSearchText: String = ""
-    @State private var licenseActivated = false
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
@@ -24,9 +23,6 @@ struct AIDictionaryApp: App {
                     if wordCount <= 3, TextValidation.isValidEnglishWord(text) {
                         initialSearchText = text
                     }
-                }
-                .task {
-                    await activateLicenseIfNeeded()
                 }
         }
         .commands {
@@ -49,25 +45,6 @@ struct AIDictionaryApp: App {
         }
     }
 
-    private func activateLicenseIfNeeded() async {
-        // Skip activation if already has license
-        if LicenseManager.shared.hasLicense() {
-            return
-        }
-
-        // In development, skip if no receipt
-        if Bundle.main.appStoreReceiptURL == nil {
-            print("Development mode: No App Store receipt, skipping activation")
-            return
-        }
-
-        do {
-            try await LicenseManager.shared.activateLicense()
-            print("License activated successfully")
-        } catch {
-            print("License activation failed: \(error)")
-        }
-    }
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {

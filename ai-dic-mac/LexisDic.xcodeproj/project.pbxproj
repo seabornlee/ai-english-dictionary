@@ -19,7 +19,7 @@
 		7AB67E4D84B57BF184F9967C /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F7A7E6CA074410B18BE788 /* PreferencesView.swift */; };
 		8EB6A35C67BD99C053B5C7A1 /* WordStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D601D20BB7187BC53FCFC06 /* WordStore.swift */; };
 		8F915E6A29041EEAC05ABEAC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 43F7A50C8E78426294E04DD8 /* Assets.xcassets */; };
-		987E2EF2139472DC7BC7BAE6 /* FloatingWindowService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1B8E19973D86672478B952 /* FloatingWindowService.swift */; };
+
 		989424BF03A01D8373A2F482 /* TextValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46DA27AF9EFA1A24CC9A81E9 /* TextValidationTests.swift */; };
 		9A5BA62052A0F6838A422A75 /* SupportingViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 496D370836EF6ED6960ABA74 /* SupportingViews.swift */; };
 		9F2F7BDFCA246265151B2091 /* AIDictionaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF4BE0324C5A0163C348CCB9 /* AIDictionaryTests.swift */; };
@@ -48,7 +48,7 @@
 		15EA2A877B525D611F2CDEB1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		18F7DB1DC99791C86CCA8A3A /* LocalizationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationManager.swift; sourceTree = "<group>"; };
 		1E5C97ED82034F3B40E6C96A /* AIDictionary.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AIDictionary.entitlements; sourceTree = "<group>"; };
-		3A1B8E19973D86672478B952 /* FloatingWindowService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingWindowService.swift; sourceTree = "<group>"; };
+
 		3FF5CF9F13632331D9EC1952 /* Word.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Word.swift; sourceTree = "<group>"; };
 		43F7A50C8E78426294E04DD8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		46DA27AF9EFA1A24CC9A81E9 /* TextValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextValidationTests.swift; sourceTree = "<group>"; };
@@ -81,7 +81,6 @@
 				FC4DF84DB46A7A3F1E63EE55 /* APIService.swift */,
 				43F7A50C8E78426294E04DD8 /* Assets.xcassets */,
 				8EC82DBBC0F583FBB3989F01 /* ContentView.swift */,
-				3A1B8E19973D86672478B952 /* FloatingWindowService.swift */,
 				B04276E12A1104ECBCE3A8DA /* Info.plist */,
 				DD354972989FD482CD5EFE2B /* Localizable.strings */,
 				A59BB5F8803A5DDF2A8EA793 /* MenuBarView.swift */,
@@ -249,7 +248,6 @@
 				A7694061FDB0A88A6CAE1568 /* APIService.swift in Sources */,
 				69E46E6F3A128EA289BB0C15 /* ClipboardManager.swift in Sources */,
 				74766976EAA00EAB13DA7D1E /* ContentView.swift in Sources */,
-				987E2EF2139472DC7BC7BAE6 /* FloatingWindowService.swift in Sources */,
 				5CF552531DDC4E5A2FE1D18C /* LocalizationManager.swift in Sources */,
 				4A81E2D86912E3F4CD0C6640 /* MenuBarView.swift in Sources */,
 				3BD2BB51662461E4DF6105F1 /* NetworkMonitor.swift in Sources */,

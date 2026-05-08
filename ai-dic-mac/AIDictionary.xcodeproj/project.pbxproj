@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		07A420494EC3138164E609B2 /* AIDictionaryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E084DDD639121E81C37A79 /* AIDictionaryApp.swift */; };
 		07A420494EC3138164E609B3 /* LocalizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E084DDD639121E81C37A80 /* LocalizationManager.swift */; };
-		LICMGR0ABC123DEF45678901 /* LicenseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = LICMGR0DEF123ABC45678902 /* LicenseManager.swift */; };
+
 		07A420494EC3138164E609B4 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 64E084DDD639121E81C37A85 /* Localizable.strings */; };
 		07E76B42A16E9A1BBBAD4D97 /* WordLearningContentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656EF4837B12AE8091814D27 /* WordLearningContentTests.swift */; };
 		1C1437DAB29345FD40E003AB /* TextValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9267716AFE45E0EB3921360 /* TextValidationTests.swift */; };
@@ -19,7 +19,7 @@
 		80DDC74AA0D0CD2BBCD7B2AD /* AIDictionaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C1419BAED78B5363CF9130 /* AIDictionaryTests.swift */; };
 		8988C05A0095A52C2FB06D61 /* TextValidation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213172704DD98C11590041A7 /* TextValidation.swift */; };
 		8CF9C031893FCFE7CA676FAE /* ShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 486439F288334D930DD642C6 /* ShareCardView.swift */; };
-				LICMGR0ABC123DEF45678901 /* LicenseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = LICMGR0DEF123ABC45678902 /* LicenseManager.swift */; };
+		
 		9A873D57699BA122233A6F59 /* SupportingViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB9051BBE070D83625917090 /* SupportingViews.swift */; };
 		9FDFBB08071770BE4E113A35 /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24E293B9082C24C324077145 /* PreferencesView.swift */; };
 		A2A4BD84BCD6722F1A6C8479 /* StitchUIHelpersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467A78BDB55A53BAB38E43A6 /* StitchUIHelpersTests.swift */; };
@@ -44,7 +44,7 @@
 
 /* Begin PBXFileReference section */
 		15C6F81F604EDC78F2E7CDE5 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		LICMGR0DEF123ABC45678902 /* LicenseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseManager.swift; sourceTree = "<group>"; };
+
 		1891C16183A2F5151A2B5BB9 /* AIDictionaryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AIDictionaryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FB8863E1E06A51290438759 /* StitchUIHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchUIHelpers.swift; sourceTree = "<group>"; };
 		213172704DD98C11590041A7 /* TextValidation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextValidation.swift; sourceTree = "<group>"; };
@@ -90,7 +90,6 @@
 				4B2661B9F61892CBBE2BB70C /* AIDictionary.entitlements */,
 				64E084DDD639121E81C37A79 /* AIDictionaryApp.swift */,
 				44B5413F9DAF47A9C8C428AA /* APIService.swift */,
-				LICMGR0DEF123ABC45678902 /* LicenseManager.swift */,
 				4A1A10FC98ABE112D4F41A3E /* Assets.xcassets */,
 				15C6F81F604EDC78F2E7CDE5 /* ContentView.swift */,
 				A5499B92C070036BD32496CF /* Info.plist */,
@@ -258,7 +257,6 @@
 				E921083B930D8C2D4908A3DA /* Word.swift in Sources */,
 				70E82D0B1953FADDDE5F88B5 /* WordStore.swift in Sources */,
 				8CF9C031893FCFE7CA676FAE /* ShareCardView.swift in Sources */,
-					LICMGR0ABC123DEF45678901 /* LicenseManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -308,7 +306,7 @@
 					"@loader_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_BUNDLE_IDENTIFIER = tech.qidao.lexis.AIDictionaryTests;
+				PRODUCT_BUNDLE_IDENTIFIER = site.waterlee.aidic.AIDictionaryTests;
 				SDKROOT = macosx;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AIDictionary.app/Contents/MacOS/AIDictionary";
 			};
@@ -344,7 +342,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_BUNDLE_IDENTIFIER = tech.qidao.lexis;
+				PRODUCT_BUNDLE_IDENTIFIER = site.waterlee.aidic;
 				PRODUCT_NAME = "Lexis Dic";
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -365,7 +363,7 @@
 					"@loader_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_BUNDLE_IDENTIFIER = tech.qidao.lexis.AIDictionaryTests;
+				PRODUCT_BUNDLE_IDENTIFIER = site.waterlee.aidic.AIDictionaryTests;
 				SDKROOT = macosx;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AIDictionary.app/Contents/MacOS/AIDictionary";
 			};
@@ -520,7 +518,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_BUNDLE_IDENTIFIER = tech.qidao.lexis;
+				PRODUCT_BUNDLE_IDENTIFIER = site.waterlee.aidic;
 				PRODUCT_NAME = "Lexis Dic";
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;

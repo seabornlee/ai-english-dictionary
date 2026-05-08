@@ -25,8 +25,8 @@ We've built a macOS application that provides AI-powered English dictionary func
 
 4. **User Interface**
    - Main window with sidebar navigation
-   - Menu bar quick access
-   - Floating window for global lookups
+   - Menu bar quick access popup
+   - Services menu integration for lookup from any app
    - Dark/light mode support
    - Customizable preferences
 
@@ -45,7 +45,7 @@ We've built a macOS application that provides AI-powered English dictionary func
 - `SupportingViews.swift`: Additional UI components
 - `MenuBarView.swift`: Menu bar interface
 - `PreferencesView.swift`: User settings
-- `FloatingWindowService.swift`: Global text selection feature
+- `ClipboardManager.swift`: Clipboard monitoring for word suggestions
 
 ### Verification
 
@@ -53,7 +53,7 @@ All requirements from the feature.md file have been implemented and marked as co
 
 1. ✅ AI-generated word explanations
 2. ✅ Smart vocabulary filtering
-3. ✅ Global text selection and lookup
+3. ✅ Menu bar popup and Services menu lookup
 4. ✅ System performance requirements
 5. ✅ UI/UX requirements
 
@@ -63,7 +63,7 @@ The application can be built and run using Xcode. Users will need to:
 
 1. Obtain a DeepSeek Chat API key
 2. Configure the key in the app preferences
-3. Use the search interface or Command+D global shortcut to look up words
+3. Use the search interface or menu bar popup to look up words
 
 Full testing procedures are documented in TESTING.md.
 
