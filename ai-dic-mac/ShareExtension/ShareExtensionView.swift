@@ -1,18 +1,61 @@
 import SwiftUI
+import AppKit
 
 // MARK: - Design System Colors (per DESIGN.md, shared with MenuBarView)
+// VAL-LOOKUP-020: Adaptive colors for dark/light mode in Share Extension
 private enum ShareDesignColors {
-    static let forestGreen = Color(hex: "#2C5F2D")
-    static let sage = Color(hex: "#97BC62")
-    static let error = Color(hex: "#B54A4A")
-    static let errorBg = Color(hex: "#FEF2F2")
-    static let errorText = Color(hex: "#991B1B")
+    static var forestGreen: Color {
+        Color(adaptingLight: Color(hex: "#2C5F2D"), dark: Color(hex: "#3A7A3B"))
+    }
+    static var sage: Color { Color(hex: "#97BC62") }
+    static var error: Color { Color(hex: "#B54A4A") }
+    static var errorBg: Color {
+        Color(adaptingLight: Color(hex: "#FEF2F2"), dark: Color(hex: "#2E1C1C"))
+    }
+    static var errorText: Color {
+        Color(adaptingLight: Color(hex: "#991B1B"), dark: Color(hex: "#E8A0A0"))
+    }
+    static var popupBackground: Color {
+        Color(adaptingLight: Color(nsColor: .controlBackgroundColor), dark: Color(hex: "#1C1B1A"))
+    }
+    static var cardBackground: Color {
+        Color(adaptingLight: Color(nsColor: .controlBackgroundColor), dark: Color(hex: "#252422"))
+    }
+    static var warm900: Color {
+        Color(adaptingLight: Color(hex: "#4A4744"), dark: Color(hex: "#E8E6E3"))
+    }
+    static var warm700: Color {
+        Color(adaptingLight: Color(hex: "#6B6763"), dark: Color(hex: "#B8B5B2"))
+    }
+    static var warm500: Color {
+        Color(adaptingLight: Color(hex: "#9A9590"), dark: Color(hex: "#B8B5B2"))
+    }
+}
+
+// MARK: - Color Light/Dark Adaptive Initializer (macOS)
+private extension Color {
+    /// Creates a color that adapts between light and dark appearances on macOS
+    init(adaptingLight light: Color, dark: Color) {
+        self.init(nsColor: NSColor(name: nil, dynamicProvider: { appearance in
+            if appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua {
+                return NSColor(dark)
+            } else {
+                return NSColor(light)
+            }
+        }))
+    }
 }
 
 // MARK: - Share Extension SwiftUI View
 /// VAL-LOOKUP-016: Displays the definition for shared text within the
 /// Share Extension UI, using the same definition rendering as the
 /// menu bar popup (VAL-LOOKUP-018: identical definition across entry points).
+///
+/// VAL-LOOKUP-019: After a successful lookup, saves the full Word model to
+/// the App Group shared container (via SharedLookupStore) so the main app
+/// can add it to its history without a redundant API call.
+///
+/// VAL-LOOKUP-023: Non-text content shows "Text required for lookup" message.
 struct ShareExtensionView: View {
     let initialWord: String
     let onDone: () -> Void
@@ -39,7 +82,8 @@ struct ShareExtensionView: View {
             footerView
         }
         .frame(width: 320, height: 240)
-        .background(Color(nsColor: .controlBackgroundColor))
+        // VAL-LOOKUP-020: Adaptive background for dark mode
+        .background(ShareDesignColors.popupBackground)
         .onAppear {
             word = initialWord
             performLookup()
@@ -47,6 +91,7 @@ struct ShareExtensionView: View {
     }
 
     // MARK: - Header
+    // VAL-LOOKUP-020: Uses adaptive colors for dark mode
     private var headerView: some View {
         VStack(spacing: 0) {
             HStack(alignment: .center) {
@@ -62,7 +107,7 @@ struct ShareExtensionView: View {
 
                     Text("LexisDic")
                         .font(.system(size: 13, weight: .bold))
-                        .foregroundColor(Color(nsColor: .labelColor))
+                        .foregroundColor(ShareDesignColors.warm900)
                 }
 
                 Spacer()
@@ -89,12 +134,13 @@ struct ShareExtensionView: View {
                 .progressViewStyle(CircularProgressViewStyle())
             Text("Looking up…")
                 .font(.system(size: 12, weight: .medium))
-                .foregroundColor(Color(nsColor: .secondaryLabelColor))
+                .foregroundColor(ShareDesignColors.warm700)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: - Error
+    // VAL-LOOKUP-020: Uses adaptive error colors for dark mode
     private func errorView(message: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Label("Lookup Failed", systemImage: "exclamationmark.triangle.fill")
@@ -115,20 +161,21 @@ struct ShareExtensionView: View {
     }
 
     // MARK: - Definition (identical rendering to MenuBarView for VAL-LOOKUP-018)
+    // VAL-LOOKUP-020: Uses adaptive colors for dark mode
     private func definitionView(for result: Word) -> some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: 8) {
                 // Word term
                 Text(result.term)
                     .font(.system(size: 18, weight: .black))
-                    .foregroundColor(Color(nsColor: .labelColor))
+                    .foregroundColor(ShareDesignColors.warm900)
 
                 // Pronunciation + part of speech
                 HStack(spacing: 6) {
                     if let pronunciation = result.pronunciation, !pronunciation.isEmpty {
                         Text("/\(pronunciation)/")
                             .font(.system(size: 10, weight: .medium, design: .monospaced))
-                            .foregroundColor(Color(nsColor: .tertiaryLabelColor))
+                            .foregroundColor(ShareDesignColors.warm500)
                     }
 
                     if let partOfSpeech = result.partOfSpeech, !partOfSpeech.isEmpty {
@@ -145,7 +192,7 @@ struct ShareExtensionView: View {
                 // Definition text
                 Text(result.definition)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(Color(nsColor: .secondaryLabelColor))
+                    .foregroundColor(ShareDesignColors.warm700)
                     .lineSpacing(3)
 
                 // Example sentences (compact, max 1)
@@ -153,7 +200,7 @@ struct ShareExtensionView: View {
                     Text("\"\(firstExample)\"")
                         .font(.system(size: 11))
                         .italic()
-                        .foregroundColor(Color(nsColor: .tertiaryLabelColor))
+                        .foregroundColor(ShareDesignColors.warm500)
                         .lineLimit(2)
                 }
             }
@@ -163,24 +210,30 @@ struct ShareExtensionView: View {
     }
 
     // MARK: - Empty State
+    // VAL-LOOKUP-023: Shows clear "Text required for lookup" message for non-text content
+    // VAL-LOOKUP-020: Uses adaptive colors for dark mode
     private var emptyStateView: some View {
         VStack(spacing: 8) {
             Image(systemName: "character.book.closed")
                 .font(.system(size: 22))
                 .foregroundColor(ShareDesignColors.sage)
 
-            Text("No text to look up")
+            // VAL-LOOKUP-023: Clear indication that text is required for lookup.
+            // This message appears when the shared content is non-text
+            // (image, file, etc.) or when no text was extracted.
+            Text("Text required for lookup")
                 .font(.system(size: 13, weight: .medium))
-                .foregroundColor(Color(nsColor: .secondaryLabelColor))
+                .foregroundColor(ShareDesignColors.warm900)
 
             Text("Share text to get a definition")
                 .font(.system(size: 11))
-                .foregroundColor(Color(nsColor: .tertiaryLabelColor))
+                .foregroundColor(ShareDesignColors.warm500)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: - Footer
+    // VAL-LOOKUP-020: Uses adaptive colors for dark mode
     private var footerView: some View {
         VStack(spacing: 0) {
             Divider()
@@ -192,7 +245,7 @@ struct ShareExtensionView: View {
                         .frame(width: 4, height: 4)
                     Text("Powered by AI")
                         .font(.system(size: 9, weight: .medium))
-                        .foregroundColor(Color(nsColor: .tertiaryLabelColor))
+                        .foregroundColor(ShareDesignColors.warm500)
                 }
 
                 Spacer()
@@ -215,6 +268,11 @@ struct ShareExtensionView: View {
 
     /// VAL-LOOKUP-016: Perform lookup using the same APIService as the main app,
     /// ensuring identical definitions across all entry points (VAL-LOOKUP-018).
+    ///
+    /// VAL-LOOKUP-019: After a successful lookup, saves the full Word model to
+    /// the App Group shared container via SharedLookupStore. The main app reads
+    /// this data when it receives the Darwin notification, adding the result
+    /// to its history without making a redundant API call.
     private func performLookup() {
         let trimmed = word.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
@@ -230,11 +288,10 @@ struct ShareExtensionView: View {
                     word = result.term
                     isLoading = false
 
-                    // Save the word to shared UserDefaults so the main app can see it
-                    saveWordToSharedContainer(result.term)
-
-                    // Post Darwin notification so main app picks it up
-                    postWordUpdatedNotification()
+                    // VAL-LOOKUP-019 / VAL-LOOKUP-024: Save the full Word result
+                    // to the shared App Group container. SharedLookupStore handles
+                    // both the full result (for history) and the Darwin notification.
+                    SharedLookupStore.shared.saveLookupResult(result)
                 }
             } catch {
                 await MainActor.run {
@@ -245,25 +302,9 @@ struct ShareExtensionView: View {
         }
     }
 
-    /// Save the looked-up word to the App Group shared container
-    private func saveWordToSharedContainer(_ word: String) {
-        let sharedDefaults = UserDefaults(suiteName: "group.site.waterlee.aidic")
-        sharedDefaults?.set(word, forKey: "sharedWord")
-        sharedDefaults?.set(Date(), forKey: "sharedWordTimestamp")
-    }
-
-    /// Post Darwin notification for cross-process communication
-    private func postWordUpdatedNotification() {
-        CFNotificationCenterPostNotification(
-            CFNotificationCenterGetDarwinNotifyCenter(),
-            CFNotificationName("group.site.waterlee.aidic.wordUpdated" as CFString),
-            nil, nil, true
-        )
-    }
-
     /// Signal the main app to open and show the definition
     private func openInMainApp() {
-        postWordUpdatedNotification()
+        SharedLookupStore.shared.postWordUpdatedNotification()
     }
 
     /// Convert technical errors to user-friendly messages (same as MenuBarView)

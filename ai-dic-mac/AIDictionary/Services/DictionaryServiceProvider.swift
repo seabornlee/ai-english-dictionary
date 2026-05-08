@@ -4,6 +4,8 @@ import AppKit
 extension Notification.Name {
     /// Posted when the NSServices menu handler receives selected text.
     /// UserInfo contains "word" (String) — the trimmed text from the pasteboard.
+    /// May also contain "result" (Word) if a pre-fetched result is available
+    /// from the Share Extension via the shared App Group container.
     static let defineWordService = Notification.Name("DefineWordService")
 }
 
@@ -18,7 +20,15 @@ extension Notification.Name {
 /// - Menu item title: "Look up in LexisDic"
 /// - Message selector: `defineWord:userData:error:`
 /// - Accepts: `NSStringPboardType` (plain text)
-/// - Required context: up to 5 words selected
+/// - Required context: up to 5 words selected (NSWordLimit: 5)
+///
+/// VAL-LOOKUP-022: Multi-word selection handling:
+/// When the user selects a multi-word phrase (e.g., "ad hoc", "de facto"),
+/// the full phrase is passed to the main app for lookup. The deterministic
+/// behavior is: look up the complete selected text as-is. If the phrase
+/// is not a valid dictionary entry, the standard error/no-result handling
+/// applies in the main app. This avoids guessing which word the user
+/// intended and preserves multi-word idiomatic expressions.
 ///
 /// When invoked, the provider extracts text from the pasteboard,
 /// trims whitespace, and posts a `Notification.Name.defineWordService`
@@ -33,6 +43,10 @@ final class DictionaryServiceProvider: NSObject {
     ///
     /// VAL-LOOKUP-014: Handles empty and non-text selections gracefully —
     /// no crash, no API call with empty/invalid payload.
+    ///
+    /// VAL-LOOKUP-022: Multi-word selections are passed as-is. The full phrase
+    /// is sent to the main app for lookup. This preserves idiomatic expressions
+    /// like "ad hoc" or "de facto" and avoids arbitrarily splitting user input.
     @objc func defineWord(
         _ pasteboard: NSPasteboard,
         userData: String?,
@@ -52,6 +66,17 @@ final class DictionaryServiceProvider: NSObject {
             // Empty text — do nothing
             return
         }
+
+        // VAL-LOOKUP-022: Pass the full text (single word or multi-word phrase)
+        // to the main app. The NSWordLimit: 5 in Info.plist already constrains
+        // the selection to at most 5 words. The main app's MenuBarView will
+        // look up the complete text as-is.
+        //
+        // Multi-word examples:
+        //   "ad hoc"       → looked up as "ad hoc" (idiomatic phrase)
+        //   "de facto"     → looked up as "de facto" (idiomatic phrase)
+        //   "the word"     → looked up as "the word" (may not find result → error handling)
+        //   "ephemeral"    → looked up as "ephemeral" (single word, normal flow)
 
         // VAL-LOOKUP-012: Post notification with the word; main app will
         // activate, open the menu bar popup, and trigger lookup

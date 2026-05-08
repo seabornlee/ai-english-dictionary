@@ -67,36 +67,62 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             object: nil
         )
 
-        // VAL-LOOKUP-024 / VAL-LOOKUP-016: Observe Darwin notification from
-        // the Share Extension. When the extension saves a word to the shared
-        // App Group container, it posts this notification so the main app
-        // can activate and show the definition in the menu bar popup.
+        // VAL-LOOKUP-021: Observe close popover notification from MenuBarView.
+        // When the user presses Escape, MenuBarView posts this notification
+        // because NSPopover is not a window — NSApp.keyWindow?.performClose
+        // doesn't work for popovers.
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleClosePopover),
+            name: .closePopover,
+            object: nil
+        )
+
+        // VAL-LOOKUP-024 / VAL-LOOKUP-019: Observe Darwin notification from
+        // the Share Extension. When the extension saves a lookup result to the
+        // shared App Group container, it posts this notification so the main app
+        // can activate and display the result in the menu bar popup.
         CFNotificationCenterAddObserver(
             CFNotificationCenterGetDarwinNotifyCenter(),
             nil,
             { (center, observer, name, object, userInfo) in
                 DispatchQueue.main.async {
-                    // Read the shared word from the App Group UserDefaults
-                    let sharedDefaults = UserDefaults(suiteName: "group.site.waterlee.aidic")
-                    guard let word = sharedDefaults?.string(forKey: "sharedWord"),
-                          !word.isEmpty else { return }
-
-                    // Post the same notification as the Services menu flow
-                    // so MenuBarView picks it up and performs the lookup
-                    NotificationCenter.default.post(
-                        name: .defineWordService,
-                        object: nil,
-                        userInfo: ["word": word]
-                    )
+                    // VAL-LOOKUP-019: Read the full Word result from the shared container
+                    // rather than just the term. This avoids a redundant API call and
+                    // ensures the Share Extension's lookup result appears in the main
+                    // app's history consistently.
+                    if let sharedResult = SharedLookupStore.shared.readLookupResult() {
+                        // Post notification with the full Word result so MenuBarView
+                        // can display it without another API call
+                        NotificationCenter.default.post(
+                            name: .defineWordService,
+                            object: nil,
+                            userInfo: ["word": sharedResult.term, "result": sharedResult]
+                        )
+                    } else if let sharedTerm = SharedLookupStore.shared.readWordTerm() {
+                        // Fallback: only term was shared (e.g., from Services menu)
+                        NotificationCenter.default.post(
+                            name: .defineWordService,
+                            object: nil,
+                            userInfo: ["word": sharedTerm]
+                        )
+                    }
 
                     // Activate the app to show the popover
                     NSApp.activate(ignoringOtherApps: true)
                 }
             },
-            "group.site.waterlee.aidic.wordUpdated" as CFString,
+            SharedLookupStore.wordUpdatedNotification as CFString,
             nil,
             .deliverImmediately
         )
+    }
+
+    /// VAL-LOOKUP-021: Close the popover when Escape is pressed.
+    @objc private func handleClosePopover() {
+        if let popover, popover.isShown {
+            popover.performClose(nil)
+        }
     }
 
     /// VAL-LOOKUP-012: Show the popover when a service delivers a word.

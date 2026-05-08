@@ -83,10 +83,12 @@ targets:
         excludes:
           - "**/*.md"
       # Share extension-safe source files from main app for
-      # identical definition rendering (VAL-LOOKUP-018)
+      # identical definition rendering (VAL-LOOKUP-018) and
+      # shared data access (VAL-LOOKUP-019, VAL-LOOKUP-024)
       - path: AIDictionary/APIService.swift
       - path: AIDictionary/Models/Word.swift
       - path: AIDictionary/TextValidation.swift
+      - path: AIDictionary/SharedLookupStore.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: site.waterlee.aidic.ShareExtension
@@ -107,6 +109,7 @@ targets:
       path: ShareExtension/Info.plist
       properties:
         CFBundleDisplayName: LexisDic
+        CFBundleVersion: "2"
         NSExtension:
           NSExtensionAttributes:
             NSExtensionActivationRule:
