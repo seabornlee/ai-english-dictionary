@@ -1,0 +1,35 @@
+{
+  "name": "ai-english-dictionary",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered English-to-English dictionary application",
+  "scripts": {
+    "prepare": "husky",
+    "lint": "cd ai-dic-server && npm run format:check",
+    "format": "cd ai-dic-server && npm run format",
+    "test": "cd ai-dic-server && npm test",
+    "dev:server": "cd ai-dic-server && npm run dev"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.3.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.8.3"
+  },
+  "lint-staged": {
+    "ai-dic-server/**/*.js": [
+      "eslint --fix --config ai-dic-server/eslint.config.js",
+      "prettier --write"
+    ],
+    "ai-dic-server/**/*.{json,md}": [
+      "prettier --write"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:seabornlee/ai-english-dictionary.git"
+  },
+  "author": "seabornlee",
+  "license": "MIT"
+}

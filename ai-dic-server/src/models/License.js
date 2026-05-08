@@ -1,0 +1,48 @@
+const mongoose = require('mongoose');
+
+const licenseSchema = new mongoose.Schema(
+  {
+    receiptHash: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    bundleId: {
+      type: String,
+      required: true,
+    },
+    appVersion: {
+      type: String,
+      required: true,
+    },
+    originalPurchaseDate: {
+      type: Date,
+      required: true,
+    },
+    expirationDate: {
+      type: Date,
+      default: null,
+    },
+    deviceId: {
+      type: String,
+      required: true,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    lastValidationDate: {
+      type: Date,
+      default: Date.now,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+// Index for quick lookup
+licenseSchema.index({ receiptHash: 1 });
+licenseSchema.index({ deviceId: 1 });
+
+module.exports = mongoose.model('License', licenseSchema);

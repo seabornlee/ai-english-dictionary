@@ -3,7 +3,6 @@ import Foundation
 
 enum StitchMenuBarTab: Int, CaseIterable, Identifiable {
     case define
-    case favorites
     case history
 
     var id: Int { rawValue }
@@ -12,8 +11,6 @@ enum StitchMenuBarTab: Int, CaseIterable, Identifiable {
         switch self {
         case .define:
             return NSLocalizedString("tab.define", comment: "")
-        case .favorites:
-            return NSLocalizedString("tab.favorites", comment: "")
         case .history:
             return NSLocalizedString("tab.history", comment: "")
         }

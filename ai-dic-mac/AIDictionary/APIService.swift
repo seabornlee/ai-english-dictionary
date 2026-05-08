@@ -7,6 +7,8 @@ enum APIError: Error {
     case serverError(Int)
     case decodingError(Error)
     case noData
+    case licenseRequired
+    case licenseExpired
 }
 
 class APIService {
@@ -15,7 +17,26 @@ class APIService {
     private init() {}
 
     // Production server URL
-    private let baseURL = "https://ai-dictionary-server.fly.dev/api/dictionary"
+    // private let baseURL = "https://ai-dictionary-server.fly.dev/api/dictionary"
+    // Local development server
+    private let baseURL = "http://localhost:3000/api/dictionary"
+
+    private var licenseHeaders: [String: String] {
+        var headers = ["Content-Type": "application/json"]
+        if let token = LicenseManager.shared.getLicenseToken() {
+            headers["Authorization"] = "Bearer \(token)"
+        }
+        return headers
+    }
+
+    private func authenticatedRequest(for url: URL, method: String = "GET") -> URLRequest {
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        for (key, value) in licenseHeaders {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        return request
+    }
 
     private func wordRequestBody(for word: Word) -> [String: Any] {
         [
@@ -29,9 +50,7 @@ class APIService {
 
     func lookupWord(_ word: String, unknownWords: [String] = []) async throws -> Word {
         let url = URL(string: "\(baseURL)/define")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        var request = authenticatedRequest(for: url, method: "POST")
 
         let body: [String: Any] = [
             "word": word,
@@ -76,9 +95,7 @@ class APIService {
 
         let requestBody = wordRequestBody(for: word)
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        var request = authenticatedRequest(for: url, method: "POST")
 
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
@@ -114,7 +131,8 @@ class APIService {
             throw APIError.invalidURL
         }
 
-        let (data, response) = try await URLSession.shared.data(for: URLRequest(url: url))
+        let request = authenticatedRequest(for: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
@@ -142,7 +160,8 @@ class APIService {
             throw APIError.invalidURL
         }
 
-        let (data, response) = try await URLSession.shared.data(for: URLRequest(url: url))
+        let request = authenticatedRequest(for: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
@@ -172,9 +191,7 @@ class APIService {
 
         let requestBody = wordRequestBody(for: word)
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        var request = authenticatedRequest(for: url, method: "POST")
 
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
@@ -200,8 +217,7 @@ class APIService {
             throw APIError.invalidURL
         }
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
+        var request = authenticatedRequest(for: url, method: "DELETE")
 
         let (_, response) = try await URLSession.shared.data(for: request)
 
@@ -219,7 +235,8 @@ class APIService {
             throw APIError.invalidURL
         }
 
-        let (data, response) = try await URLSession.shared.data(for: URLRequest(url: url))
+        let request = authenticatedRequest(for: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
@@ -247,8 +264,7 @@ class APIService {
             throw APIError.invalidURL
         }
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
+        var request = authenticatedRequest(for: url, method: "DELETE")
 
         let (_, response) = try await URLSession.shared.data(for: request)
 
@@ -266,7 +282,8 @@ class APIService {
             throw APIError.invalidURL
         }
 
-        let (data, response) = try await URLSession.shared.data(for: URLRequest(url: url))
+        let request = authenticatedRequest(for: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIError.invalidResponse

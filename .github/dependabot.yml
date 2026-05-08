@@ -1,0 +1,37 @@
+version: 2
+updates:
+  # Node.js dependencies for server
+  - package-ecosystem: "npm"
+    directory: "/ai-dic-server"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "backend"
+    commit-message:
+      prefix: "chore(deps):"
+    groups:
+      development:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+      production:
+        dependency-type: "production"
+        update-types:
+          - "patch"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "chore(ci):"

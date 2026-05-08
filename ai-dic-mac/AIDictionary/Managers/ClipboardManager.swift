@@ -39,7 +39,7 @@ class ClipboardManager: ObservableObject {
         
         if wordCount <= 3, TextValidation.isValidEnglishWord(clipboardString) {
             hasNewContent = true
-            
+
             // Auto-hide after 3 seconds
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
                 self?.hasNewContent = false

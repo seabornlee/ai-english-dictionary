@@ -7,7 +7,6 @@
 // MARK: - Sidebar
 "sidebar.learning" = "LEARNING";
 "sidebar.dictionary" = "Dictionary";
-"sidebar.favorites" = "Favorites";
 "sidebar.vocabulary" = "Vocabulary";
 "sidebar.history" = "History";
 "sidebar.unknown_words" = "Unknown Words";
@@ -36,17 +35,10 @@
 
 // MARK: - Menu Bar Tabs
 "tab.define" = "Define";
-"tab.favorites" = "Favorites";
 "tab.history" = "History";
 
 // MARK: - Library Tabs
 "tab.vocabulary" = "Vocabulary";
-
-// MARK: - Favorites View
-"favorites.title" = "Favorites";
-"favorites.subtitle" = "Quick access to the words you want to revisit.";
-"favorites.empty_title" = "No Favorites Yet";
-"favorites.empty_description" = "Star a word from the dictionary or menu bar to pin it here.";
 
 // MARK: - Vocabulary & History View
 "vocabulary_history.title" = "Vocabulary & History";

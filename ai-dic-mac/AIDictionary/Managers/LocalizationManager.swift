@@ -13,11 +13,11 @@ class LocalizationManager: ObservableObject {
     }
 
     var appName: String {
-        currentLanguage == "zh-Hans" ? "浪溪词典" : "CleverDict"
+        currentLanguage == "zh-Hans" ? "浪溪词典" : "Lexis Dic"
     }
 
     var appNameWithEnglish: String {
-        currentLanguage == "zh-Hans" ? "浪溪词典 (CleverDict)" : "CleverDict"
+        currentLanguage == "zh-Hans" ? "浪溪词典 (Lexis Dic)" : "Lexis Dic"
     }
 
     private init() {

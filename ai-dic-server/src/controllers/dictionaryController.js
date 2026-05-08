@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 // In-memory storage for vocabulary, favorites, and history (would be replaced with a database in production)
 let vocabularyList = [];
-let favorites = [];
+const favorites = [];
 let searchHistory = [];
 
 function buildStoredWord(payload) {

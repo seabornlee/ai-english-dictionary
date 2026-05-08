@@ -1,147 +1,129 @@
 import SwiftUI
 
+// MARK: - Linear Style Colors
+private enum LinearColors {
+    static let bg = Color(hex: "#fafafa")
+    static let bgSubtle = Color(hex: "#f4f4f5")
+    static let surface = Color(hex: "#ffffff")
+    static let surfaceHover = Color(hex: "#f9f9fb")
+    static let surfaceActive = Color(hex: "#f0f0f2")
+
+    static let border = Color(hex: "#e4e4e7")
+    static let borderHover = Color(hex: "#d1d1d6")
+
+    static let primary = Color(hex: "#8b5cf6")
+    static let primaryLight = Color(hex: "#a78bfa")
+    static let primaryBg = Color(hex: "#f3f0ff")
+
+    static let text = Color(hex: "#18181b")
+    static let textSecondary = Color(hex: "#71717a")
+    static let textTertiary = Color(hex: "#a1a1aa")
+}
+
+// MARK: - Preferences View
 struct PreferencesView: View {
     @AppStorage("apiKey") private var apiKey: String = ""
-    @AppStorage("darkModeEnabled") private var darkModeEnabled: Bool = true
-    @AppStorage("fontSize") private var fontSize: Double = 14.0
     @EnvironmentObject private var localizationManager: LocalizationManager
-    
-    private let backgroundColor = Color(hex: "#111125")
-    private let surfaceLow = Color(hex: "#1a1a2e")
-    private let surfaceHigh = Color(hex: "#28283d")
-    private let cyanAccent = Color(hex: "#00d4ff")
-    private let onSurface = Color(hex: "#e2e0fc")
-    private let onSurfaceVariant = Color(hex: "#bbc9cf")
 
     var body: some View {
         TabView {
             generalTab
+                .tabItem {
+                    Label("General", systemImage: "gear")
+                }
+
             aboutTab
+                .tabItem {
+                    Label("About", systemImage: "info.circle")
+                }
         }
         .padding()
-        .frame(width: 520, height: 420)
-        .background(backgroundColor)
+        .frame(width: 480, height: 360)
+        .background(LinearColors.surface)
     }
-    
+
+    // MARK: - General Tab
     private var generalTab: some View {
         Form {
-            Section(header: sectionHeader(NSLocalizedString("preferences.api_settings", comment: ""))) {
+            Section {
                 VStack(alignment: .leading, spacing: 8) {
-                    TextField("", text: $apiKey)
+                    Text("API Key")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(LinearColors.textSecondary)
+
+                    SecureField("", text: $apiKey)
                         .font(.system(size: 13))
-                        .textFieldStyle(PlainTextFieldStyle())
                         .padding(10)
-                        .background(surfaceHigh)
-                        .cornerRadius(8)
+                        .background(LinearColors.bgSubtle)
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(cyanAccent.opacity(0.2), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .stroke(LinearColors.border, lineWidth: 1)
                         )
                         .placeholder(when: apiKey.isEmpty) {
-                            Text(NSLocalizedString("preferences.api_key_placeholder", comment: ""))
-                                .foregroundColor(onSurfaceVariant)
+                            Text("Enter your DeepSeek API key")
+                                .foregroundColor(LinearColors.textTertiary)
+                                .font(.system(size: 13))
                         }
 
-                    Text(NSLocalizedString("preferences.api_key_hint", comment: ""))
+                    Text("Required for AI-powered definitions. Get your key from DeepSeek.")
                         .font(.system(size: 11))
-                        .foregroundColor(onSurfaceVariant)
-                }
-            }
-
-            Section(header: sectionHeader(NSLocalizedString("preferences.language", comment: ""))) {
-                Picker("", selection: $localizationManager.currentLanguage) {
-                    ForEach(LocalizationManager.supportedLanguages, id: \.self) { code in
-                        Text(LocalizationManager.languageNames[code] ?? code)
-                            .tag(code)
-                    }
-                }
-                .pickerStyle(SegmentedPickerStyle())
-            }
-
-            Section(header: sectionHeader(NSLocalizedString("preferences.display", comment: ""))) {
-                Toggle(NSLocalizedString("preferences.dark_mode", comment: ""), isOn: $darkModeEnabled)
-                    .toggleStyle(SwitchToggleStyle(tint: cyanAccent))
-                    .foregroundColor(onSurface)
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(String(format: NSLocalizedString("preferences.font_size", comment: ""), Int(fontSize)))
-                        .font(.system(size: 13))
-                        .foregroundColor(onSurface)
-
-                    Slider(value: $fontSize, in: 10 ... 24, step: 1) {
-                        Text(NSLocalizedString("preferences.font_size_slider", comment: ""))
-                    }
-                    .tint(cyanAccent)
+                        .foregroundColor(LinearColors.textTertiary)
                 }
             }
         }
-        .formStyle(GroupedFormStyle())
-        .tabItem {
-            Label(NSLocalizedString("preferences.general", comment: ""), systemImage: "gear")
-        }
+        .formStyle(.grouped)
     }
-    
-    
+
+    // MARK: - About Tab
     private var aboutTab: some View {
         AboutView()
-            .tabItem {
-                Label(NSLocalizedString("preferences.about", comment: ""), systemImage: "info.circle")
-            }
-    }
-    
-    private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .font(.system(size: 12, weight: .bold))
-            .foregroundColor(cyanAccent)
-            .textCase(.uppercase)
-            .tracking(0.5)
     }
 }
 
+// MARK: - About View
 struct AboutView: View {
-    private let cyanAccent = Color(hex: "#00d4ff")
-    private let onSurface = Color(hex: "#e2e0fc")
-    private let onSurfaceVariant = Color(hex: "#bbc9cf")
-    
     var body: some View {
         VStack(spacing: 20) {
             ZStack {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(cyanAccent.opacity(0.1))
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(LinearColors.primaryBg)
                     .frame(width: 80, height: 80)
-                
+
                 Image(systemName: "book.closed")
-                    .font(.system(size: 40))
-                    .foregroundColor(cyanAccent)
+                    .font(.system(size: 36, weight: .semibold))
+                    .foregroundColor(LinearColors.primary)
             }
 
             Text(LocalizationManager.shared.appName)
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(onSurface)
+                .font(.system(size: 22, weight: .bold))
+                .foregroundColor(LinearColors.text)
 
-            Text(NSLocalizedString("about.version", comment: ""))
-                .font(.system(size: 14))
-                .foregroundColor(onSurfaceVariant)
-
-            Text(NSLocalizedString("about.description", comment: ""))
+            Text("Version 1.0")
                 .font(.system(size: 13))
-                .foregroundColor(onSurfaceVariant)
+                .foregroundColor(LinearColors.textSecondary)
+
+            Text("AI-powered dictionary for macOS. Get instant definitions powered by DeepSeek LLM.")
+                .font(.system(size: 12))
+                .foregroundColor(LinearColors.textSecondary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
-                .padding(.horizontal)
+                .padding(.horizontal, 24)
 
             Spacer()
 
-            Text(NSLocalizedString("about.copyright", comment: ""))
-                .font(.system(size: 11))
-                .foregroundColor(onSurfaceVariant.opacity(0.7))
+            Text("© 2024 LexisDic. All rights reserved.")
+                .font(.system(size: 10))
+                .foregroundColor(LinearColors.textTertiary)
         }
         .padding()
     }
 }
 
+// MARK: - Preview
 struct PreferencesView_Previews: PreviewProvider {
     static var previews: some View {
         PreferencesView()
+            .environmentObject(LocalizationManager.shared)
     }
 }

@@ -1,27 +1,47 @@
 import SwiftUI
 
+// MARK: - Linear Style Color System
+private enum LinearColors {
+    static let bg = Color(hex: "#fafafa")
+    static let bgSubtle = Color(hex: "#f4f4f5")
+    static let surface = Color(hex: "#ffffff")
+    static let surfaceHover = Color(hex: "#f9f9fb")
+    static let surfaceActive = Color(hex: "#f0f0f2")
+
+    static let border = Color(hex: "#e4e4e7")
+    static let borderHover = Color(hex: "#d1d1d6")
+    static let borderFocus = Color(hex: "#8b5cf6")
+
+    static let primary = Color(hex: "#8b5cf6")
+    static let primaryHover = Color(hex: "#7c3aed")
+    static let primaryLight = Color(hex: "#a78bfa")
+    static let primaryBg = Color(hex: "#f3f0ff")
+    static let primaryBgHover = Color(hex: "#ebe4ff")
+
+    static let text = Color(hex: "#18181b")
+    static let textSecondary = Color(hex: "#71717a")
+    static let textTertiary = Color(hex: "#a1a1aa")
+
+    static let online = Color(hex: "#10b981")
+    static let onlineBg = Color(hex: "#f0fdf4")
+}
+
+// MARK: - MenuBar Window
 struct MenuBarView: View {
     @EnvironmentObject private var wordStore: WordStore
     @EnvironmentObject private var networkMonitor: NetworkMonitor
     @EnvironmentObject private var clipboardManager: ClipboardManager
     @EnvironmentObject var localizationManager: LocalizationManager
-    @ObservedObject private var speechCoordinator = SpeechCoordinator.shared
 
     @State private var searchText = ""
     @State private var isLoading = false
     @State private var searchResult: Word?
     @State private var errorMessage: String?
-    @State private var selectedTab: StitchMenuBarTab = .define
+    @State private var selectedTab: MenuBarTab = .dictionary
 
-    private let backgroundColor = Color(hex: "#111125")
-    private let backgroundHighlight = Color(hex: "#2a2a44")
-    private let surfaceLow = Color(hex: "#1a1a2e")
-    private let surface = Color(hex: "#1e1e32")
-    private let surfaceHigh = Color(hex: "#28283d")
-    private let surfaceHighest = Color(hex: "#333348")
-    private let cyanAccent = Color(hex: "#00d4ff")
-    private let onSurface = Color(hex: "#e2e0fc")
-    private let onSurfaceVariant = Color(hex: "#bbc9cf")
+    enum MenuBarTab: String, CaseIterable {
+        case dictionary = "define"
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -32,143 +52,153 @@ struct MenuBarView: View {
             footerView
         }
         .frame(width: 320, height: 580)
-        .background(panelBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .background(LinearColors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .shadow(color: .black.opacity(0.08), radius: 40, x: 0, y: 20)
         .overlay(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color.black.opacity(0.06), lineWidth: 1)
         )
-        .shadow(color: .black.opacity(0.35), radius: 26, x: 0, y: 18)
         .onAppear(perform: seedInitialResult)
     }
 
-    private var panelBackground: some View {
-        LinearGradient(
-            colors: [backgroundHighlight, backgroundColor, backgroundColor],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    }
-
+    // MARK: - Header
     private var headerView: some View {
-        HStack(alignment: .top) {
-            Text(localizationManager.appName)
-                .font(.system(size: 20, weight: .black))
-                .foregroundColor(.white)
-                .tracking(-0.8)
-                .textCase(.uppercase)
+        VStack(spacing: 0) {
+            HStack(alignment: .center) {
+                HStack(spacing: 10) {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(LinearGradient(
+                            colors: [LinearColors.primary, LinearColors.primaryLight],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ))
+                        .frame(width: 32, height: 32)
+                        .overlay(
+                            Image(systemName: "book.closed")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.white)
+                        )
 
-            Spacer()
-
-            HStack(spacing: 8) {
-                statusBadge
-
-                Button(action: fillFromClipboard) {
-                    Image(systemName: "doc.on.clipboard")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(onSurfaceVariant)
-                        .frame(width: 28, height: 28)
-                        .background(surfaceHigh.opacity(0.8))
-                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    Text(localizationManager.appName)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(LinearColors.text)
+                        .tracking(-0.3)
                 }
-                .buttonStyle(.plain)
-                .disabled(clipboardManager.clipboardText.isEmpty)
-                .opacity(clipboardManager.clipboardText.isEmpty ? 0.45 : 1)
+
+                Spacer()
+
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(LinearColors.online)
+                        .frame(width: 6, height: 6)
+
+                    Text(networkMonitor.isOnline ? "Online" : "Offline")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(LinearColors.online)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(LinearColors.surface)
+                .clipShape(Capsule())
+                .overlay(
+                    Capsule()
+                        .stroke(LinearColors.border, lineWidth: 1)
+                )
             }
+            .padding(.horizontal, 18)
+            .padding(.top, 16)
+            .padding(.bottom, 12)
+
+            Rectangle()
+                .fill(LinearColors.border)
+                .frame(height: 1)
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 14)
-        .padding(.bottom, 10)
     }
 
-    private var statusBadge: some View {
-        HStack(spacing: 4) {
-            Image(systemName: networkMonitor.isOnline ? "wifi" : "wifi.slash")
-                .font(.system(size: 11, weight: .bold))
-                .foregroundColor(networkMonitor.isOnline ? cyanAccent : onSurfaceVariant)
-
-            Text(networkMonitor.isOnline ? NSLocalizedString("status.online", comment: "") : NSLocalizedString("status.offline", comment: ""))
-                .font(.system(size: 9, weight: .black))
-                .foregroundColor(onSurfaceVariant)
-                .tracking(0.8)
-                .textCase(.uppercase)
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-        .background(surfaceHigh.opacity(0.9))
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-    }
-
+    // MARK: - Search Bar
     private var searchBarView: some View {
-        ZStack(alignment: .leading) {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(surfaceHigh.opacity(0.85))
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(LinearColors.textTertiary)
 
-            HStack(spacing: 10) {
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(onSurfaceVariant)
+            TextField("", text: $searchText)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(LinearColors.text)
+                .placeholder(when: searchText.isEmpty) {
+                    Text("Search any word...")
+                        .foregroundColor(LinearColors.textTertiary)
+                        .font(.system(size: 13, weight: .medium))
+                }
+                .textFieldStyle(.plain)
+                .onSubmit(performSearch)
 
-                TextField("", text: $searchText)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(onSurface)
-                    .placeholder(when: searchText.isEmpty) {
-                        Text(NSLocalizedString("menubar.search_placeholder", comment: ""))
-                            .foregroundColor(onSurfaceVariant)
-                            .font(.system(size: 13, weight: .medium))
-                    }
-                    .textFieldStyle(.plain)
-                    .onSubmit(performSearch)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 11)
-        }
-        .frame(height: 44)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(cyanAccent.opacity(0.16), lineWidth: 1)
-        )
-        .padding(.horizontal, 16)
-        .padding(.bottom, 10)
-    }
-
-    private var tabBarView: some View {
-        HStack(spacing: 16) {
-            ForEach(StitchMenuBarTab.allCases) { tab in
-                Button(action: { selectedTab = tab }) {
-                    Text(tab.title)
-                        .font(.system(size: 10, weight: selectedTab == tab ? .black : .semibold))
-                        .foregroundColor(selectedTab == tab ? cyanAccent : Color(hex: "#7b8199"))
-                        .tracking(1.1)
-                        .textCase(.uppercase)
+            if !searchText.isEmpty {
+                Button(action: { searchText = "" }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 13))
+                        .foregroundColor(LinearColors.textTertiary)
                 }
                 .buttonStyle(.plain)
             }
-
-            Spacer()
         }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 8)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(LinearColors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(LinearColors.border, lineWidth: 1)
+        )
+        .padding(.horizontal, 18)
+        .padding(.top, 12)
+        .padding(.bottom, 12)
     }
 
+    // MARK: - Tab Bar
+    private var tabBarView: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 4) {
+                ForEach(MenuBarTab.allCases, id: \.self) { tab in
+                    Button(action: { selectedTab = tab }) {
+                        Text(tab.rawValue)
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(selectedTab == tab ? LinearColors.primary : LinearColors.textTertiary)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 10)
+                            .background(selectedTab == tab ? LinearColors.primaryBg : Color.clear)
+                            .overlay(
+                                Rectangle()
+                                    .fill(selectedTab == tab ? LinearColors.primary : Color.clear)
+                                    .frame(height: 2),
+                                alignment: .bottom
+                            )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 18)
+
+            Rectangle()
+                .fill(LinearColors.border)
+                .frame(height: 1)
+        }
+    }
+
+    private func iconFor(_ tab: MenuBarTab) -> String {
+        switch tab {
+        case .dictionary: return "book.closed"
+        }
+    }
+
+    // MARK: - Content
     private var contentView: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 12) {
                 switch selectedTab {
-                case .define:
-                    defineContent
-                case .favorites:
-                    collectionCard(
-                        title: NSLocalizedString("tab.favorites", comment: ""),
-                        words: wordStore.favorites,
-                        emptyMessage: NSLocalizedString("favorites.empty_description", comment: "")
-                    )
-                case .history:
-                    collectionCard(
-                        title: NSLocalizedString("tab.history", comment: ""),
-                        words: wordStore.searchHistory,
-                        emptyMessage: NSLocalizedString("history.empty_description", comment: "")
-                    )
+                case .dictionary:
+                    dictionaryContent
                 }
             }
             .padding(.horizontal, 16)
@@ -178,7 +208,7 @@ struct MenuBarView: View {
     }
 
     @ViewBuilder
-    private var defineContent: some View {
+    private var dictionaryContent: some View {
         if isLoading {
             loadingCard
         } else if let errorMessage {
@@ -195,382 +225,303 @@ struct MenuBarView: View {
     private var loadingCard: some View {
         VStack(spacing: 12) {
             ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-            Text(NSLocalizedString("loading.looking_up", comment: ""))
+                .progressViewStyle(CircularProgressViewStyle())
+            Text("Looking up...")
                 .font(.system(size: 12, weight: .medium))
-                .foregroundColor(onSurfaceVariant)
+                .foregroundColor(LinearColors.textSecondary)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 42)
-        .background(surfaceLow)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .padding(.vertical, 40)
+        .background(LinearColors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     private func errorCard(message: String) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label(NSLocalizedString("menubar.lookup_failed", comment: ""), systemImage: "exclamationmark.triangle.fill")
+        VStack(alignment: .leading, spacing: 8) {
+            Label("Lookup Failed", systemImage: "exclamationmark.triangle.fill")
                 .font(.system(size: 12, weight: .bold))
-                .foregroundColor(Color(hex: "#ffb4ab"))
+                .foregroundColor(Color(hex: "#dc2626"))
 
             Text(message)
                 .font(.system(size: 12))
-                .foregroundColor(Color(hex: "#ffdad6"))
-                .fixedSize(horizontal: false, vertical: true)
+                .foregroundColor(Color(hex: "#991b1b"))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(Color(hex: "#93000a").opacity(0.42))
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .background(Color(hex: "#fef2f2"))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     private func definitionCard(for word: Word) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(word.term)
-                        .font(.system(size: 34, weight: .black))
-                        .foregroundColor(onSurface)
-                        .tracking(-1)
+                        .font(.system(size: 24, weight: .black))
+                        .foregroundColor(LinearColors.text)
+                        .tracking(-0.8)
 
-                    Text("/lookup/ • entry")
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
-                        .foregroundColor(cyanAccent.opacity(0.9))
-                        .tracking(1.1)
-                        .textCase(.uppercase)
+                    Text(word.pronunciation ?? "")
+                        .font(.system(size: 11, weight: .medium, design: .monospaced))
+                        .foregroundColor(LinearColors.textTertiary)
 
-                    HStack(spacing: 8) {
-                        Text("\(StitchUIHelpers.pronunciationLabel(for: word)) • \(word.partOfSpeech ?? NSLocalizedString("word.entry", comment: ""))")
-                            .font(.system(size: 10, weight: .medium, design: .monospaced))
-                            .foregroundColor(onSurfaceVariant)
-
-                        Button {
-                            speechCoordinator.speak(word.term)
-                        } label: {
-                            Image(systemName: speechCoordinator.speakingText == word.term ? "speaker.wave.2.fill" : "speaker.wave.2")
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(cyanAccent)
-                        }
-                        .buttonStyle(.plain)
-                    }
+                    Text(word.partOfSpeech ?? "")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(LinearColors.textSecondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(LinearColors.bgSubtle)
+                        .clipShape(Capsule())
                 }
 
                 Spacer()
-
-                HStack(spacing: 8) {
-                    Button(action: { wordStore.addToFavorites(word) }) {
-                        Image(systemName: wordStore.isFavorite(word) ? "star.fill" : "star")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(cyanAccent)
-                            .frame(width: 30, height: 30)
-                            .background(surfaceHigh)
-                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    }
-                    .buttonStyle(.plain)
-
-                    Button(action: { wordStore.addToVocabulary(word) }) {
-                        Image(systemName: "plus")
-                            .font(.system(size: 14, weight: .black))
-                            .foregroundColor(Color(hex: "#003642"))
-                            .frame(width: 30, height: 30)
-                            .background(cyanAccent)
-                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                            .shadow(color: cyanAccent.opacity(0.4), radius: 12, x: 0, y: 2)
-                    }
-                    .buttonStyle(.plain)
-                }
             }
 
-            Text(StitchUIHelpers.trimmedDefinition(word.definition, limit: 180))
-                .font(.system(size: 15, weight: .light))
-                .foregroundColor(onSurface.opacity(0.92))
+            Text(word.definition)
+                .font(.system(size: 13, weight: .regular))
+                .foregroundColor(LinearColors.textSecondary)
                 .lineSpacing(4)
 
             HStack(spacing: 6) {
-                ForEach(StitchUIHelpers.keywordChips(from: word.definition, excluding: word.term), id: \.self) { chip in
-                    Text(chip.uppercased())
-                        .font(.system(size: 9, weight: .black))
-                        .foregroundColor(onSurfaceVariant)
-                        .tracking(0.9)
-                        .padding(.horizontal, 8)
+                ForEach(keywordChips(from: word.definition, excluding: word.term), id: \.self) { chip in
+                    Text(chip)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(LinearColors.textSecondary)
+                        .padding(.horizontal, 10)
                         .padding(.vertical, 5)
-                        .background(surface)
+                        .background(LinearColors.bgSubtle)
                         .clipShape(Capsule())
-                        .overlay(
-                            Capsule()
-                                .stroke(Color.white.opacity(0.05), lineWidth: 1)
-                        )
                 }
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(18)
-        .background(surfaceLow)
-        .overlay(alignment: .leading) {
-            Rectangle()
-                .fill(cyanAccent.opacity(0.35))
-                .frame(width: 2)
-                .padding(.vertical, 12)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .padding(16)
+        .background(LinearColors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: 4)
     }
 
     private var frequencyCard: some View {
         HStack {
             VStack(alignment: .leading, spacing: 6) {
-                Text(NSLocalizedString("menubar.frequency_score", comment: ""))
-                    .font(.system(size: 9, weight: .black))
-                    .foregroundColor(Color(hex: "#7b8199"))
-                    .tracking(1.1)
+                Text("Usage Frequency")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(LinearColors.textTertiary)
                     .textCase(.uppercase)
 
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
                         Capsule()
-                            .fill(surfaceHighest)
+                            .fill(LinearColors.bgSubtle)
                         Capsule()
-                            .fill(cyanAccent)
+                            .fill(LinearGradient(
+                                colors: [LinearColors.primary, LinearColors.primaryLight],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            ))
                             .frame(width: geometry.size.width * 0.76)
-                            .shadow(color: cyanAccent.opacity(0.6), radius: 8, x: 0, y: 0)
                     }
                 }
-                .frame(width: 120, height: 4)
+                .frame(width: 100, height: 4)
             }
 
             Spacer()
 
-            Text(NSLocalizedString("menubar.top_percentage", comment: ""))
-                .font(.system(size: 11, weight: .bold))
-                .foregroundColor(onSurface)
+            Text("Top 24%")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(LinearColors.primary)
         }
         .padding(14)
-        .background(surfaceLow)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .background(LinearColors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     private func exampleCard(for word: Word) -> some View {
-        let sentences = Array(StitchUIHelpers.listeningSentences(for: word).prefix(2))
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Image(systemName: "lightbulb")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(LinearColors.primary)
 
-        return ZStack(alignment: .bottomTrailing) {
-            LinearGradient(
-                colors: [surfaceLow, surfaceHigh],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+                Spacer()
 
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Image(systemName: "lightbulb")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(cyanAccent)
-
-                    Spacer()
-
-                    Button {
-                        speechCoordinator.speak(sentences.joined(separator: " "))
-                    } label: {
-                        Image(systemName: speechCoordinator.speakingText == sentences.joined(separator: " ") ? "speaker.wave.2.fill" : "speaker.wave.2")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(cyanAccent)
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                ForEach(Array(sentences.enumerated()), id: \.offset) { _, sentence in
-                    Text("“\(sentence)”")
-                        .font(.system(size: 12))
-                        .italic()
-                        .foregroundColor(onSurfaceVariant)
-                        .lineSpacing(3)
-                }
+                Text("Examples")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(LinearColors.textTertiary)
+                    .textCase(.uppercase)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(16)
 
-            Image(systemName: "book.closed")
-                .font(.system(size: 52))
-                .foregroundColor(cyanAccent.opacity(0.08))
-                .padding(.trailing, 8)
-                .padding(.bottom, 4)
+            ForEach(word.exampleSentences.prefix(2), id: \.self) { sentence in
+                Text("\"\(sentence)\"")
+                    .font(.system(size: 12))
+                    .italic()
+                    .foregroundColor(LinearColors.textSecondary)
+                    .lineSpacing(3)
+            }
         }
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .padding(14)
+        .background(LinearColors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     private var emptyStateCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             Image(systemName: "character.book.closed")
                 .font(.system(size: 28))
-                .foregroundColor(onSurfaceVariant.opacity(0.7))
+                .foregroundColor(LinearColors.textTertiary)
 
-            Text(NSLocalizedString("menubar.search_prompt", comment: ""))
+            Text("Search for any word")
                 .font(.system(size: 16, weight: .bold))
-                .foregroundColor(onSurface)
+                .foregroundColor(LinearColors.text)
 
-            Text(StitchUIHelpers.exampleSentence(for: nil))
+            Text("Get instant definitions powered by AI")
                 .font(.system(size: 12))
-                .foregroundColor(onSurfaceVariant)
-                .lineSpacing(3)
+                .foregroundColor(LinearColors.textSecondary)
+                .lineSpacing(2)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(18)
-        .background(surfaceLow)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .background(LinearColors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
-    private func collectionCard(title: String, words: [Word], emptyMessage: String) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(title)
-                .font(.system(size: 11, weight: .black))
-                .foregroundColor(onSurfaceVariant)
-                .tracking(1)
-                .textCase(.uppercase)
-
-            if words.isEmpty {
-                Text(emptyMessage)
-                    .font(.system(size: 12))
-                    .foregroundColor(onSurfaceVariant)
-                    .padding(.vertical, 12)
+    // MARK: - History
+    private var historyContent: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if wordStore.searchHistory.isEmpty {
+                emptyListState(
+                    icon: "clock",
+                    title: "No history yet",
+                    description: "Your searched words will appear here"
+                )
             } else {
-                VStack(spacing: 8) {
-                    ForEach(words.prefix(6)) { word in
-                        Button {
-                            searchResult = word
-                            searchText = word.term
-                            errorMessage = nil
-                            selectedTab = .define
-                        } label: {
-                            HStack(alignment: .top, spacing: 10) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(word.term)
-                                        .font(.system(size: 14, weight: .semibold))
-                                        .foregroundColor(cyanAccent)
-
-                                    Text(StitchUIHelpers.trimmedDefinition(word.definition, limit: 70))
-                                        .font(.system(size: 11))
-                                        .foregroundColor(onSurface.opacity(0.8))
-                                        .lineLimit(2)
-                                }
-
-                                Spacer()
-
-                                Text(StitchUIHelpers.historyDateString(from: word.timestamp))
-                                    .font(.system(size: 9, weight: .medium))
-                                    .foregroundColor(onSurfaceVariant)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(12)
-                            .background(surface)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        }
-                        .buttonStyle(.plain)
-                    }
+                ForEach(wordStore.searchHistory.prefix(10)) { word in
+                    wordListItem(word: word, showDate: true)
                 }
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(surfaceLow)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
-    private var footerView: some View {
+    private func emptyListState(icon: String, title: String, description: String) -> some View {
         VStack(spacing: 10) {
-            Button(action: openMainWindow) {
-                HStack(spacing: 10) {
-                    Image(systemName: "arrow.up.forward.app")
-                        .font(.system(size: 13, weight: .bold))
-                        .foregroundColor(cyanAccent)
+            Image(systemName: icon)
+                .font(.system(size: 24))
+                .foregroundColor(LinearColors.textTertiary)
+            Text(title)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(LinearColors.text)
+            Text(description)
+                .font(.system(size: 11))
+                .foregroundColor(LinearColors.textTertiary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 32)
+        .background(LinearColors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
 
-                    Text(NSLocalizedString("menubar.open_full", comment: ""))
-                        .font(.system(size: 11, weight: .black))
-                        .foregroundColor(Color(hex: "#d1d5db"))
-                        .tracking(1)
-                        .textCase(.uppercase)
+    private func wordListItem(word: Word, showDate: Bool = false) -> some View {
+        Button(action: {
+            searchResult = word
+            searchText = word.term
+            selectedTab = .dictionary
+        }) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(word.term)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(LinearColors.primary)
 
-                    Spacer()
-
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(Color(hex: "#6b7280"))
+                    Text(word.definition.prefix(60) + (word.definition.count > 60 ? "..." : ""))
+                        .font(.system(size: 11))
+                        .foregroundColor(LinearColors.textSecondary)
+                        .lineLimit(2)
                 }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 12)
-                .background(Color.white.opacity(0.05))
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            }
-            .buttonStyle(.plain)
-
-            HStack {
-                Button(action: { NSApp.terminate(nil) }) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "power")
-                            .font(.system(size: 12, weight: .bold))
-                        Text(NSLocalizedString("menubar.quit", comment: ""))
-                            .font(.system(size: 10, weight: .black))
-                            .tracking(0.8)
-                            .textCase(.uppercase)
-                    }
-                    .foregroundColor(Color(hex: "#8a8fa5"))
-                }
-                .buttonStyle(.plain)
 
                 Spacer()
 
-                HStack(spacing: 6) {
-                    Circle()
-                        .fill(cyanAccent)
-                        .frame(width: 6, height: 6)
-                    Text(NSLocalizedString("menubar.ai_engine", comment: ""))
-                        .font(.system(size: 8, weight: .medium, design: .monospaced))
-                        .foregroundColor(Color(hex: "#8a8fa5"))
-                        .tracking(1)
-                        .textCase(.uppercase)
+                if showDate {
+                    Text(formatDate(word.timestamp))
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(LinearColors.textTertiary)
                 }
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(LinearColors.textTertiary)
+            }
+            .padding(12)
+            .background(LinearColors.surface)
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Footer
+    private var footerView: some View {
+        HStack {
+            Button(action: openMainWindow) {
+                HStack(spacing: 6) {
+                    Image(systemName: "arrow.up.forward.square")
+                        .font(.system(size: 12, weight: .semibold))
+                    Text("Open App")
+                        .font(.system(size: 11, weight: .semibold))
+                }
+                .foregroundColor(LinearColors.primary)
+            }
+            .buttonStyle(.plain)
+
+            Spacer()
+
+            HStack(spacing: 4) {
+                Circle()
+                    .fill(LinearColors.online)
+                    .frame(width: 5, height: 5)
+                Text("Powered by AI")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(LinearColors.textTertiary)
             }
         }
-        .padding(16)
-        .background(backgroundColor.opacity(0.35))
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+    }
+
+    // MARK: - Helpers
+    private func keywordChips(from definition: String, excluding term: String) -> [String] {
+        let words = definition.components(separatedBy: .whitespacesAndNewlines)
+            .map { $0.trimmingCharacters(in: .punctuationCharacters) }
+            .filter { $0.count > 4 && !$0.lowercased().contains(term.lowercased()) }
+        return Array(words.prefix(4))
+    }
+
+    private func formatDate(_ date: Date) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        return formatter.localizedString(for: date, relativeTo: Date())
     }
 
     private func seedInitialResult() {
         guard searchResult == nil else { return }
-
-        if let recentWord = wordStore.searchHistory.first ?? wordStore.favorites.first ?? wordStore.vocabularyList.first {
+        if let recentWord = wordStore.searchHistory.first {
             searchResult = recentWord
             searchText = recentWord.term
         }
     }
 
-    private func fillFromClipboard() {
-        guard !clipboardManager.clipboardText.isEmpty else { return }
-        searchText = clipboardManager.clipboardText
-        clipboardManager.clearNotification()
-        performSearch()
-    }
-
-    private func openMainWindow() {
-        NSApp.activate(ignoringOtherApps: true)
-        NSApp.sendAction(Selector(("showMainWindow:")), to: nil, from: nil)
-    }
-
     private func performSearch() {
-        let trimmedSearch = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedSearch.isEmpty else { return }
+        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
 
         isLoading = true
         errorMessage = nil
 
         Task {
             do {
-                let result = try await APIService.shared.lookupWord(
-                    trimmedSearch.lowercased(),
-                    unknownWords: []
-                )
-
+                let result = try await APIService.shared.lookupWord(trimmed.lowercased(), unknownWords: [])
                 await MainActor.run {
                     searchResult = result
                     searchText = result.term
-                    selectedTab = .define
                     isLoading = false
+                    selectedTab = .dictionary
                     wordStore.addToHistory(result)
                 }
             } catch {
@@ -581,51 +532,17 @@ struct MenuBarView: View {
             }
         }
     }
-}
 
-extension View {
-    func placeholder<Content: View>(
-        when shouldShow: Bool,
-        @ViewBuilder placeholder: () -> Content
-    ) -> some View {
-        ZStack(alignment: .leading) {
-            placeholder().opacity(shouldShow ? 1 : 0)
-            self
-        }
+    private func openMainWindow() {
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.sendAction(Selector(("showMainWindow:")), to: nil, from: nil)
     }
 }
 
-extension Color {
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var int: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&int)
-        let a, r, g, b: UInt64
-        switch hex.count {
-        case 3:
-            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
-        case 6:
-            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
-        case 8:
-            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
-        default:
-            (a, r, g, b) = (1, 1, 1, 0)
-        }
-        self.init(
-            .sRGB,
-            red: Double(r) / 255,
-            green: Double(g) / 255,
-            blue: Double(b) / 255,
-            opacity: Double(a) / 255
-        )
-    }
-}
-
-struct MenuBarView_Previews: PreviewProvider {
-    static var previews: some View {
-        MenuBarView()
-            .environmentObject(WordStore())
-            .environmentObject(NetworkMonitor.shared)
-            .environmentObject(ClipboardManager.shared)
-    }
+#Preview {
+    MenuBarView()
+        .environmentObject(WordStore())
+        .environmentObject(NetworkMonitor.shared)
+        .environmentObject(ClipboardManager.shared)
+        .environmentObject(LocalizationManager.shared)
 }

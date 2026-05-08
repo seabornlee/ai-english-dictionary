@@ -1,0 +1,16 @@
+# Default owners for everything in the repo
+* @seabornlee
+
+# macOS app
+/ai-dic-mac/ @seabornlee
+
+# Server
+/ai-dic-server/ @seabornlee
+
+# CI/CD and GitHub config
+/.github/ @seabornlee
+/Jenkinsfile @seabornlee
+
+# Documentation
+/*.md @seabornlee
+/docs/ @seabornlee

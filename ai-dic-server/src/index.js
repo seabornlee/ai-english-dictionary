@@ -4,6 +4,9 @@ const cors = require('cors');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
 const dictionaryRoutes = require('./routes/dictionary');
+const authRoutes = require('./routes/auth');
+const syncRoutes = require('./routes/sync');
+const { license } = require('./middleware/license');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -61,7 +64,9 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/api/dictionary', dictionaryRoutes);
+app.use('/api/dictionary', license, dictionaryRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/sync', license, syncRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -71,7 +76,7 @@ app.get('/health', (req, res) => {
 });
 
 // Error handler
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   console.error(err.stack);
   res.status(500).json({
     error: 'Internal Server Error',

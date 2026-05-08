@@ -1,0 +1,37 @@
+{
+  "name": "AI English Dictionary Dev",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker",
+        "mongodb.mongodb-vscode",
+        "eamodio.gitlens",
+        "usernamehw.errorlens"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "eslint.validate": ["javascript"],
+        "files.eol": "\n"
+      }
+    }
+  },
+  "forwardPorts": [3000, 27017],
+  "postCreateCommand": "cd ai-dic-server && npm install",
+  "remoteUser": "node"
+}

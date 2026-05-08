@@ -72,7 +72,6 @@ struct MenuBarClipboardBadge: View {
             }
             .onTapGesture {
                 clipboardManager.clearNotification()
-                FloatingWindowService.shared.showFloatingWindow(with: clipboardManager.clipboardText)
             }
         }
     }

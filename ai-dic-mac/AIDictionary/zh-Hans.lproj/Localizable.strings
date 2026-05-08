@@ -7,7 +7,6 @@
 // MARK: - Sidebar
 "sidebar.learning" = "学习";
 "sidebar.dictionary" = "词典";
-"sidebar.favorites" = "收藏";
 "sidebar.vocabulary" = "词汇本";
 "sidebar.history" = "历史";
 "sidebar.unknown_words" = "生词";
@@ -36,17 +35,10 @@
 
 // MARK: - Menu Bar Tabs
 "tab.define" = "查词";
-"tab.favorites" = "收藏";
 "tab.history" = "历史";
 
 // MARK: - Library Tabs
 "tab.vocabulary" = "词汇本";
-
-// MARK: - Favorites View
-"favorites.title" = "收藏";
-"favorites.subtitle" = "快速访问你想复习的单词。";
-"favorites.empty_title" = "暂无收藏";
-"favorites.empty_description" = "从词典或菜单栏收藏单词，它们会显示在这里。";
 
 // MARK: - Vocabulary & History View
 "vocabulary_history.title" = "词汇本与历史";
