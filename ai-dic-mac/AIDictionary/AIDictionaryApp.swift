@@ -32,34 +32,73 @@ struct AIDictionaryApp: App {
                 }
                 .keyboardShortcut(",", modifiers: .command)
             }
-        }
 
-        MenuBarExtra(localizationManager.appName, systemImage: "character.book.closed") {
-            Button("Open Dictionary") {
-                appDelegate.openMainWindow()
-            }
-            Divider()
-            Button("Quit") {
-                NSApp.terminate(nil)
+            // VAL-LOOKUP-010: In-app Cmd+Shift+D shortcut to open menu bar popup
+            CommandMenu("Lookup") {
+                Button("Look Up Word") {
+                    appDelegate.togglePopover()
+                }
+                .keyboardShortcut("d", modifiers: [.command, .shift])
             }
         }
     }
-
 }
 
+// MARK: - AppDelegate with Manual Status Item + Popover
 class AppDelegate: NSObject, NSApplicationDelegate {
     var preferencesWindow: NSWindow?
-    var mainWindow: NSWindow?
+    var statusItem: NSStatusItem?
+    var popover: NSPopover?
 
-    func applicationDidFinishLaunching(_: Notification) {}
+    func applicationDidFinishLaunching(_: Notification) {
+        // VAL-LOOKUP-001: Menu bar icon visible after app launch
+        setupStatusBarItem()
+    }
+
+    /// VAL-LOOKUP-001: Create menu bar status item with book icon
+    private func setupStatusBarItem() {
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        item.button?.image = NSImage(systemSymbolName: "character.book.closed", accessibilityDescription: "LexisDic")
+        item.button?.image?.size = NSSize(width: 18, height: 18)
+        item.button?.action = #selector(togglePopover)
+        item.button?.target = self
+        self.statusItem = item
+
+        // VAL-LOOKUP-002: Create popover for the menu bar popup
+        let popover = NSPopover()
+        popover.contentSize = NSSize(width: 320, height: 480)
+        popover.behavior = .transient
+        popover.animates = true
+
+        let menuBarView = MenuBarView()
+            .environmentObject(WordStore())
+            .environmentObject(NetworkMonitor.shared)
+            .environmentObject(ClipboardManager.shared)
+            .environmentObject(LocalizationManager.shared)
+
+        let hostingController = NSHostingController(rootView: menuBarView)
+        hostingController.view.frame = NSRect(x: 0, y: 0, width: 320, height: 480)
+        popover.contentViewController = hostingController
+        self.popover = popover
+    }
+
+    /// VAL-LOOKUP-002 / VAL-LOOKUP-010: Toggle the menu bar popover
+    @objc func togglePopover() {
+        guard let button = statusItem?.button, let popover else { return }
+
+        if popover.isShown {
+            popover.performClose(nil)
+        } else {
+            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+            // Activate the app so keyboard events are captured
+            NSApp.activate(ignoringOtherApps: true)
+        }
+    }
 
     func openMainWindow() {
         NSApp.activate(ignoringOtherApps: true)
-        if let window = NSApp.windows.first {
+        if let window = NSApp.windows.first(where: { $0.title != "" }) {
             window.makeKeyAndOrderFront(nil)
-        } else {
-            // If no window exists, the app will create one via WindowGroup
-            NSApp.windows.first?.makeKeyAndOrderFront(nil)
         }
     }
 
