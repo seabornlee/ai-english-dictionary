@@ -23,7 +23,7 @@ The application is built with SwiftUI for macOS and includes:
 ## Setup
 
 1. Open `AIDictionary.xcodeproj` in Xcode
-2. Sign the app with your developer certificate (Team ID: `6RT3UH94M6`)
+2. Sign the app with your developer certificate (Team ID: `UUP2U5JJ9Q`)
 3. Build and run the application
 
 ## Usage
