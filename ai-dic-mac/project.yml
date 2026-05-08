@@ -2,7 +2,7 @@ name: LexisDic
 options:
   bundleIdPrefix: site.waterlee.aidic
   deploymentTarget:
-    macOS: "13.0"
+    macOS: "14.0"
   createIntermediateGroups: true
   xcodeVersion: "14.0"
 targets:
@@ -18,7 +18,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: site.waterlee.aidic
         INFOPLIST_FILE: AIDictionary/Info.plist
-        MACOSX_DEPLOYMENT_TARGET: "13.0"
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
         CODE_SIGN_ENTITLEMENTS: AIDictionary/AIDictionary.entitlements
         CODE_SIGN_IDENTITY: "Mac Developer"
         DEVELOPMENT_TEAM: "UUP2U5JJ9Q"
@@ -50,6 +50,17 @@ targets:
       properties:
         LSApplicationCategoryType: public.app-category.reference
         CFBundleVersion: "2"
+        NSServices:
+          - NSMenuItem:
+              default: "Look up in LexisDic"
+            NSMessage: defineWord
+            NSPortName: "Lexis Dic"
+            NSSendTypes:
+              - NSStringPboardType
+            NSRequiredContext:
+              NSWordLimit: 5
+            NSRestricted: false
+            NSServiceDescription: "Look up the selected English word using AI-powered definitions"
     entitlements:
       path: AIDictionary/AIDictionary.entitlements
       properties:
@@ -58,10 +69,57 @@ targets:
         com.apple.security.files.user-selected.read-write: true
         com.apple.security.application-groups:
           - "$(TeamIdentifierPrefix)group.site.waterlee.aidic"
-    dependencies: []
+    dependencies:
+      - target: AIDictionaryShareExtension
     scheme:
       testTargets:
         - AIDictionaryTests
+
+  AIDictionaryShareExtension:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: ShareExtension
+        excludes:
+          - "**/*.md"
+      # Share extension-safe source files from main app for
+      # identical definition rendering (VAL-LOOKUP-018)
+      - path: AIDictionary/APIService.swift
+      - path: AIDictionary/Models/Word.swift
+      - path: AIDictionary/TextValidation.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: site.waterlee.aidic.ShareExtension
+        INFOPLIST_FILE: ShareExtension/Info.plist
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        CODE_SIGN_ENTITLEMENTS: ShareExtension/ShareExtension.entitlements
+        CODE_SIGN_IDENTITY: "Mac Developer"
+        DEVELOPMENT_TEAM: "UUP2U5JJ9Q"
+        PRODUCT_NAME: "$(TARGET_NAME)"
+        SDKROOT: macosx
+        SWIFT_VERSION: "5.0"
+        SWIFT_OPTIMIZATION_LEVEL: "-Onone"
+        CLANG_ENABLE_MODULES: YES
+        CLANG_ENABLE_OBJC_ARC: YES
+        # App Extension must only use extension-safe APIs
+        APPLICATION_EXTENSION_API_ONLY: YES
+    info:
+      path: ShareExtension/Info.plist
+      properties:
+        CFBundleDisplayName: LexisDic
+        NSExtension:
+          NSExtensionAttributes:
+            NSExtensionActivationRule:
+              NSExtensionActivationSupportsText: 1
+          NSExtensionPrincipalClass: "$(PRODUCT_MODULE_NAME).ShareExtensionViewController"
+          NSExtensionPointIdentifier: com.apple.share-services
+    entitlements:
+      path: ShareExtension/ShareExtension.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+        com.apple.security.application-groups:
+          - "$(TeamIdentifierPrefix)group.site.waterlee.aidic"
 
   AIDictionaryTests:
     type: bundle.unit-test
@@ -72,7 +130,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: site.waterlee.aidic.AIDictionaryTests
         INFOPLIST_FILE: AIDictionaryTests/Info.plist
-        MACOSX_DEPLOYMENT_TARGET: "13.0"
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/LexisDic.app/Contents/MacOS/LexisDic"
     info:
       path: AIDictionaryTests/Info.plist

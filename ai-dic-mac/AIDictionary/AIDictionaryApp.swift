@@ -66,10 +66,42 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             name: .defineWordService,
             object: nil
         )
+
+        // VAL-LOOKUP-024 / VAL-LOOKUP-016: Observe Darwin notification from
+        // the Share Extension. When the extension saves a word to the shared
+        // App Group container, it posts this notification so the main app
+        // can activate and show the definition in the menu bar popup.
+        CFNotificationCenterAddObserver(
+            CFNotificationCenterGetDarwinNotifyCenter(),
+            nil,
+            { (center, observer, name, object, userInfo) in
+                DispatchQueue.main.async {
+                    // Read the shared word from the App Group UserDefaults
+                    let sharedDefaults = UserDefaults(suiteName: "group.site.waterlee.aidic")
+                    guard let word = sharedDefaults?.string(forKey: "sharedWord"),
+                          !word.isEmpty else { return }
+
+                    // Post the same notification as the Services menu flow
+                    // so MenuBarView picks it up and performs the lookup
+                    NotificationCenter.default.post(
+                        name: .defineWordService,
+                        object: nil,
+                        userInfo: ["word": word]
+                    )
+
+                    // Activate the app to show the popover
+                    NSApp.activate(ignoringOtherApps: true)
+                }
+            },
+            "group.site.waterlee.aidic.wordUpdated" as CFString,
+            nil,
+            .deliverImmediately
+        )
     }
 
     /// VAL-LOOKUP-012: Show the popover when a service delivers a word.
     /// The MenuBarView observes the same notification and performs the lookup.
+    /// Also called when the Share Extension sends a word via Darwin notification.
     @objc private func handleDefineWordService(_ notification: Notification) {
         guard let button = statusItem?.button, let popover else { return }
 

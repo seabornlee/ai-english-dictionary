@@ -32,10 +32,6 @@
 			<string>defineWord</string>
 			<key>NSPortName</key>
 			<string>Lexis Dic</string>
-			<key>NSSendTypes</key>
-			<array>
-				<string>NSStringPboardType</string>
-			</array>
 			<key>NSRequiredContext</key>
 			<dict>
 				<key>NSWordLimit</key>
@@ -43,6 +39,10 @@
 			</dict>
 			<key>NSRestricted</key>
 			<false/>
+			<key>NSSendTypes</key>
+			<array>
+				<string>NSStringPboardType</string>
+			</array>
 			<key>NSServiceDescription</key>
 			<string>Look up the selected English word using AI-powered definitions</string>
 		</dict>
