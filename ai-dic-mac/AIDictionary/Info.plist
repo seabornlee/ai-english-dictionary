@@ -20,5 +20,32 @@
 	<string>2</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.reference</string>
+	<key>NSServices</key>
+	<array>
+		<dict>
+			<key>NSMenuItem</key>
+			<dict>
+				<key>default</key>
+				<string>Look up in LexisDic</string>
+			</dict>
+			<key>NSMessage</key>
+			<string>defineWord</string>
+			<key>NSPortName</key>
+			<string>Lexis Dic</string>
+			<key>NSSendTypes</key>
+			<array>
+				<string>NSStringPboardType</string>
+			</array>
+			<key>NSRequiredContext</key>
+			<dict>
+				<key>NSWordLimit</key>
+				<integer>5</integer>
+			</dict>
+			<key>NSRestricted</key>
+			<false/>
+			<key>NSServiceDescription</key>
+			<string>Look up the selected English word using AI-powered definitions</string>
+		</dict>
+	</array>
 </dict>
 </plist>

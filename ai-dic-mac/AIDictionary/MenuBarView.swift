@@ -69,6 +69,17 @@ struct MenuBarView: View {
                 isSearchFieldFocused = true
             }
         }
+        // VAL-LOOKUP-012: Receive word from NSServices menu invocation.
+        // When the user selects text in another app and invokes
+        // "Look up in LexisDic" from the Services context menu,
+        // DictionaryServiceProvider posts this notification.
+        // The AppDelegate shows the popover; here we set the search
+        // text and automatically trigger the lookup.
+        .onReceive(NotificationCenter.default.publisher(for: .defineWordService)) { notification in
+            if let word = notification.userInfo?["word"] as? String {
+                handleServiceWord(word)
+            }
+        }
         // VAL-LOOKUP-021: Escape key closes the popup
         .onKeyPress(.escape) {
             NSApp.keyWindow?.performClose(nil)
@@ -85,6 +96,20 @@ struct MenuBarView: View {
         errorMessage = nil
         isLoading = false
         selectedTab = .dictionary
+    }
+
+    /// VAL-LOOKUP-012: Handle word received from NSServices menu.
+    /// Populates the search field and automatically triggers a lookup,
+    /// providing the same definition rendering as a manual search
+    /// (VAL-LOOKUP-013).
+    private func handleServiceWord(_ word: String) {
+        let trimmed = word.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+
+        // Set the search text and trigger the lookup
+        searchText = trimmed
+        isSearchFieldFocused = true
+        performSearch()
     }
 
     // MARK: - Header

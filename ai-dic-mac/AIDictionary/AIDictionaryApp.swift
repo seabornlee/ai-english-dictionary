@@ -53,6 +53,31 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_: Notification) {
         // VAL-LOOKUP-001: Menu bar icon visible after app launch
         setupStatusBarItem()
+
+        // VAL-LOOKUP-011: Register NSServices provider so "Look up in LexisDic"
+        // appears in the Services context menu of other applications
+        NSApplication.shared.servicesProvider = DictionaryServiceProvider()
+
+        // VAL-LOOKUP-012: When a service invocation delivers a word,
+        // show the popover and let MenuBarView handle the lookup
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleDefineWordService(_:)),
+            name: .defineWordService,
+            object: nil
+        )
+    }
+
+    /// VAL-LOOKUP-012: Show the popover when a service delivers a word.
+    /// The MenuBarView observes the same notification and performs the lookup.
+    @objc private func handleDefineWordService(_ notification: Notification) {
+        guard let button = statusItem?.button, let popover else { return }
+
+        // Show the popover if it's not already visible
+        if !popover.isShown {
+            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+            NSApp.activate(ignoringOtherApps: true)
+        }
     }
 
     /// VAL-LOOKUP-001: Create menu bar status item with book icon
