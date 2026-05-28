@@ -20,13 +20,14 @@ module.exports = [
       },
     },
     rules: {
-      // Complexity rules
-      complexity: ['warn', { max: 10 }],
-      'max-depth': ['warn', { max: 4 }],
-      'max-lines': ['warn', { max: 300, skipBlankLines: true, skipComments: true }],
-      'max-lines-per-function': ['warn', { max: 50, skipBlankLines: true, skipComments: true }],
-      'max-params': ['warn', { max: 4 }],
-      'max-nested-callbacks': ['warn', { max: 3 }],
+      // Cyclomatic complexity and code metrics
+      // These rules help maintain readable, maintainable code
+      complexity: ['error', { max: 15 }], // Cyclomatic complexity threshold
+      'max-depth': ['warn', { max: 4 }], // Maximum block nesting depth
+      'max-lines': ['warn', { max: 400, skipBlankLines: true, skipComments: true }], // File length
+      'max-lines-per-function': ['warn', { max: 60, skipBlankLines: true, skipComments: true }],
+      'max-params': ['warn', { max: 5 }], // Function parameter count
+      'max-nested-callbacks': ['warn', { max: 4 }], // Callback nesting depth
 
       // Code quality
       'no-unused-vars': [
@@ -44,7 +45,50 @@ module.exports = [
       'prefer-const': 'error',
 
       // Naming conventions
-      camelcase: ['warn', { properties: 'never' }],
+      camelcase: [
+        'error',
+        {
+          properties: 'never',
+          ignoreDestructuring: false,
+          ignoreImports: false,
+          ignoreGlobals: false,
+          allow: ['^UNSAFE_', '^_id$', '^_v$'], // Allow MongoDB fields and React UNSAFE_ prefix
+        },
+      ],
+      'new-cap': [
+        'error',
+        {
+          newIsCap: true,
+          capIsNew: false, // Allow calling capitalized functions without new (e.g., express.Router())
+          properties: true,
+        },
+      ],
+      'no-underscore-dangle': [
+        'warn',
+        {
+          allow: ['_id', '_v', '__v', '__dirname', '__filename', '_next'],
+          allowAfterThis: true,
+          allowAfterSuper: true,
+          enforceInMethodNames: false,
+        },
+      ],
+      'id-length': [
+        'warn',
+        {
+          min: 2,
+          max: 40,
+          exceptions: ['i', 'j', 'k', 'x', 'y', 'z', 'a', 'b', 'c', 'e', 'h', 't', 'n', '_'],
+          properties: 'never',
+        },
+      ],
+      'id-match': [
+        'warn',
+        '^[a-zA-Z_$][a-zA-Z0-9_$]*$', // Valid JavaScript identifiers
+        {
+          properties: false,
+          onlyDeclarations: true,
+        },
+      ],
     },
   },
   // Test files config

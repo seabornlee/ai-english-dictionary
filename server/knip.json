@@ -1,0 +1,16 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["src/index.js"],
+  "project": ["src/**/*.js"],
+  "ignore": ["**/*.test.js", "tests/**/*"],
+  "ignoreDependencies": [
+    "mocha",
+    "chai",
+    "sinon",
+    "supertest",
+    "mochawesome",
+    "mocha-junit-reporter",
+    "nyc"
+  ],
+  "ignoreExportsUsedInFile": true
+}

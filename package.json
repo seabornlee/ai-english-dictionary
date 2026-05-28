@@ -5,10 +5,15 @@
   "description": "AI-powered English-to-English dictionary application",
   "scripts": {
     "prepare": "husky",
-    "lint": "cd ai-dic-server && npm run format:check",
-    "format": "cd ai-dic-server && npm run format",
-    "test": "cd ai-dic-server && npm test",
-    "dev:server": "cd ai-dic-server && npm run dev"
+    "lint": "npm run lint:server && npm run lint:mac",
+    "lint:server": "cd server && npm run lint && npm run format:check",
+    "lint:mac": "cd mac-app && swiftlint lint --config .swiftlint.yml --quiet",
+    "format": "npm run format:server && npm run format:mac",
+    "format:server": "cd server && npm run format",
+    "format:mac": "cd mac-app && swiftformat AIDictionary --config .swiftformat",
+    "typecheck": "cd server && npm run typecheck",
+    "test": "cd server && npm test",
+    "dev:server": "cd server && npm run dev"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -18,12 +23,16 @@
     "prettier": "^3.8.3"
   },
   "lint-staged": {
-    "ai-dic-server/**/*.js": [
-      "eslint --fix --config ai-dic-server/eslint.config.js",
+    "server/**/*.js": [
+      "eslint --fix --config server/eslint.config.js",
       "prettier --write"
     ],
-    "ai-dic-server/**/*.{json,md}": [
+    "server/**/*.{json,md}": [
       "prettier --write"
+    ],
+    "mac-app/**/*.swift": [
+      "swiftformat --config mac-app/.swiftformat",
+      "swiftlint lint --config mac-app/.swiftlint.yml --strict"
     ]
   },
   "repository": {

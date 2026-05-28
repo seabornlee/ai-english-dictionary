@@ -1,3 +1,4 @@
+// @ts-check
 const jwt = require('jsonwebtoken');
 
 if (process.env.NODE_ENV === 'production' && !process.env.LICENSE_SECRET) {
@@ -12,6 +13,21 @@ if (!LICENSE_SECRET) {
   throw new Error('LICENSE_SECRET environment variable must be set');
 }
 
+/**
+ * @typedef {Object} LicensePayload
+ * @property {string} type
+ * @property {string} licenseId
+ * @property {string} deviceId
+ * @property {string} bundleId
+ * @property {number} [exp]
+ */
+
+/**
+ * License verification middleware
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 const license = async (req, res, next) => {
   try {
     const authHeader = req.header('Authorization');
@@ -20,7 +36,7 @@ const license = async (req, res, next) => {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    const decoded = jwt.verify(token, LICENSE_SECRET);
+    const decoded = /** @type {LicensePayload} */ (jwt.verify(token, LICENSE_SECRET));
 
     if (decoded.type !== 'license') {
       return res.status(401).json({ error: 'Invalid token type', code: 'INVALID_TOKEN_TYPE' });
@@ -31,16 +47,19 @@ const license = async (req, res, next) => {
       return res.status(401).json({ error: 'License expired', code: 'LICENSE_EXPIRED' });
     }
 
+    // @ts-ignore - extending request with license
     req.license = decoded;
+    // @ts-ignore - extending request with licenseToken
     req.licenseToken = token;
     next();
   } catch (error) {
-    if (error.name === 'JsonWebTokenError') {
+    const err = /** @type {Error} */ (error);
+    if (err.name === 'JsonWebTokenError') {
       return res
         .status(401)
         .json({ error: 'Invalid license token', code: 'INVALID_LICENSE_TOKEN' });
     }
-    if (error.name === 'TokenExpiredError') {
+    if (err.name === 'TokenExpiredError') {
       return res
         .status(401)
         .json({ error: 'License token expired', code: 'LICENSE_TOKEN_EXPIRED' });
@@ -49,6 +68,18 @@ const license = async (req, res, next) => {
   }
 };
 
+/**
+ * @typedef {Object} LicenseData
+ * @property {string} licenseId
+ * @property {string} deviceId
+ * @property {string} bundleId
+ */
+
+/**
+ * Generate license token
+ * @param {LicenseData} licenseData
+ * @returns {string}
+ */
 const generateLicenseToken = licenseData => {
   return jwt.sign(
     {

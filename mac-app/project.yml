@@ -59,6 +59,23 @@ targets:
         com.apple.security.application-groups:
           - "$(TeamIdentifierPrefix)group.site.waterlee.aidic"
     dependencies: []
+    preBuildScripts:
+      - script: |
+          if which swiftformat > /dev/null; then
+            swiftformat "${SRCROOT}/AIDictionary" --config "${SRCROOT}/.swiftformat" --lint
+          else
+            echo "warning: SwiftFormat not installed. Run 'brew install swiftformat' to enable formatting."
+          fi
+        name: SwiftFormat
+        basedOnDependencyAnalysis: false
+      - script: |
+          if which swiftlint > /dev/null; then
+            swiftlint lint --config "${SRCROOT}/.swiftlint.yml" --reporter xcode
+          else
+            echo "warning: SwiftLint not installed. Run 'brew install swiftlint' to enable linting."
+          fi
+        name: SwiftLint
+        basedOnDependencyAnalysis: false
     scheme:
       testTargets:
         - AIDictionaryTests

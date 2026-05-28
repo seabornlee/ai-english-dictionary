@@ -44,6 +44,39 @@ pipeline {
             }
         }
 
+        stage('Format and Lint Swift Code') {
+            steps {
+                dir(MACOS_APP_DIR) {
+                    sh '''
+                        # Install SwiftFormat if not present
+                        if ! which swiftformat > /dev/null; then
+                            echo "Installing SwiftFormat..."
+                            brew install swiftformat || { echo "Failed to install SwiftFormat"; exit 1; }
+                        fi
+                        
+                        # Install SwiftLint if not present
+                        if ! which swiftlint > /dev/null; then
+                            echo "Installing SwiftLint..."
+                            brew install swiftlint || { echo "Failed to install SwiftLint"; exit 1; }
+                        fi
+                        
+                        # Run SwiftFormat check (lint mode - no changes)
+                        echo "Running SwiftFormat check..."
+                        mkdir -p lint-reports
+                        swiftformat AIDictionary --config .swiftformat --lint 2>&1 | tee lint-reports/swiftformat-report.txt || true
+                        
+                        # Run SwiftLint
+                        echo "Running SwiftLint..."
+                        swiftlint lint --config .swiftlint.yml --reporter json > lint-reports/swiftlint-report.json || true
+                        swiftlint lint --config .swiftlint.yml --reporter html > lint-reports/swiftlint-report.html || true
+                        
+                        # Run again to show output and fail on errors
+                        swiftlint lint --config .swiftlint.yml --strict || { echo "SwiftLint found violations"; exit 1; }
+                    '''
+                }
+            }
+        }
+
         stage('Build and Test macOS App') {
             steps {
                 dir(MACOS_APP_DIR) {
@@ -111,6 +144,11 @@ pipeline {
                         done
                         
                         mkdir -p test-reports
+                        
+                        # Run TypeScript type checking (warnings only during gradual adoption)
+                        echo "Running TypeScript type check..."
+                        cnpm run typecheck 2>&1 | tee typecheck-report.txt || echo "TypeScript found type issues (non-blocking during adoption phase)"
+                        
                         cnpm run test:ci || { echo "Tests failed"; exit 1; }
                     '''
                 }
@@ -147,6 +185,17 @@ pipeline {
                     reportFiles: 'index.html',
                     reportName: 'Node.js Coverage Report',
                     reportTitles: 'Node.js Coverage Report'
+                ])
+                
+                // Publish SwiftLint report
+                publishHTML([
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: "${WORKSPACE}/${MACOS_APP_DIR}/lint-reports",
+                    reportFiles: 'swiftlint-report.html',
+                    reportName: 'SwiftLint Report',
+                    reportTitles: 'SwiftLint Report'
                 ])
             }
         }

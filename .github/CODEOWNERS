@@ -2,10 +2,13 @@
 * @seabornlee
 
 # macOS app
-/ai-dic-mac/ @seabornlee
+/mac-app/ @seabornlee
 
 # Server
-/ai-dic-server/ @seabornlee
+/server/ @seabornlee
+
+# Chrome extension
+/chrome-extension/ @seabornlee
 
 # CI/CD and GitHub config
 /.github/ @seabornlee

@@ -1,3 +1,4 @@
+// @ts-check
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
@@ -13,6 +14,12 @@ if (!JWT_SECRET) {
   throw new Error('JWT_SECRET environment variable must be set');
 }
 
+/**
+ * Authentication middleware
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 const auth = async (req, res, next) => {
   try {
     const authHeader = req.header('Authorization');
@@ -21,27 +28,35 @@ const auth = async (req, res, next) => {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = /** @type {{userId: string}} */ (jwt.verify(token, JWT_SECRET));
     const user = await User.findById(decoded.userId);
 
     if (!user) {
       return res.status(401).json({ error: 'User not found', code: 'USER_NOT_FOUND' });
     }
 
+    // @ts-ignore - extending request with user
     req.user = user;
+    // @ts-ignore - extending request with token
     req.token = token;
     next();
   } catch (error) {
-    if (error.name === 'JsonWebTokenError') {
+    const err = /** @type {Error} */ (error);
+    if (err.name === 'JsonWebTokenError') {
       return res.status(401).json({ error: 'Invalid token', code: 'INVALID_TOKEN' });
     }
-    if (error.name === 'TokenExpiredError') {
+    if (err.name === 'TokenExpiredError') {
       return res.status(401).json({ error: 'Token expired', code: 'TOKEN_EXPIRED' });
     }
     res.status(500).json({ error: 'Authentication error', code: 'AUTH_ERROR' });
   }
 };
 
+/**
+ * Generate JWT token
+ * @param {string} userId
+ * @returns {string}
+ */
 const generateToken = userId => {
   return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '30d' });
 };

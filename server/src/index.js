@@ -1,3 +1,4 @@
+// @ts-check
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -11,15 +12,20 @@ const { license } = require('./middleware/license');
 const { auth } = require('./middleware/auth');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+/** @type {number} */
+const PORT = Number(process.env.PORT) || 3000;
 process.env.MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/ai-dictionary';
 
-// Initialize database connection
+/**
+ * Initialize database connection
+ * @returns {Promise<boolean>}
+ */
 const initializeDatabase = async () => {
   try {
-    const uri =
-      process.env.NODE_ENV === 'test' ? process.env.MONGODB_URI + '_test' : process.env.MONGODB_URI;
+    const baseUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/ai-dictionary';
+    const uri = process.env.NODE_ENV === 'test' ? baseUri + '_test' : baseUri;
 
+    /** @type {mongoose.ConnectOptions} */
     const options = {
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
@@ -35,6 +41,10 @@ const initializeDatabase = async () => {
 
     // Create collections and indexes if needed
     const db = mongoose.connection.db;
+    if (!db) {
+      console.log('Database connection not ready');
+      return false;
+    }
     const collections = await db.listCollections().toArray();
     const collectionNames = collections.map(c => c.name);
 
@@ -50,17 +60,20 @@ const initializeDatabase = async () => {
     console.log(`MongoDB connected successfully to ${uri}`);
     return true;
   } catch (error) {
-    console.error('Database initialization error:', error.message);
-    console.error('Full error:', error);
-    if (error.code) console.error('Error code:', error.code);
-    if (error.codeName) console.error('Error codeName:', error.codeName);
+    const err = /** @type {Error & {code?: string, codeName?: string}} */ (error);
+    console.error('Database initialization error:', err.message);
+    console.error('Full error:', err);
+    if (err.code) console.error('Error code:', err.code);
+    if (err.codeName) console.error('Error codeName:', err.codeName);
     console.log('App will continue without database functionality');
+    return false;
   }
 };
 
 initializeDatabase();
 
 // Middleware
+// @ts-ignore - helmet types issue with ESM/CJS interop
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
@@ -72,20 +85,27 @@ app.use('/api/sync', license, syncRoutes);
 app.use('/api/sync/chrome', auth, chromeSyncRoutes);
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   const mongoState = mongoose.connection.readyState;
   const mongoStatus = mongoState === 1 ? 'connected' : 'disconnected';
   res.status(200).json({ status: 'ok', mongo: mongoStatus, state: mongoState });
 });
 
-// Error handler
-app.use((err, req, res, _next) => {
+/**
+ * Error handler middleware
+ * @param {Error} err
+ * @param {express.Request} _req
+ * @param {express.Response} res
+ * @param {express.NextFunction} _next
+ */
+const errorHandler = (err, _req, res, _next) => {
   console.error(err.stack);
   res.status(500).json({
     error: 'Internal Server Error',
     message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
   });
-});
+};
+app.use(errorHandler);
 
 // Create and start server
 const server = app.listen(PORT, '0.0.0.0', () => {

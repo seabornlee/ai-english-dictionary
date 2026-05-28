@@ -2,7 +2,7 @@ version: 2
 updates:
   # Node.js dependencies for server
   - package-ecosystem: "npm"
-    directory: "/ai-dic-server"
+    directory: "/server"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -22,6 +22,19 @@ updates:
         dependency-type: "production"
         update-types:
           - "patch"
+
+  # Root package.json (husky, lint-staged, etc.)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "tooling"
+    commit-message:
+      prefix: "chore(deps):"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"

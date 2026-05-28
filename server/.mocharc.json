@@ -1,0 +1,12 @@
+{
+  "spec": "tests/**/*.test.js",
+  "exit": true,
+  "parallel": true,
+  "jobs": 4,
+  "timeout": 10000,
+  "retries": 0,
+  "reporter": "spec",
+  "require": [],
+  "recursive": true,
+  "file": []
+}

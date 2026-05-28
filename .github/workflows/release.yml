@@ -34,6 +34,15 @@ jobs:
         working-directory: ai-dic-mac
         run: |
           gem install xcpretty
+          brew install swiftlint swiftformat
+
+      - name: Format and Lint Swift code
+        working-directory: ai-dic-mac
+        run: |
+          echo "Running SwiftFormat check..."
+          swiftformat AIDictionary --config .swiftformat --lint
+          echo "Running SwiftLint..."
+          swiftlint lint --config .swiftlint.yml --strict
 
       - name: Build app
         working-directory: ai-dic-mac

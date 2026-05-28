@@ -1,12 +1,40 @@
+// @ts-check
 const { getWordDefinition } = require('../services/aiService');
 const UnknownWord = require('../models/UnknownWord');
 const mongoose = require('mongoose');
 
+/**
+ * @typedef {Object} StoredWord
+ * @property {string} term
+ * @property {string} definition
+ * @property {string|null} pronunciation
+ * @property {string|null} partOfSpeech
+ * @property {string[]} exampleSentences
+ * @property {Date} timestamp
+ */
+
+/**
+ * @typedef {Object} WordPayload
+ * @property {string} term
+ * @property {string} definition
+ * @property {string} [pronunciation]
+ * @property {string} [partOfSpeech]
+ * @property {string[]} [exampleSentences]
+ */
+
 // In-memory storage for vocabulary, favorites, and history (would be replaced with a database in production)
+/** @type {StoredWord[]} */
 let vocabularyList = [];
+/** @type {StoredWord[]} */
 const favorites = [];
+/** @type {StoredWord[]} */
 let searchHistory = [];
 
+/**
+ * Build a stored word object from payload
+ * @param {WordPayload} payload
+ * @returns {StoredWord}
+ */
 function buildStoredWord(payload) {
   const {
     term,
@@ -26,7 +54,11 @@ function buildStoredWord(payload) {
   };
 }
 
-// Define a word using DeepSeek Chat API
+/**
+ * Define a word using DeepSeek Chat API
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 exports.defineWord = async (req, res) => {
   try {
     const { word, unknownWords = [], language = 'en', explanationSections = {} } = req.body;
@@ -45,7 +77,8 @@ exports.defineWord = async (req, res) => {
         unknownWordDoc = await UnknownWord.findOne({ word });
         console.log('Found existing unknownWordDoc:', !!unknownWordDoc);
       } catch (dbError) {
-        console.error('Database find error:', dbError.message);
+        const err = /** @type {Error} */ (dbError);
+        console.error('Database find error:', err.message);
         unknownWordDoc = null;
       }
 
@@ -63,23 +96,28 @@ exports.defineWord = async (req, res) => {
         await unknownWordDoc.save();
         console.log('Saved to database');
       } catch (saveError) {
-        console.error('Database save error:', saveError.message);
+        const err = /** @type {Error} */ (saveError);
+        console.error('Database save error:', err.message);
       }
     }
 
+    /** @type {string[]} */
     let allUnknownWordsList = [];
     if (mongoose.connection.readyState === 1) {
       try {
         const allUnknownWords = await UnknownWord.find({});
-        allUnknownWordsList = allUnknownWords.reduce((acc, doc) => {
+        allUnknownWordsList = allUnknownWords.reduce((/** @type {string[]} */ acc, doc) => {
           return [...acc, ...doc.unknownWords];
-        }, []);
+        }, /** @type {string[]} */ ([]));
       } catch (dbError) {
-        console.error('Database query error:', dbError.message);
+        const err = /** @type {Error} */ (dbError);
+        console.error('Database query error:', err.message);
       }
     }
 
-    const result = await getWordDefinition(word, allUnknownWordsList, language, { explanationSections });
+    const result = /** @type {StoredWord} */ (
+      await getWordDefinition(word, allUnknownWordsList, language, { explanationSections })
+    );
     result.definition = stripMarkdown(result.definition);
 
     // Add to search history
@@ -88,15 +126,20 @@ exports.defineWord = async (req, res) => {
     console.log('Result:', result);
     return res.status(200).json(result);
   } catch (error) {
-    console.error('Error defining word:', error);
+    const err = /** @type {Error} */ (error);
+    console.error('Error defining word:', err);
     return res.status(500).json({
       error: 'Error defining word',
-      message: error.message,
+      message: err.message,
     });
   }
 };
 
-// Add word to vocabulary list
+/**
+ * Add word to vocabulary list
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 exports.addToVocabulary = (req, res) => {
   try {
     const { term, definition } = req.body;
@@ -121,12 +164,20 @@ exports.addToVocabulary = (req, res) => {
   }
 };
 
-// Get vocabulary list
-exports.getVocabulary = (req, res) => {
+/**
+ * Get vocabulary list
+ * @param {import('express').Request} _req
+ * @param {import('express').Response} res
+ */
+exports.getVocabulary = (_req, res) => {
   return res.status(200).json(vocabularyList);
 };
 
-// Remove word from vocabulary
+/**
+ * Remove word from vocabulary
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 exports.removeFromVocabulary = (req, res) => {
   try {
     const { term } = req.params;
@@ -145,7 +196,11 @@ exports.removeFromVocabulary = (req, res) => {
   }
 };
 
-// Toggle favorite status
+/**
+ * Toggle favorite status
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 exports.toggleFavorite = (req, res) => {
   try {
     const { term, definition } = req.body;
@@ -180,12 +235,19 @@ exports.toggleFavorite = (req, res) => {
   }
 };
 
-// Get favorites
-exports.getFavorites = (req, res) => {
+/**
+ * Get favorites
+ * @param {import('express').Request} _req
+ * @param {import('express').Response} res
+ */
+exports.getFavorites = (_req, res) => {
   return res.status(200).json(favorites);
 };
 
-// Add to search history
+/**
+ * Add to search history
+ * @param {StoredWord} word
+ */
 function addToHistory(word) {
   // Remove if exists to avoid duplicates
   searchHistory = searchHistory.filter(item => item.term !== word.term);
@@ -199,6 +261,11 @@ function addToHistory(word) {
   }
 }
 
+/**
+ * Strip markdown formatting from text
+ * @param {string} text
+ * @returns {string}
+ */
 function stripMarkdown(text) {
   return text
     .replace(/\*\*/g, '') // Remove **
@@ -214,13 +281,21 @@ function stripMarkdown(text) {
     .trim();
 }
 
-// Get search history
-exports.getHistory = (req, res) => {
+/**
+ * Get search history
+ * @param {import('express').Request} _req
+ * @param {import('express').Response} res
+ */
+exports.getHistory = (_req, res) => {
   return res.status(200).json(searchHistory);
 };
 
-// Clear search history
-exports.clearHistory = async (req, res) => {
+/**
+ * Clear search history
+ * @param {import('express').Request} _req
+ * @param {import('express').Response} res
+ */
+exports.clearHistory = async (_req, res) => {
   try {
     searchHistory = [];
 
@@ -236,16 +311,21 @@ exports.clearHistory = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('Error clearing history:', error);
+    const err = /** @type {Error} */ (error);
+    console.error('Error clearing history:', err);
     return res.status(500).json({
       error: 'Error clearing history',
-      message: error.message,
+      message: err.message,
     });
   }
 };
 
-// Get all unknown words
-exports.getUnknownWords = async (req, res) => {
+/**
+ * Get all unknown words
+ * @param {import('express').Request} _req
+ * @param {import('express').Response} res
+ */
+exports.getUnknownWords = async (_req, res) => {
   try {
     // Get all unknown words documents from database
     const allUnknownWords = await UnknownWord.find({});
@@ -253,18 +333,19 @@ exports.getUnknownWords = async (req, res) => {
     // Flatten and deduplicate the unknown words
     const uniqueUnknownWords = [
       ...new Set(
-        allUnknownWords.reduce((acc, doc) => {
+        allUnknownWords.reduce((/** @type {string[]} */ acc, doc) => {
           return [...acc, ...doc.unknownWords];
-        }, [])
+        }, /** @type {string[]} */ ([]))
       ),
     ];
 
     return res.status(200).json(uniqueUnknownWords);
   } catch (error) {
-    console.error('Error fetching unknown words:', error);
+    const err = /** @type {Error} */ (error);
+    console.error('Error fetching unknown words:', err);
     return res.status(500).json({
       error: 'Error fetching unknown words',
-      message: error.message,
+      message: err.message,
     });
   }
 };

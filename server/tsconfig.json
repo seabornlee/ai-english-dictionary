@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    // Type checking - strict mode enabled for new code
+    // Using checkJs allows gradual adoption with JSDoc annotations
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "useUnknownInCatchVariables": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "exactOptionalPropertyTypes": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": false,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": false,
+
+    // JavaScript support - enable type checking for JS files via JSDoc
+    "allowJs": true,
+    "checkJs": true,
+
+    // Module resolution
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+
+    // Target environment
+    "target": "ES2022",
+    "lib": ["ES2022"],
+
+    // Output settings - no emit since we run JS directly
+    "noEmit": true,
+
+    // Other settings
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": false,
+
+    // Base URL for module resolution
+    "baseUrl": ".",
+    "paths": {
+      "*": ["node_modules/*"]
+    }
+  },
+  "include": ["src/**/*.js", "src/**/*.ts", "types/**/*.d.ts"],
+  "exclude": ["node_modules", "coverage", "test-reports", ".nyc_output", "tests/**/*"]
+}
