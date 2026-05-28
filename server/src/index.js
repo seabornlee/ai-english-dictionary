@@ -6,7 +6,9 @@ const mongoose = require('mongoose');
 const dictionaryRoutes = require('./routes/dictionary');
 const authRoutes = require('./routes/auth');
 const syncRoutes = require('./routes/sync');
+const chromeSyncRoutes = require('./routes/chrome-sync');
 const { license } = require('./middleware/license');
+const { auth } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -67,6 +69,7 @@ app.use(express.json());
 app.use('/api/dictionary', license, dictionaryRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/sync', license, syncRoutes);
+app.use('/api/sync/chrome', auth, chromeSyncRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

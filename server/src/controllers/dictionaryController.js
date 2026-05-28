@@ -29,13 +29,13 @@ function buildStoredWord(payload) {
 // Define a word using DeepSeek Chat API
 exports.defineWord = async (req, res) => {
   try {
-    const { word, unknownWords = [] } = req.body;
+    const { word, unknownWords = [], language = 'en', explanationSections = {} } = req.body;
 
     if (!word) {
       return res.status(400).json({ error: 'Word is required' });
     }
 
-    console.log('Define word request:', word);
+    console.log('Define word request:', word, 'language:', language);
     console.log('MongoDB connection state:', mongoose.connection.readyState);
 
     let unknownWordDoc = null;
@@ -79,7 +79,7 @@ exports.defineWord = async (req, res) => {
       }
     }
 
-    const result = await getWordDefinition(word, allUnknownWordsList);
+    const result = await getWordDefinition(word, allUnknownWordsList, language, { explanationSections });
     result.definition = stripMarkdown(result.definition);
 
     // Add to search history

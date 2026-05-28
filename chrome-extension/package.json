@@ -1,0 +1,34 @@
+{
+  "name": "lexis-dict",
+  "version": "1.0.0",
+  "description": "用已知构建未知 · AI 划词释义、标记生词、管理词库。告别翻译思维，用目标语言理解目标语言",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "test:e2e": "npm run build && playwright test",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "chinese",
+    "dictionary",
+    "chrome-extension",
+    "multilingual",
+    "vocabulary",
+    "language-learning"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.4.0",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.60.0",
+    "@types/chrome": "^0.1.42",
+    "eslint": "^10.4.0",
+    "globals": "^17.6.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.4",
+    "vite": "^8.0.14"
+  }
+}

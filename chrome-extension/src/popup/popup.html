@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>词析 - 生词本</title>
+  <link rel="stylesheet" href="./popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📚 生词本</h1>
+      <button id="settings-btn" class="icon-btn" title="设置">⚙️</button>
+    </header>
+
+    <div id="empty-state" class="empty-state">
+      <p>还没有生词</p>
+      <p class="hint">选中网页中的中文词语即可查询</p>
+    </div>
+
+    <ul id="word-list" class="word-list"></ul>
+
+    <footer>
+      <button id="export-btn" class="text-btn">导出生词</button>
+      <button id="clear-btn" class="text-btn danger">清空</button>
+    </footer>
+  </div>
+  <script type="module" src="./popup.ts"></script>
+</body>
+</html>

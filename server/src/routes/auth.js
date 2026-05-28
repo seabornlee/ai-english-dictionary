@@ -269,6 +269,72 @@ router.post('/activate', async (req, res) => {
   }
 });
 
+// Activate license for Chrome extension (authenticated user, no App Store receipt)
+router.post('/activate-chrome', auth, async (req, res) => {
+  try {
+    const { deviceId } = req.body;
+
+    if (!deviceId) {
+      return res.status(400).json({ error: 'deviceId required', code: 'MISSING_DEVICE_ID' });
+    }
+
+    // Check if user already has an active license
+    let existingLicense = null;
+    try {
+      existingLicense = await License.findOne({
+        userId: req.user._id,
+        isActive: true,
+      });
+    } catch (_dbError) {
+      console.log('MongoDB not connected, skipping license lookup');
+    }
+
+    if (existingLicense) {
+      existingLicense.lastValidationDate = new Date();
+      existingLicense.deviceId = deviceId;
+      await existingLicense.save();
+
+      const token = generateLicenseToken({
+        licenseId: existingLicense._id,
+        deviceId,
+        bundleId: 'chrome-extension',
+      });
+
+      return res.json({ success: true, token, licenseId: existingLicense._id, message: 'License reactivated' });
+    }
+
+    let licenseId;
+    try {
+      const newLicense = new License({
+        receiptHash: `chrome-user-${req.user._id}-${Date.now()}`,
+        bundleId: 'chrome-extension',
+        appVersion: '1.0.0',
+        originalPurchaseDate: new Date(),
+        expirationDate: null,
+        deviceId,
+        userId: req.user._id,
+        isActive: true,
+      });
+      await newLicense.save();
+      licenseId = newLicense._id;
+    } catch (_dbError) {
+      console.log('MongoDB not connected, generating token without database');
+      licenseId = `chrome-no-db-${Date.now()}`;
+    }
+
+    const token = generateLicenseToken({
+      licenseId,
+      deviceId,
+      bundleId: 'chrome-extension',
+    });
+
+    res.status(201).json({ success: true, token, licenseId, message: 'License activated successfully' });
+  } catch (error) {
+    console.error('Chrome activation error:', error);
+    res.status(500).json({ error: 'License activation failed', code: 'ACTIVATION_ERROR' });
+  }
+});
+
 // Check license status
 router.get('/license-status', license, async (req, res) => {
   try {

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>词析 - 设置</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 24px;
+      color: #1a1a1a;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #555;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #1976d2;
+    }
+    fieldset {
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    legend {
+      font-weight: 600;
+      color: #333;
+      padding: 0 6px;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0;
+      font-weight: 400;
+      color: #444;
+    }
+    .checkbox-label input {
+      width: auto;
+      padding: 0;
+    }
+    .hint {
+      font-size: 12px;
+      color: #888;
+      margin-top: 6px;
+    }
+    button {
+      background: #1976d2;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #1565c0;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    button.secondary {
+      background: #757575;
+    }
+    button.secondary:hover {
+      background: #616161;
+    }
+    button.danger {
+      background: #c62828;
+    }
+    button.danger:hover {
+      background: #b71c1c;
+    }
+    .success {
+      color: #2e7d32;
+      margin-top: 12px;
+      display: none;
+    }
+    .success.show {
+      display: block;
+    }
+    .error {
+      color: #c62828;
+      margin-top: 12px;
+      display: none;
+    }
+    .error.show {
+      display: block;
+    }
+    .auth-section {
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .auth-section .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .auth-status {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+    .auth-status.connected {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+    .auth-status.disconnected {
+      background: #ffebee;
+      color: #c62828;
+    }
+    .auth-email {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    .license-status {
+      font-size: 13px;
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: #f5f5f5;
+      border-radius: 6px;
+    }
+    .license-status.active {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+    .license-status.inactive {
+      background: #fff3e0;
+      color: #e65100;
+    }
+    .inline-btn {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔧 词析 设置</h1>
+
+    <!-- Account Card -->
+    <div class="card">
+      <h2 style="font-size: 18px; margin-bottom: 16px;">账户</h2>
+      <div id="account-logged-out" style="display: none;">
+        <div class="form-group">
+          <label for="auth-email">邮箱</label>
+          <input type="email" id="auth-email" placeholder="your@email.com">
+        </div>
+        <div class="form-group">
+          <label for="auth-password">密码</label>
+          <input type="password" id="auth-password" placeholder="至少 6 位">
+        </div>
+        <div class="btn-row">
+          <button id="btn-login">登录</button>
+          <button id="btn-register" class="secondary">注册</button>
+        </div>
+        <p class="error" id="auth-error"></p>
+        <p class="success" id="auth-success"></p>
+      </div>
+      <div id="account-logged-in" style="display: none;">
+        <div class="auth-email" id="auth-email-display"></div>
+        <div class="license-status" id="license-status">许可证：未激活</div>
+        <div class="btn-row">
+          <button id="btn-activate-license" class="secondary inline-btn">激活许可证</button>
+          <button id="btn-logout" class="danger inline-btn">退出登录</button>
+        </div>
+        <p class="error" id="license-error"></p>
+        <p class="success" id="license-success"></p>
+      </div>
+    </div>
+
+    <!-- Config Card -->
+    <div class="card">
+      <form id="config-form">
+        <div class="form-group">
+          <label for="language">界面语言</label>
+          <select id="language">
+            <option value="">首次使用时选择</option>
+            <option value="zh-CN">简体中文</option>
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+            <option value="ko">한국어</option>
+            <option value="es">Español</option>
+          </select>
+          <p class="hint">控制设置页和弹窗提示语言；AI 解释语言会自动跟随划词语言。</p>
+        </div>
+
+        <div class="form-group">
+          <label for="provider">API 提供商</label>
+          <select id="provider">
+            <option value="openai">OpenAI</option>
+            <option value="claude">Claude (Anthropic)</option>
+            <option value="custom">自定义 (OpenAI 兼容)</option>
+            <option value="server">词析服务器</option>
+          </select>
+        </div>
+
+        <div id="api-key-group" class="form-group">
+          <label for="apiKey">API Key</label>
+          <input type="password" id="apiKey" placeholder="sk-...">
+          <p class="hint">你的 API 密钥，将安全存储在本地</p>
+        </div>
+
+        <div id="model-group" class="form-group">
+          <label for="model">模型名称</label>
+          <input type="text" id="model" placeholder="gpt-4o-mini">
+          <p class="hint">推荐：gpt-4o-mini（OpenAI）/ claude-3-haiku-20240307（Claude）</p>
+        </div>
+
+        <div id="base-url-group" class="form-group">
+          <label for="baseUrl">API Base URL</label>
+          <input type="text" id="baseUrl" placeholder="https://api.openai.com/v1">
+          <p class="hint">如使用代理或自定义服务，请修改此地址</p>
+        </div>
+
+        <fieldset>
+          <legend>解释内容</legend>
+          <p class="hint">默认只显示"简明释义"，下列板块需要手动启用。</p>
+          <label class="checkbox-label" for="section-simple">
+            <input type="checkbox" id="section-simple">
+            更简单的说法
+          </label>
+          <label class="checkbox-label" for="section-examples">
+            <input type="checkbox" id="section-examples">
+            例句
+          </label>
+          <label class="checkbox-label" for="section-collocations">
+            <input type="checkbox" id="section-collocations">
+            常见搭配
+          </label>
+        </fieldset>
+
+        <button type="submit">保存设置</button>
+        <p class="success" id="success-msg">✓ 设置已保存</p>
+      </form>
+    </div>
+  </div>
+  <script type="module" src="./options.ts"></script>
+</body>
+</html>

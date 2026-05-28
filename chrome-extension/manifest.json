@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "词析 - 中文词典",
+  "description": "用已知构建未知，告别翻译思维。选中生词即用 AI 获取母语释义，标记不认识的词后自动用更简单的语言重新解释",
+  "version": "1.0.0",
+  "key_words": ["划词翻译", "生词本", "语言学习", "AI词典", "多语言词典", "词典", "dictionary", "vocabulary"],
+  "icons": {
+    "16": "public/icon16.png",
+    "48": "public/icon48.png",
+    "128": "public/icon128.png"
+  },
+  "permissions": ["storage", "activeTab", "alarms"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "src/background/service-worker.ts",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/content.ts"],
+      "css": ["src/styles/tooltip.css"]
+    }
+  ],
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "public/icon16.png",
+      "48": "public/icon48.png",
+      "128": "public/icon128.png"
+    }
+  },
+  "options_ui": {
+    "page": "src/options/options.html",
+    "open_in_tab": true
+  }
+}

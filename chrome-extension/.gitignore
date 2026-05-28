@@ -1,0 +1,10 @@
+node_modules/
+dist/
+test-results/
+.alumnium/
+
+.DS_Store
+*.zip
+lexis-dict-v1.0.0/
+
+playwright-report/
