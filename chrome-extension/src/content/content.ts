@@ -1,5 +1,7 @@
 import { getLanguageInfo, isSupportedSelection, type ExplanationLanguage } from '../lib/languages'
-import { ensureLanguageSelected, isLanguageOnboardingTarget } from './language-onboarding'
+import { hasMarkedWordBefore, setHasMarkedWord } from '../lib/storage'
+import { LexisError } from '../lib/llm'
+import { ensureLanguageSelected, isLanguageOnboardingTarget, setPendingSelection } from './language-onboarding'
 
 interface TooltipState {
   element: HTMLElement | null
@@ -28,7 +30,10 @@ function createTooltip(): HTMLElement {
   tooltip.innerHTML = `
     <div class="lexis-tooltip-header">
       <span class="lexis-tooltip-word"></span>
-      <button class="lexis-tooltip-close">×</button>
+      <div class="lexis-tooltip-header-actions">
+        <button class="lexis-tooltip-settings" title="Settings">⚙️</button>
+        <button class="lexis-tooltip-close">×</button>
+      </div>
     </div>
     <div class="lexis-tooltip-content">
       <div class="lexis-tooltip-loading">${texts.loading}</div>
@@ -40,15 +45,21 @@ function createTooltip(): HTMLElement {
   document.body.appendChild(tooltip)
 
   tooltip.querySelector('.lexis-tooltip-close')?.addEventListener('click', hideTooltip)
+  tooltip.querySelector('.lexis-tooltip-settings')?.addEventListener('click', () => {
+    void chrome.runtime.sendMessage({ type: 'OPEN_OPTIONS' })
+  })
 
   return tooltip
 }
 
-function showTooltip(word: string, x: number, y: number, language: ExplanationLanguage) {
+export function showTooltip(word: string, x: number, y: number, language: ExplanationLanguage) {
   state.language = language
-  if (!state.element) {
-    state.element = createTooltip()
+  // Force recreate tooltip to ensure it's always up-to-date
+  if (state.element) {
+    state.element.remove()
+    state.element = null
   }
+  state.element = createTooltip()
 
   state.currentWord = word
   const tooltip = state.element
@@ -77,12 +88,38 @@ function showTooltip(word: string, x: number, y: number, language: ExplanationLa
 
   // Request definition from background
   chrome.runtime.sendMessage({ type: 'GET_DEFINITION', word }, (response) => {
-    if (response.error) {
-      showError(response.error)
-    } else {
-      showDefinition(response.definition)
-    }
+    handleDefinitionResponse(response)
   })
+}
+
+function handleDefinitionResponse(response?: {
+  definition?: string
+  error?: string
+  openSettings?: boolean
+}) {
+  const errors = getLanguageInfo(state.language).errors
+
+  if (chrome.runtime.lastError) {
+    showError(`${errors.apiRequestFailed}: ${chrome.runtime.lastError.message}`)
+    return
+  }
+
+  if (!response) {
+    showError(`${errors.apiRequestFailed}: no response from extension`)
+    return
+  }
+
+  if (response.error) {
+    showError(response.error, response.openSettings)
+    return
+  }
+
+  if (!response.definition?.trim()) {
+    showError(`${errors.apiRequestFailed}: empty response from model`)
+    return
+  }
+
+  void showDefinition(response.definition)
 }
 
 function hideTooltip() {
@@ -100,14 +137,25 @@ function updateTooltipLanguageText() {
   }
 }
 
-function showError(message: string) {
+function showError(message: string, openSettings = false) {
   const contentEl = state.element?.querySelector('.lexis-tooltip-content')
   if (contentEl) {
-    contentEl.innerHTML = `<div class="lexis-tooltip-error">${message}</div>`
+    const settingsLabel = getLanguageInfo(state.language).settings.title
+    const settingsBtn = openSettings
+      ? `<button class="lexis-error-settings-btn">${settingsLabel}</button>`
+      : ''
+    contentEl.innerHTML = `<div class="lexis-tooltip-error">${message}${settingsBtn}</div>`
+
+    if (openSettings) {
+      const btn = contentEl.querySelector('.lexis-error-settings-btn')
+      btn?.addEventListener('click', () => {
+        void chrome.runtime.sendMessage({ type: 'OPEN_OPTIONS' })
+      })
+    }
   }
 }
 
-function showDefinition(definition: string) {
+async function showDefinition(definition: string) {
   const contentEl = state.element?.querySelector('.lexis-tooltip-content')
   if (!contentEl) return
 
@@ -119,9 +167,20 @@ function showDefinition(definition: string) {
   const texts = getLanguageInfo(state.language).ui
   updateTooltipLanguageText()
 
-  const processedText = makeWordsClickable(sanitizeDefinitionHtml(definition))
+  // Only show discovery hint if user hasn't marked a word before
+  const showHint = !(await hasMarkedWordBefore())
+
+  const sanitized = sanitizeDefinitionHtml(definition)
+  const processedText = makeWordsClickable(sanitized)
+
+  if (!processedText || !processedText.trim()) {
+    const errors = getLanguageInfo(state.language).errors
+    showError(`${errors.apiRequestFailed}: empty response from model`)
+    return
+  }
+
   contentEl.innerHTML = `
-    <div class="lexis-discovery-hint">${texts.discoveryHint}</div>
+    ${showHint ? `<div class="lexis-discovery-hint">${texts.discoveryHint}</div>` : ''}
     <div class="lexis-tooltip-text">${processedText}</div>
     <div class="lexis-tooltip-actions">
       <span class="lexis-selection-preview"></span>
@@ -229,19 +288,18 @@ function markSelectedAndRefresh() {
     contentEl.innerHTML = `<div class="lexis-tooltip-loading">${texts.markingPrefix}${words.join('、')}${texts.markingSuffix}</div>`
   }
 
-  void saveSelectedWords(words).then(() => {
+  void saveSelectedWords(words).then(async () => {
+    // Mark that user has used this feature, so we won't show the hint again
+    await setHasMarkedWord()
+    
     chrome.runtime.sendMessage(
       { type: 'GET_DEFINITION', word: state.currentWord },
       (response) => {
-        if (response.error) {
-          showError(response.error)
-        } else {
-          showDefinition(response.definition)
-        }
+        handleDefinitionResponse(response)
       }
     )
   }).catch((error: Error) => {
-    showError(error.message)
+    showError(error.message, error instanceof LexisError ? error.openSettings : false)
   })
 }
 
@@ -269,21 +327,27 @@ function getSelectedTerms(): string[] {
   const sorted = selectedEls
     .map((el) => ({
       index: Number(el.dataset.index),
-      char: el.dataset.word || '',
+      word: el.dataset.word || '',
     }))
-    .filter((item) => !Number.isNaN(item.index) && item.char)
+    .filter((item) => !Number.isNaN(item.index) && item.word)
     .sort((a, b) => a.index - b.index)
 
+  // CJK characters (single char) should be merged when consecutive
+  // Latin words (multi-char) should remain separate
+  const isSingleChar = (word: string) => word.length === 1 && /[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]/.test(word)
+  
   const terms: string[] = []
   let current = ''
   let previousIndex = -2
 
-  sorted.forEach(({ index, char }) => {
-    if (index === previousIndex + 1) {
-      current += char
+  sorted.forEach(({ index, word }) => {
+    if (isSingleChar(word) && index === previousIndex + 1 && isSingleChar(current.slice(-1))) {
+      // Consecutive CJK single characters - merge them
+      current += word
     } else {
+      // Either not consecutive, or it's a Latin word - treat as separate term
       if (current) terms.push(current)
-      current = char
+      current = word
     }
     previousIndex = index
   })
@@ -327,14 +391,17 @@ function makeWordsClickable(html: string): string {
   container.innerHTML = html
   let charIndex = 0
 
+  const combinedRegex = /([\u4e00-\u9fff]|[\u3040-\u30ff]|[\uac00-\ud7af]|[a-zA-ZÀ-ÿ]+(?:[-'][a-zA-ZÀ-ÿ]+)*)/g
+
   function processNode(node: Node) {
     if (node.nodeType === Node.TEXT_NODE) {
       const text = node.textContent || ''
-      const chineseCharRegex = /[\u4e00-\u9fa5]/g
-      if (chineseCharRegex.test(text)) {
+      if (combinedRegex.test(text)) {
+        combinedRegex.lastIndex = 0 // Reset regex state
         const span = document.createElement('span')
-        span.innerHTML = text.replace(/[\u4e00-\u9fa5]/g, (char) => {
-          return `<span class="lexis-markable" data-word="${char}" data-index="${charIndex++}">${char}</span>`
+        span.innerHTML = text.replace(combinedRegex, (match) => {
+          const escaped = match.replace(/"/g, '&quot;')
+          return `<span class="lexis-markable" data-word="${escaped}" data-index="${charIndex++}">${match}</span>`
         })
         node.parentNode?.replaceChild(span, node)
       }
@@ -386,6 +453,8 @@ async function handleMouseUp(e: MouseEvent) {
 }
 
 async function showTooltipForSelectedText(selectedText: string) {
+  // Save selection text for when language onboarding completes
+  setPendingSelection(selectedText)
   const language = await ensureLanguageSelected()
   const selection = window.getSelection()
   if (!language || !selection || selection.rangeCount === 0) return
@@ -409,3 +478,21 @@ document.addEventListener('keydown', (e) => {
     hideTooltip()
   }
 })
+
+// Handle language selection after onboarding
+document.addEventListener('lexis-language-selected', ((e: Event) => {
+  console.log('[Lexis] Received lexis-language-selected event')
+  const customEvent = e as CustomEvent<{ text: string; language: ExplanationLanguage }>
+  const { text, language } = customEvent.detail
+  console.log('[Lexis] Event detail:', { text, language })
+  const selection = window.getSelection()
+  console.log('[Lexis] Selection:', selection, 'rangeCount:', selection?.rangeCount)
+  if (selection && selection.rangeCount > 0) {
+    const range = selection.getRangeAt(0)
+    const rect = range.getBoundingClientRect()
+    console.log('[Lexis] Showing tooltip with rect:', rect)
+    showTooltip(text, rect.left + window.scrollX, rect.bottom + window.scrollY + 5, language)
+  } else {
+    console.log('[Lexis] No selection, cannot show tooltip!')
+  }
+}) as EventListener)

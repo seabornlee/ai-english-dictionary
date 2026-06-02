@@ -90,3 +90,12 @@ export async function getExcludedWords(): Promise<string[]> {
   const vocabulary = await getVocabulary()
   return vocabulary.map((w) => w.word)
 }
+
+export async function hasMarkedWordBefore(): Promise<boolean> {
+  const result = (await chrome.storage.local.get('hasMarkedWord')) as { hasMarkedWord?: boolean }
+  return result.hasMarkedWord ?? false
+}
+
+export async function setHasMarkedWord(): Promise<void> {
+  await chrome.storage.local.set({ hasMarkedWord: true })
+}

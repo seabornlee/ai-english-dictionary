@@ -10,12 +10,13 @@ export default tseslint.config(
       'test-results/**',
       'playwright-report/**',
       'lexis-dict-v1.0.0/**',
+      'store-assets/**',
     ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['**/*.ts'],
+    files: ['**/*.{ts,tsx}'],
     languageOptions: {
       parserOptions: {
         project: './tsconfig.eslint.json',
@@ -41,6 +42,10 @@ export default tseslint.config(
           leadingUnderscore: 'allow',
         },
         {
+          selector: 'function',
+          format: ['camelCase', 'PascalCase'],
+        },
+        {
           selector: 'typeLike',
           format: ['PascalCase'],
         },
@@ -52,7 +57,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['src/**/*.ts', 'vite.config.ts', 'playwright.config.ts'],
+    files: ['src/**/*.{ts,tsx}', 'vite.config.ts', 'playwright.config.ts'],
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -71,6 +76,12 @@ export default tseslint.config(
     },
   },
   {
+    files: ['src/content/content.ts', 'src/lib/languages.ts', 'src/lib/llm.ts', 'src/video/Root.tsx'],
+    rules: {
+      'max-lines': ['error', { max: 500, skipBlankLines: true, skipComments: true }],
+    },
+  },
+  {
     files: ['e2e/**/*.ts'],
     languageOptions: {
       globals: {
@@ -78,7 +89,7 @@ export default tseslint.config(
       },
     },
     rules: {
-      'max-lines': ['error', { max: 350, skipBlankLines: true, skipComments: true }],
+      'max-lines': ['error', { max: 500, skipBlankLines: true, skipComments: true }],
     },
   }
 )

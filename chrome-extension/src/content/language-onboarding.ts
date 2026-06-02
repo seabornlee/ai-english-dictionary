@@ -1,6 +1,12 @@
 import { LANGUAGE_OPTIONS, type ExplanationLanguage } from '../lib/languages'
 import { getConfig, saveConfig } from '../lib/storage'
 
+let pendingSelectionText: string | null = null
+
+export function setPendingSelection(text: string) {
+  pendingSelectionText = text
+}
+
 export async function ensureLanguageSelected(): Promise<ExplanationLanguage | null> {
   const config = await getConfig()
   if (config.language) {
@@ -31,12 +37,34 @@ function showLanguageOnboarding(config: Awaited<ReturnType<typeof getConfig>>) {
 
   overlay.querySelectorAll<HTMLButtonElement>('[data-language]').forEach((button) => {
     button.addEventListener('click', () => {
-      const language = button.dataset.language as ExplanationLanguage
-      void saveConfig({ ...config, language }).then(() => overlay.remove())
+      void selectLanguage(button, config, overlay)
     })
   })
 
   document.body.appendChild(overlay)
+}
+
+async function selectLanguage(
+  button: HTMLButtonElement,
+  config: Awaited<ReturnType<typeof getConfig>>,
+  overlay: HTMLElement
+) {
+  const language = button.dataset.language as ExplanationLanguage
+  await saveConfig({ ...config, language })
+  overlay.remove()
+
+  void chrome.runtime.sendMessage({ type: 'OPEN_OPTIONS' })
+
+  if (pendingSelectionText) {
+    const event = new CustomEvent('lexis-language-selected', {
+      detail: {
+        text: pendingSelectionText,
+        language,
+      },
+    })
+    document.dispatchEvent(event)
+    pendingSelectionText = null
+  }
 }
 
 function renderLanguageButtons(): string {

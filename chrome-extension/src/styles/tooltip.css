@@ -43,6 +43,26 @@
   color: #666;
 }
 
+.lexis-tooltip-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lexis-tooltip-settings {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 4px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.lexis-tooltip-settings:hover {
+  opacity: 1;
+}
+
 .lexis-tooltip-content {
   padding: 16px;
   overflow: visible;
@@ -76,6 +96,25 @@
 .lexis-tooltip-error {
   color: #e53935;
   padding: 16px;
+  text-align: center;
+}
+
+.lexis-error-settings-btn {
+  display: block;
+  margin: 12px auto 0;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.lexis-error-settings-btn:hover {
+  background: #1565c0;
 }
 
 .lexis-discovery-hint {

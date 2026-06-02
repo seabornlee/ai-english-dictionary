@@ -3,6 +3,60 @@ import { type ExplanationSections, type LLMConfig } from './storage'
 import { defineWord, type DefineWordResponse } from './api-client'
 import { getAuthState } from './auth'
 
+export class LexisError extends Error {
+  constructor(
+    message: string,
+    public readonly openSettings: boolean = false
+  ) {
+    super(message)
+    this.name = 'LexisError'
+  }
+}
+
+type UnknownRecord = Record<string, unknown>
+type ChatMessage = { role: 'user' | 'assistant'; content: string }
+
+function isRecord(value: unknown): value is UnknownRecord {
+  return typeof value === 'object' && value !== null
+}
+
+function extractTextContent(value: unknown): string {
+  if (typeof value === 'string') {
+    return value.trim()
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(extractTextContent).filter(Boolean).join('\n').trim()
+  }
+
+  if (isRecord(value)) {
+    return extractTextContent(
+      value.text ?? value.content ?? value.output_text ?? value.generated_text
+    )
+  }
+
+  return ''
+}
+
+function getResponseDetail(data: UnknownRecord): string {
+  const choices = Array.isArray(data.choices) ? data.choices : []
+  const firstChoice = choices[0]
+  const firstChoiceRecord = isRecord(firstChoice) ? firstChoice : {}
+  const finishReason = firstChoiceRecord.finish_reason
+  const detail = typeof finishReason === 'string' ? ` (${finishReason})` : ''
+  return detail
+}
+
+function emptyModelResponseError(config: LLMConfig, data?: UnknownRecord): LexisError {
+  const errors = getLanguageInfo(config.language).errors
+  return new LexisError(`${errors.apiRequestFailed}: empty response from model${data ? getResponseDetail(data) : ''}`)
+}
+
+function invalidJsonResponseError(config: LLMConfig): LexisError {
+  const errors = getLanguageInfo(config.language).errors
+  return new LexisError(`${errors.apiRequestFailed}: invalid JSON response from model`)
+}
+
 export async function getDefinition(
   word: string,
   excludeWords: string[],
@@ -11,7 +65,8 @@ export async function getDefinition(
   if (config.provider === 'server') {
     const authState = await getAuthState()
     if (!authState.licenseToken) {
-      throw new Error('请先在设置中登录并激活许可证')
+      const errors = getLanguageInfo(config.language).errors
+      throw new LexisError(errors.licenseRequired, true)
     }
     const response = await defineWord(
       {
@@ -30,22 +85,25 @@ export async function getDefinition(
   }
 
   if (!config.apiKey) {
-    throw new Error('请先在设置中配置 API Key')
+    const errors = getLanguageInfo(config.language).errors
+    throw new LexisError(errors.apiKeyRequired, true)
   }
 
+  const outputLanguage = detectTextLanguage(word)
   const prompt = buildPrompt(
     word,
     excludeWords,
     config.explanationSections,
-    detectTextLanguage(word)
+    outputLanguage
   )
-  const messages = [{ role: 'user' as const, content: prompt }]
+  const messages: ChatMessage[] = [{ role: 'user', content: prompt }]
 
-  if (config.provider === 'claude') {
-    return callClaude(messages, config)
-  } else {
-    return callOpenAI(messages, config)
-  }
+  const modelOutput =
+    config.provider === 'claude'
+      ? await callClaude(messages, config)
+      : await callOpenAI(messages, config)
+
+  return modelJsonToHtml(modelOutput, config, outputLanguage)
 }
 
 function buildPrompt(
@@ -61,39 +119,66 @@ function buildPrompt(
       ? `\n注意：解释中请避免使用以下词语，用更简单的表达替代：${excludeWords.join('、')}`
       : ''
 
-  const optionalSections = [
-    sections.simple
-      ? `  <h3>${headings.simple}</h3>\n  <p>Use simpler and more basic wording.</p>`
-      : '',
-    sections.examples ? `  <h3>${headings.examples}</h3>\n  <p><em>Give one short example.</em></p>` : '',
+  const jsonFields = [
+    '  "basic": "one concise explanation"',
+    sections.simple ? '  "simple": "same meaning with simpler wording"' : '',
+    sections.examples ? '  "examples": ["one short example sentence"]' : '',
     sections.collocations
-      ? `  <h3>${headings.collocations}</h3>\n  <ul><li>List 1-3 common collocations, or say none.</li></ul>`
+      ? '  "collocations": [{"phrase": "common phrase", "meaning": "short meaning"}]'
       : '',
   ].filter(Boolean)
 
-  const sectionTemplate = [
-    '<section>',
-    `  <h3>${headings.basic}</h3>`,
-    '  <p>Explain in one concise, easy-to-understand sentence.</p>',
-    ...optionalSections,
-    '</section>',
-  ].join('\n')
-
   const prompt = `请解释所选文本「${word}」的含义。
 Output language: ${languageInfo.promptName}
-请严格输出下面结构的纯 HTML 片段，不要输出 markdown，不要包含 \`\`\` 代码块：
-${sectionTemplate}
+Headings used by the app after parsing:
+- basic: ${headings.basic}
+- simple: ${headings.simple}
+- examples: ${headings.examples}
+- collocations: ${headings.collocations}
+Output format contract:
+- Return JSON only. Do not return HTML.
+- Return exactly one JSON object, not an array.
+- Do not output markdown, code fences, comments, or text outside JSON.
+- All string values must be non-empty and written in Output language.
+- Use this exact JSON shape and omit fields that are not listed:
+{
+${jsonFields.join(',\n')}
+}
+- If the meaning is uncertain, still fill "basic" and explain the uncertainty there.
 要求：
 1. 解释要准确、简洁
 2. 所有标题和解释内容都必须使用 Output language
-3. 不要添加 CSS、script、style 或任何事件属性${excludePrompt}`
+3. 绝不能返回空内容${excludePrompt}`
   return prompt
 }
 
 async function callOpenAI(
-  messages: { role: 'user' | 'assistant'; content: string }[],
+  messages: ChatMessage[],
   config: LLMConfig
 ): Promise<string> {
+  let lastData: UnknownRecord | undefined
+  const retryMessages: ChatMessage[] = [
+    ...messages,
+    {
+      role: 'user',
+      content: 'The previous response was empty. Return the requested JSON object now.',
+    },
+  ]
+
+  for (const currentMessages of [messages, retryMessages]) {
+    const data = await requestOpenAI(currentMessages, config)
+    lastData = data
+    const content = extractOpenAIContent(data)
+
+    if (content) {
+      return content
+    }
+  }
+
+  throw emptyModelResponseError(config, lastData)
+}
+
+async function requestOpenAI(messages: ChatMessage[], config: LLMConfig): Promise<UnknownRecord> {
   const response = await fetch(`${config.baseUrl}/chat/completions`, {
     method: 'POST',
     headers: {
@@ -104,20 +189,43 @@ async function callOpenAI(
       model: config.model,
       messages,
       max_tokens: 500,
+      temperature: 0.2,
     }),
   })
 
   if (!response.ok) {
     const error = await response.text()
-    throw new Error(`API 请求失败: ${error}`)
+    const errors = getLanguageInfo(config.language).errors
+    throw new LexisError(`${errors.apiRequestFailed}: ${error}`)
   }
 
-  const data = await response.json()
-  return data.choices[0].message.content
+  return (await response.json()) as UnknownRecord
+}
+
+function extractOpenAIContent(data: UnknownRecord): string {
+  const choices = Array.isArray(data.choices) ? data.choices : []
+  const firstChoice = choices[0]
+  const firstChoiceRecord = isRecord(firstChoice) ? firstChoice : {}
+  const message = isRecord(firstChoiceRecord.message) ? firstChoiceRecord.message : {}
+  const candidates = [
+    message.content,
+    message.text,
+    firstChoiceRecord.text,
+    firstChoiceRecord.content,
+    data.output_text,
+    data.output,
+    data.response,
+    data.result,
+    data.generated_text,
+    data.text,
+    data.content,
+  ]
+
+  return extractTextContent(candidates)
 }
 
 async function callClaude(
-  messages: { role: 'user' | 'assistant'; content: string }[],
+  messages: ChatMessage[],
   config: LLMConfig
 ): Promise<string> {
   const response = await fetch(`${config.baseUrl}/messages`, {
@@ -136,17 +244,146 @@ async function callClaude(
 
   if (!response.ok) {
     const error = await response.text()
-    throw new Error(`API 请求失败: ${error}`)
+    const errors = getLanguageInfo(config.language).errors
+    throw new LexisError(`${errors.apiRequestFailed}: ${error}`)
   }
 
-  const data = await response.json()
-  return data.content[0].text
+  const data = (await response.json()) as UnknownRecord
+  const content = extractTextContent(data.content)
+
+  if (!content) {
+    throw emptyModelResponseError(config, data)
+  }
+
+  return content
 }
 
 function escapeHtml(text: string): string {
-  const div = document.createElement('div')
-  div.appendChild(document.createTextNode(text))
-  return div.innerHTML
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function modelJsonToHtml(
+  raw: string,
+  config: LLMConfig,
+  outputLanguage: LLMConfig['language']
+): string {
+  const trimmed = raw.trim()
+  if (trimmed.startsWith('<')) {
+    return trimmed
+  }
+
+  const parsed = parseJsonObject(trimmed, config)
+  const basic = getStringField(parsed, 'basic')
+
+  if (!basic) {
+    throw invalidJsonResponseError(config)
+  }
+
+  const headings = getLanguageInfo(outputLanguage).headings
+  const sections: string[] = ['<section>', `<h3>${headings.basic}</h3>`, `<p>${escapeHtml(basic)}</p>`]
+
+  appendOptionalJsonSections(sections, parsed, config, outputLanguage)
+  sections.push('</section>')
+  return sections.join('\n')
+}
+
+function parseJsonObject(raw: string, config: LLMConfig): UnknownRecord {
+  const jsonText = stripJsonFence(raw)
+
+  try {
+    const parsed = JSON.parse(jsonText) as unknown
+    if (isRecord(parsed)) {
+      return parsed
+    }
+  } catch {
+    const firstBrace = jsonText.indexOf('{')
+    const lastBrace = jsonText.lastIndexOf('}')
+    if (firstBrace >= 0 && lastBrace > firstBrace) {
+      return parseJsonObject(jsonText.slice(firstBrace, lastBrace + 1), config)
+    }
+  }
+
+  throw invalidJsonResponseError(config)
+}
+
+function stripJsonFence(raw: string): string {
+  const fenceMatch = raw.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i)
+  return fenceMatch ? fenceMatch[1].trim() : raw
+}
+
+function getStringField(record: UnknownRecord, field: string): string {
+  const value = record[field]
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function appendOptionalJsonSections(
+  html: string[],
+  parsed: UnknownRecord,
+  config: LLMConfig,
+  outputLanguage: LLMConfig['language']
+) {
+  const headings = getLanguageInfo(outputLanguage).headings
+
+  if (config.explanationSections.simple) {
+    const simple = getStringField(parsed, 'simple')
+    if (simple) {
+      html.push(`<h3>${headings.simple}</h3>`, `<p>${escapeHtml(simple)}</p>`)
+    }
+  }
+
+  if (config.explanationSections.examples) {
+    appendStringListSection(html, headings.examples, parsed.examples, true)
+  }
+
+  if (config.explanationSections.collocations) {
+    appendCollocationSection(html, headings.collocations, parsed.collocations)
+  }
+}
+
+function appendStringListSection(
+  html: string[],
+  heading: string,
+  value: unknown,
+  italic = false
+) {
+  if (!Array.isArray(value)) return
+
+  const items = value.map((item) => (typeof item === 'string' ? item.trim() : '')).filter(Boolean)
+  if (items.length === 0) return
+
+  const listItems = items
+    .slice(0, 3)
+    .map((item) => `<li>${italic ? `<em>${escapeHtml(item)}</em>` : escapeHtml(item)}</li>`)
+    .join('')
+  html.push(`<h3>${heading}</h3>`, `<ul>${listItems}</ul>`)
+}
+
+function appendCollocationSection(html: string[], heading: string, value: unknown) {
+  if (!Array.isArray(value)) return
+
+  const listItems = value.map(collocationToHtml).filter(Boolean).slice(0, 3).join('')
+  if (listItems) {
+    html.push(`<h3>${heading}</h3>`, `<ul>${listItems}</ul>`)
+  }
+}
+
+function collocationToHtml(value: unknown): string {
+  if (typeof value === 'string') {
+    return value.trim() ? `<li>${escapeHtml(value.trim())}</li>` : ''
+  }
+
+  if (!isRecord(value)) return ''
+
+  const phrase = getStringField(value, 'phrase')
+  const meaning = getStringField(value, 'meaning')
+  if (!phrase) return ''
+
+  return `<li><strong>${escapeHtml(phrase)}</strong>${meaning ? `: ${escapeHtml(meaning)}` : ''}</li>`
 }
 
 export function serverDefinitionToHtml(

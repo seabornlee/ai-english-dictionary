@@ -1,14 +1,17 @@
 {
   "name": "lexis-dict",
   "version": "1.0.0",
-  "description": "用已知构建未知 · AI 划词释义、标记生词、管理词库。告别翻译思维，用目标语言理解目标语言",
+  "description": "AI-powered Chinese reading assistant for contextual definitions, unknown-word marking, and vocabulary review.",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "test:e2e": "npm run build && playwright test",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "video:studio": "remotion studio src/video/Root.tsx",
+    "video:render": "remotion render src/video/Root.tsx LexisPromo store-assets/generated/lexis-promo.mp4 --codec=h264 --pixel-format=yuv420p",
+    "assets:generate": "node store-assets/generate-assets.mjs"
   },
   "keywords": [
     "chinese",
@@ -24,9 +27,15 @@
     "@crxjs/vite-plugin": "^2.4.0",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.60.0",
+    "@remotion/cli": "^4.0.471",
     "@types/chrome": "^0.1.42",
+    "@types/react": "^19.2.16",
+    "@types/react-dom": "^19.2.3",
     "eslint": "^10.4.0",
     "globals": "^17.6.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "remotion": "^4.0.471",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.4",
     "vite": "^8.0.14"

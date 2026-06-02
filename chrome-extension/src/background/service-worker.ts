@@ -1,5 +1,5 @@
 import { getConfig, getVocabulary, addWords, addWord } from '../lib/storage'
-import { getDefinition } from '../lib/llm'
+import { getDefinition, LexisError } from '../lib/llm'
 import { getAuthState, isAuthenticated } from '../lib/auth'
 import { syncPushVocabulary } from '../lib/api-client'
 
@@ -9,7 +9,12 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type === 'GET_DEFINITION') {
     handleGetDefinition(message.word)
       .then((definition) => sendResponse({ definition }))
-      .catch((error) => sendResponse({ error: error.message }))
+      .catch((error) =>
+        sendResponse({
+          error: error.message,
+          openSettings: error instanceof LexisError ? error.openSettings : false,
+        })
+      )
     return true
   }
 
@@ -33,13 +38,20 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       .catch((error) => sendResponse({ error: error.message }))
     return true
   }
+
+  if (message.type === 'OPEN_OPTIONS') {
+    void chrome.runtime.openOptionsPage()
+    sendResponse({ success: true })
+    return true
+  }
 })
 
 async function handleGetDefinition(word: string): Promise<string> {
   const config = await getConfig()
   const vocabulary = await getVocabulary()
   const excludedWords = vocabulary.map((w) => w.word)
-  return getDefinition(word, excludedWords, config)
+  const result = await getDefinition(word, excludedWords, config)
+  return result
 }
 
 // ── Vocabulary Sync ──
@@ -63,7 +75,7 @@ async function syncVocabulary(): Promise<void> {
 // ── Alarm for Periodic Sync ──
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.alarms.create('vocabulary-sync', { periodInMinutes: 30 })
+  void chrome.alarms.create('vocabulary-sync', { periodInMinutes: 30 })
 })
 
 chrome.alarms.onAlarm.addListener((alarm) => {

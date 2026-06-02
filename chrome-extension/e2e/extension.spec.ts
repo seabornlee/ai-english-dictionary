@@ -11,6 +11,7 @@ let webServer: Server
 let apiUrl: string
 let webUrl: string
 let prompts: string[] = []
+let apiMode: 'normal' | 'empty' | 'empty-once' | 'malformed' = 'normal'
 
 test.beforeAll(async () => {
   apiServer = await startServer(handleApiRequest)
@@ -24,9 +25,13 @@ test.afterAll(async () => {
   await closeServer(webServer)
 })
 
+test.beforeEach(() => {
+  prompts = []
+  apiMode = 'normal'
+})
+
 test('renders structured safe HTML explanation and supports multi-character word marking', async () => {
   test.setTimeout(60_000)
-  prompts = []
   const { context, extensionId } = await launchExtension()
 
   try {
@@ -39,10 +44,13 @@ test('renders structured safe HTML explanation and supports multi-character word
     const tooltip = page.locator('.lexis-tooltip')
     await expect(tooltip).toBeVisible()
     await expect(tooltip.locator('h3')).toHaveText(['简明释义'])
+    expect(prompts[0]).toContain('Output format contract:')
+    expect(prompts[0]).toContain('Return JSON only. Do not return HTML.')
+    expect(prompts[0]).toContain('"basic": "one concise explanation"')
     expect(prompts[0]).toContain('简明释义')
-    expect(prompts[0]).not.toContain('更简单的说法')
-    expect(prompts[0]).not.toContain('例句')
-    expect(prompts[0]).not.toContain('常见搭配')
+    expect(prompts[0]).not.toContain('"simple"')
+    expect(prompts[0]).not.toContain('"examples"')
+    expect(prompts[0]).not.toContain('"collocations"')
     await expect(tooltip.locator('script')).toHaveCount(0)
     await expect(tooltip.locator('[onclick]')).toHaveCount(0)
     await expect(tooltip).not.toContainText('```')
@@ -54,25 +62,27 @@ test('renders structured safe HTML explanation and supports multi-character word
     const firstMarkable = tooltip.locator('.lexis-markable').first()
     await expect(firstMarkable).toHaveCSS('font-size', '16px')
     await expect(firstMarkable).toHaveCSS('padding-left', '2px')
-    await expect(tooltip.locator('.lexis-discovery-hint')).toContainText('点击或拖动解释中的文字')
+    // Discovery hint is shown on first use
+    await expect(tooltip.locator('.lexis-discovery-hint')).toContainText('点击不认识的生词')
     await expect(firstMarkable).toHaveCSS('background-color', 'rgba(25, 118, 210, 0.06)')
 
     await fastDragFromTextToText(page, '复', '思')
-    await expect(tooltip.locator('.lexis-selection-preview')).toHaveText('已选择：复杂意思 · 点击按钮加入生词本并重新解释')
+    await expect(tooltip.locator('.lexis-selection-preview')).toHaveText('点击生成不包含复杂意思的解释')
 
     await fastDragFromTextToText(page, '复', '思')
     await expect(tooltip.locator('.lexis-tooltip-actions')).not.toHaveClass(/lexis-visible/)
 
     await dragAcrossText(page, '复杂')
+    // Discovery hint is hidden when user selects text
     await expect(tooltip.locator('.lexis-discovery-hint')).toBeHidden()
-    await expect(tooltip.locator('.lexis-selection-preview')).toHaveText('已选择：复杂 · 点击按钮加入生词本并重新解释')
+    await expect(tooltip.locator('.lexis-selection-preview')).toHaveText('点击生成不包含复杂的解释')
 
     await dragAcrossText(page, '复杂')
     await expect(tooltip.locator('.lexis-tooltip-actions')).not.toHaveClass(/lexis-visible/)
 
     await dragAcrossText(page, '复杂')
     await dragAcrossText(page, '简单')
-    await expect(tooltip.locator('.lexis-selection-preview')).toHaveText('已选择：复杂、简单 · 点击按钮加入生词本并重新解释')
+    await expect(tooltip.locator('.lexis-selection-preview')).toHaveText('点击生成不包含复杂、简单的解释')
 
     await page.evaluate(() => {
       document.querySelector<HTMLElement>('.lexis-confirm-btn')?.click()
@@ -80,6 +90,9 @@ test('renders structured safe HTML explanation and supports multi-character word
     await expect(tooltip).toContainText('重新解释后的简明释义')
     expect(prompts[prompts.length - 1]).toContain('复杂')
     expect(prompts[prompts.length - 1]).toContain('简单')
+
+    // Discovery hint should NOT be shown after marking words
+    await expect(tooltip.locator('.lexis-discovery-hint')).toHaveCount(0)
 
     const vocabulary = await getVocabulary(context)
     expect(vocabulary.map((entry) => entry.word)).toContain('复杂')
@@ -90,7 +103,6 @@ test('renders structured safe HTML explanation and supports multi-character word
 })
 
 test('enables optional explanation sections from settings', async () => {
-  prompts = []
   const { context, extensionId } = await launchExtension()
 
   try {
@@ -120,7 +132,6 @@ test('enables optional explanation sections from settings', async () => {
 })
 
 test('guides first-time users to choose interface language', async () => {
-  prompts = []
   const { context, extensionId } = await launchExtension()
 
   try {
@@ -142,14 +153,13 @@ test('guides first-time users to choose interface language', async () => {
     await expect(tooltip.locator('h3')).toHaveText(['简明释义'])
     await expect(tooltip.locator('.lexis-discovery-hint')).toContainText('Tip:')
     expect(prompts[0]).toContain('Output language: Simplified Chinese')
-    expect(prompts[0]).toContain('<h3>简明释义</h3>')
+    expect(prompts[0]).toContain('basic: 简明释义')
   } finally {
     await context.close()
   }
 })
 
 test('uses selected text language for explanations regardless of interface language', async () => {
-  prompts = []
   const { context, extensionId } = await launchExtension()
 
   try {
@@ -163,7 +173,91 @@ test('uses selected text language for explanations regardless of interface langu
     await expect(tooltip.locator('h3')).toHaveText(['Basic definition'])
     await expect(tooltip.locator('.lexis-discovery-hint')).toContainText('提示：')
     expect(prompts[0]).toContain('Output language: English')
-    expect(prompts[0]).toContain('<h3>Basic definition</h3>')
+    expect(prompts[0]).toContain('basic: Basic definition')
+  } finally {
+    await context.close()
+  }
+})
+
+test('supports marking English words in explanation when querying English text', async () => {
+  test.setTimeout(60_000)
+  const { context, extensionId } = await launchExtension()
+
+  try {
+    await configureApi(context, extensionId, undefined, 'en')
+
+    const page = await context.newPage()
+    await page.goto(webUrl)
+    await selectText(page, '#english-target-word')
+
+    const tooltip = page.locator('.lexis-tooltip')
+    await expect(tooltip).toBeVisible()
+    await expect(tooltip.locator('h3')).toHaveText(['Basic definition'])
+
+    // Verify English words are markable
+    const markableWords = tooltip.locator('.lexis-markable')
+    await expect(markableWords.first()).toBeVisible()
+
+    // Get the first English word and click it
+    const firstWord = await markableWords.first().textContent()
+    expect(firstWord).toBeTruthy()
+    expect(firstWord).toMatch(/^[a-zA-Z]+$/)
+
+    // Click to select the word
+    await markableWords.first().click()
+    await expect(tooltip.locator('.lexis-selection-preview')).toContainText('Selected:')
+    await expect(tooltip.locator('.lexis-selection-preview')).toContainText(firstWord!)
+
+    // Confirm the selection
+    await page.evaluate(() => {
+      document.querySelector<HTMLElement>('.lexis-confirm-btn')?.click()
+    })
+
+    // Verify the word was saved to vocabulary
+    const vocabulary = await getVocabulary(context)
+    expect(vocabulary.map((entry) => entry.word)).toContain(firstWord)
+  } finally {
+    await context.close()
+  }
+})
+
+test('shows an explicit error when the model returns empty content', async () => {
+  apiMode = 'empty'
+  const { context, extensionId } = await launchExtension()
+
+  try {
+    await configureApi(context, extensionId)
+
+    const page = await context.newPage()
+    await page.goto(webUrl)
+    await selectText(page, '#target-word')
+
+    const tooltip = page.locator('.lexis-tooltip')
+    await expect(tooltip).toBeVisible()
+    await expect(tooltip.locator('.lexis-tooltip-error')).toContainText('API 请求失败')
+    await expect(tooltip.locator('.lexis-tooltip-error')).toContainText('empty response from model')
+    await expect(tooltip.locator('.lexis-tooltip-text')).toHaveCount(0)
+  } finally {
+    await context.close()
+  }
+})
+
+test('retries once when the first model response is empty', async () => {
+  apiMode = 'empty-once'
+  const { context, extensionId } = await launchExtension()
+
+  try {
+    await configureApi(context, extensionId)
+
+    const page = await context.newPage()
+    await page.goto(webUrl)
+    await selectText(page, '#target-word')
+
+    const tooltip = page.locator('.lexis-tooltip')
+    await expect(tooltip).toBeVisible()
+    await expect(tooltip.locator('h3')).toHaveText(['简明释义'])
+    await expect(tooltip).toContainText('这是复杂意思')
+    expect(prompts).toHaveLength(2)
   } finally {
     await context.close()
   }
@@ -230,21 +324,37 @@ async function selectText(page: Page, selector: string) {
 async function dragAcrossText(page: Page, text: string) {
   await page.evaluate((targetText) => {
     const markables = Array.from(document.querySelectorAll<HTMLElement>('.lexis-markable'))
-    const chars = Array.from(targetText)
-    const startIndex = markables.findIndex((_, index) => {
-      const candidate = markables.slice(index, index + chars.length)
-      return candidate.map((el) => el.dataset.word).join('') === targetText
-    })
+    
+    // For CJK text, each character is a separate element
+    // For Latin text, each word is a separate element
+    const isCJK = /[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]/.test(targetText)
+    
+    if (isCJK) {
+      // CJK: each character is separate
+      const chars = Array.from(targetText)
+      const startIndex = markables.findIndex((_, index) => {
+        const candidate = markables.slice(index, index + chars.length)
+        return candidate.map((el) => el.dataset.word).join('') === targetText
+      })
 
-    if (startIndex === -1) {
-      throw new Error(`Markable text not found: ${targetText}`)
+      if (startIndex === -1) {
+        throw new Error(`Markable text not found: ${targetText}`)
+      }
+
+      const elements = markables.slice(startIndex, startIndex + chars.length)
+      elements[0].dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
+      elements.slice(1).forEach((el) => {
+        el.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
+      })
+    } else {
+      // Latin: find the word element directly
+      const element = markables.find((el) => el.dataset.word === targetText)
+      if (!element) {
+        throw new Error(`Markable word not found: ${targetText}`)
+      }
+      element.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
     }
-
-    const elements = markables.slice(startIndex, startIndex + chars.length)
-    elements[0].dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
-    elements.slice(1).forEach((el) => {
-      el.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
-    })
+    
     document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
   }, text)
 }
@@ -253,21 +363,33 @@ async function fastDragFromTextToText(page: Page, startText: string, endText: st
   await page.evaluate(
     ({ startText, endText }) => {
       const markables = Array.from(document.querySelectorAll<HTMLElement>('.lexis-markable'))
-      const findText = (text: string) => {
-        const chars = Array.from(text)
-        const startIndex = markables.findIndex((_, index) => {
-          const candidate = markables.slice(index, index + chars.length)
-          return candidate.map((el) => el.dataset.word).join('') === text
-        })
+      
+      const findElements = (text: string) => {
+        const isCJK = /[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]/.test(text)
+        
+        if (isCJK) {
+          const chars = Array.from(text)
+          const startIndex = markables.findIndex((_, index) => {
+            const candidate = markables.slice(index, index + chars.length)
+            return candidate.map((el) => el.dataset.word).join('') === text
+          })
 
-        if (startIndex === -1) {
-          throw new Error(`Markable text not found: ${text}`)
+          if (startIndex === -1) {
+            throw new Error(`Markable text not found: ${text}`)
+          }
+
+          return markables.slice(startIndex, startIndex + chars.length)
+        } else {
+          const element = markables.find((el) => el.dataset.word === text)
+          if (!element) {
+            throw new Error(`Markable word not found: ${text}`)
+          }
+          return [element]
         }
-
-        return markables.slice(startIndex, startIndex + chars.length)
       }
-      const start = findText(startText)[0]
-      const end = findText(endText).at(-1)
+      
+      const start = findElements(startText)[0]
+      const end = findElements(endText).at(-1)
 
       start.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
       end?.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
@@ -294,35 +416,67 @@ function handleApiRequest(req: IncomingMessage, res: ServerResponse) {
     body += chunk
   })
   req.on('end', () => {
-    const parsed = JSON.parse(body)
-    const prompt = parsed.messages?.[0]?.content || ''
-    prompts.push(prompt)
-
-    const usesEnglish = prompt.includes('<h3>Basic definition</h3>')
-    const hasExcludedWord = prompt.includes('以下词语') && prompt.includes('复杂')
-    const sections = [
-      usesEnglish ? '<h3>Basic definition</h3>' : '<h3>简明释义</h3>',
-      hasExcludedWord
-        ? '<p>重新解释后的简明释义。</p>'
-        : usesEnglish
-          ? '<p>This is a clear explanation.</p>'
-          : '<p>这是复杂意思，也可以简单说明。</p>',
-    ]
-    if (prompt.includes('更简单的说法')) {
-      sections.push('<h3>更简单的说法</h3><p>用简单话说明。</p>')
-    }
-    if (prompt.includes('例句')) {
-      sections.push('<h3>例句</h3><p><em>词典帮助阅读。</em></p>')
-    }
-    if (prompt.includes('常见搭配')) {
-      sections.push('<h3>常见搭配</h3><ul><li>查词典</li></ul>')
-    }
-
-    const content = `<section onclick="window.__LEXIS_E2E_XSS=true">${sections.join('')}<script>window.__LEXIS_E2E_XSS=true</script></section>`
-
-    res.writeHead(200, { 'content-type': 'application/json' })
-    res.end(JSON.stringify({ choices: [{ message: { content } }] }))
+    handleApiBody(body, res)
   })
+}
+
+function handleApiBody(body: string, res: ServerResponse) {
+  const parsed = JSON.parse(body)
+  const prompt = parsed.messages?.[0]?.content || ''
+  prompts.push(prompt)
+
+  if (apiMode === 'empty' || (apiMode === 'empty-once' && prompts.length === 1)) {
+    sendChatCompletion(res, '')
+    return
+  }
+
+  if (apiMode === 'malformed') {
+    sendJson(res, { choices: [{ message: {} }] })
+    return
+  }
+
+  sendChatCompletion(res, buildMockDefinition(prompt))
+}
+
+function buildMockDefinition(prompt: string): string {
+  const usesEnglish = prompt.includes('Output language: English')
+  const hasExcludedWord = prompt.includes('以下词语') && prompt.includes('复杂')
+  const hasExcludedEnglishWord = prompt.includes('following words') || prompt.includes('exclude')
+  const definition: Record<string, unknown> = {
+    basic: getDefinitionText(usesEnglish, hasExcludedWord, hasExcludedEnglishWord),
+  }
+
+  if (prompt.includes('"simple"')) {
+    definition.simple = '用简单话说明。'
+  }
+  if (prompt.includes('"examples"')) {
+    definition.examples = ['词典帮助阅读。']
+  }
+  if (prompt.includes('"collocations"')) {
+    definition.collocations = [{ phrase: '查词典', meaning: '' }]
+  }
+
+  return JSON.stringify(definition)
+}
+
+function getDefinitionText(
+  usesEnglish: boolean,
+  hasExcludedWord: boolean,
+  hasExcludedEnglishWord: boolean
+): string {
+  if (hasExcludedWord) return '重新解释后的简明释义。'
+  if (hasExcludedEnglishWord) return 'Simplified explanation after marking words.'
+  if (usesEnglish) return 'This is a clear explanation with simple words.'
+  return '这是复杂意思，也可以简单说明。'
+}
+
+function sendChatCompletion(res: ServerResponse, content: string) {
+  sendJson(res, { choices: [{ message: { content } }] })
+}
+
+function sendJson(res: ServerResponse, body: unknown) {
+  res.writeHead(200, { 'content-type': 'application/json' })
+  res.end(JSON.stringify(body))
 }
 
 function handleWebRequest(_req: IncomingMessage, res: ServerResponse) {

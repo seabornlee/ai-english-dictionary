@@ -3,26 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>词析 - 生词本</title>
+  <title id="page-title">Lexis - Vocabulary</title>
   <link rel="stylesheet" href="./popup.css">
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>📚 生词本</h1>
-      <button id="settings-btn" class="icon-btn" title="设置">⚙️</button>
+      <h1 id="main-title"></h1>
+      <button id="settings-btn" class="icon-btn" title="">⚙️</button>
     </header>
 
     <div id="empty-state" class="empty-state">
-      <p>还没有生词</p>
-      <p class="hint">选中网页中的中文词语即可查询</p>
+      <p id="empty-text"></p>
+      <p class="hint" id="empty-hint"></p>
     </div>
 
     <ul id="word-list" class="word-list"></ul>
 
     <footer>
-      <button id="export-btn" class="text-btn">导出生词</button>
-      <button id="clear-btn" class="text-btn danger">清空</button>
+      <button id="export-btn" class="text-btn"></button>
+      <button id="clear-btn" class="text-btn danger"></button>
     </footer>
   </div>
   <script type="module" src="./popup.ts"></script>

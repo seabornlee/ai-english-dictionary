@@ -1,10 +1,33 @@
-import { getVocabulary, removeWord, type WordEntry } from '../lib/storage'
+import { getLanguageInfo, type LanguageInfo } from '../lib/languages'
+import { getConfig, getVocabulary, removeWord, type WordEntry } from '../lib/storage'
 
 const wordList = document.getElementById('word-list') as HTMLUListElement
 const emptyState = document.getElementById('empty-state') as HTMLElement
 const settingsBtn = document.getElementById('settings-btn') as HTMLButtonElement
 const exportBtn = document.getElementById('export-btn') as HTMLButtonElement
 const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement
+
+let currentLang: LanguageInfo
+
+async function init() {
+  const config = await getConfig()
+  currentLang = getLanguageInfo(config.language)
+  applyLanguage()
+  await loadWords()
+}
+
+function applyLanguage() {
+  const p = currentLang.popup
+
+  document.documentElement.lang = currentLang.code
+  ;(document.getElementById('page-title') as HTMLElement).textContent = p.title
+  ;(document.getElementById('main-title') as HTMLElement).textContent = p.title
+  settingsBtn.title = p.settingsTooltip
+  ;(document.getElementById('empty-text') as HTMLElement).textContent = p.emptyState
+  ;(document.getElementById('empty-hint') as HTMLElement).textContent = p.emptyHint
+  exportBtn.textContent = p.export
+  clearBtn.textContent = p.clear
+}
 
 async function loadWords() {
   const vocabulary = await getVocabulary()
@@ -32,7 +55,7 @@ function renderWords(words: WordEntry[]) {
         <span class="word-text">${entry.word}</span>
         <span class="word-date">${formatDate(entry.addedAt)}</span>
       </div>
-      <button class="delete-btn" title="删除">×</button>
+      <button class="delete-btn" title="×">×</button>
     </li>
   `
     )
@@ -59,11 +82,12 @@ function formatDate(timestamp: number): string {
   const date = new Date(timestamp)
   const now = new Date()
   const diff = now.getTime() - timestamp
+  const p = currentLang.popup
 
-  if (diff < 60000) return '刚刚'
-  if (diff < 3600000) return `${Math.floor(diff / 60000)} 分钟前`
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)} 小时前`
-  if (date.toDateString() === now.toDateString()) return '今天'
+  if (diff < 60000) return p.justNow
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}${p.minutesAgo}`
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}${p.hoursAgo}`
+  if (date.toDateString() === now.toDateString()) return p.today
 
   return `${date.getMonth() + 1}/${date.getDate()}`
 }
@@ -84,7 +108,7 @@ async function exportVocabulary() {
 
   const a = document.createElement('a')
   a.href = url
-  a.download = `生词本_${new Date().toISOString().slice(0, 10)}.txt`
+  a.download = `vocabulary_${new Date().toISOString().slice(0, 10)}.txt`
   a.click()
 
   URL.revokeObjectURL(url)
@@ -95,10 +119,10 @@ clearBtn.addEventListener('click', () => {
 })
 
 async function clearVocabulary() {
-  if (confirm('确定要清空所有生词吗？')) {
+  if (confirm(currentLang.popup.clearConfirm)) {
     await chrome.storage.local.set({ vocabulary: [] })
     await loadWords()
   }
 }
 
-void loadWords()
+void init()

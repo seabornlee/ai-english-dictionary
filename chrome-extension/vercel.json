@@ -16,11 +16,16 @@
     {
       "src": "store-assets/robots.txt",
       "use": "@vercel/static"
+    },
+    {
+      "src": "store-assets/llms.txt",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     { "src": "/sitemap.xml", "dest": "/store-assets/sitemap.xml" },
     { "src": "/robots.txt", "dest": "/store-assets/robots.txt" },
+    { "src": "/llms.txt", "dest": "/store-assets/llms.txt" },
     { "src": "/privacy", "dest": "/store-assets/privacy.html" },
     { "src": "/landing-page", "dest": "/store-assets/landing-page.html" },
     { "src": "/", "dest": "/store-assets/landing-page.html" }
