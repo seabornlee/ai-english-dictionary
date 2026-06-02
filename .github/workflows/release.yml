@@ -66,7 +66,7 @@ jobs:
           ./scripts/create-dmg.sh ${{ github.event.inputs.version || github.ref_name }}
 
       - name: Upload DMG
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: LexisDic-dmg
           path: ai-dic-mac/build/*.dmg
