@@ -1,0 +1,38 @@
+# Lexis - AI Chinese Dictionary
+
+## What Lexis Does
+
+Lexis is a Chrome extension for Chinese language learners. It provides AI-powered contextual definitions directly on any webpage, with an adaptive learning system that simplifies explanations based on your vocabulary.
+
+## Target Users
+
+- Chinese language learners reading native content
+- Students studying Chinese using web resources
+- Anyone learning Chinese who wants contextual definitions without leaving their reading
+
+## Key Features
+
+- Select any Chinese word for instant AI definitions
+- Mark unknown words to get simpler explanations (without those words)
+- Vocabulary notebook auto-saves marked words
+- 5 interface languages: Chinese, English, Japanese, Korean, Spanish
+- All data stored locally for privacy
+
+## Pricing
+
+- Free to install
+- Requires user-provided AI API key (OpenAI or Anthropic)
+
+## Product Type
+
+Chrome Extension (Browser Extension)
+
+## Official Links
+
+- Website: https://lexis.waterlee.site
+- Privacy Policy: https://lexis.waterlee.site/privacy
+- Chrome Web Store: (coming soon)
+
+## Contact
+
+Email: waterlee.site@gmail.com

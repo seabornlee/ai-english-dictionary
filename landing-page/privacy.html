@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - Lexis | AI Chinese Dictionary</title>
+  <meta name="description" content="Lexis privacy policy. Your vocabulary data stays on your device. Learn how we handle your data when using the AI Chinese dictionary Chrome extension.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://lexis.waterlee.site/privacy">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://lexis.waterlee.site/privacy">
+  <meta property="og:title" content="Privacy Policy - Lexis">
+  <meta property="og:description" content="Learn how Lexis protects your privacy. All vocabulary data stored locally on your device.">
+  <meta property="og:site_name" content="Lexis">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    :root {
+      --primary: #1976d2;
+      --primary-dark: #1565c0;
+      --bg-dark: #1a1a2e;
+      --bg-darker: #16213e;
+      --text-light: #fff;
+      --text-muted: rgba(255,255,255,0.7);
+      --text-dark: #333;
+      --text-gray: #666;
+      --bg-light: #f5f5f7;
+      --card-bg: rgba(255,255,255,0.08);
+      --border-light: rgba(255,255,255,0.1);
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
+      color: var(--text-light);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header */
+    .header {
+      padding: 80px 0 60px;
+      text-align: center;
+    }
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 24px;
+    }
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    h1 {
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+    }
+
+    /* Content */
+    .content {
+      background: #fff;
+      border-radius: 24px;
+      padding: 60px;
+      margin-bottom: 60px;
+      color: var(--text-dark);
+    }
+    h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin: 40px 0 16px;
+    }
+    h2:first-child {
+      margin-top: 0;
+    }
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin: 24px 0 12px;
+    }
+    p {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 16px;
+    }
+    ul, ol {
+      margin: 16px 0;
+      padding-left: 24px;
+    }
+    li {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 8px;
+    }
+    .highlight-box {
+      background: #f0f7ff;
+      border-left: 4px solid var(--primary);
+      padding: 20px 24px;
+      border-radius: 0 12px 12px 0;
+      margin: 24px 0;
+    }
+    .highlight-box p {
+      margin: 0;
+      color: #333;
+    }
+    .update-date {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 24px;
+    }
+
+    /* Data Table */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+    }
+    .data-table th,
+    .data-table td {
+      text-align: left;
+      padding: 14px 16px;
+      border-bottom: 1px solid #eee;
+      font-size: 15px;
+    }
+    .data-table th {
+      background: #f9f9f9;
+      font-weight: 600;
+      color: #333;
+    }
+    .data-table td {
+      color: #555;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-green {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+    .badge-blue {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+
+    /* Footer */
+    footer {
+      padding: 40px 0;
+      text-align: center;
+      border-top: 1px solid var(--border-light);
+    }
+    footer p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin: 0;
+    }
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        padding: 60px 0 40px;
+      }
+      h1 {
+        font-size: 36px;
+      }
+      .content {
+        padding: 40px 24px;
+        border-radius: 20px;
+      }
+      .data-table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="container">
+      <div class="logo">
+        <div class="logo-icon">L</div>
+        <span>Lexis</span>
+      </div>
+      <h1>Privacy Policy</h1>
+      <p class="subtitle">Your data stays on your device. Always.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="content">
+      <p class="update-date">Last updated: June 2026</p>
+
+      <h2>Overview</h2>
+      <p>Lexis is designed with privacy at its core. We believe your vocabulary learning data is personal and should stay on your device. This policy explains exactly what data Lexis collects and how it handles your information.</p>
+
+      <div class="highlight-box">
+        <p><strong>Key principle:</strong> All vocabulary and settings data is stored locally on your device. Nothing is sent to our servers unless you explicitly use our cloud sync feature.</p>
+      </div>
+
+      <h2>What Data We Collect</h2>
+      <p>Lexis processes text you select to provide dictionary definitions. Here's how your data is handled:</p>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Data Type</th>
+            <th>Storage</th>
+            <th>Transmission</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Vocabulary words</strong><br><small>Words you mark for learning</small></td>
+            <td><span class="badge badge-green">Your device only</span></td>
+            <td><span class="badge badge-green">Never sent</span></td>
+          </tr>
+          <tr>
+            <td><strong>Settings & preferences</strong><br><small>Interface language, API settings</small></td>
+            <td><span class="badge badge-green">Your device only</span></td>
+            <td><span class="badge badge-green">Never sent</span></td>
+          </tr>
+          <tr>
+            <td><strong>Selected text</strong><br><small>Words you look up</small></td>
+            <td><span class="badge badge-green">Not stored</span></td>
+            <td><span class="badge badge-blue">Sent to your AI provider</span></td>
+          </tr>
+          <tr>
+            <td><strong>Vocabulary (with sync)</strong><br><small>Optional cloud backup</small></td>
+            <td><span class="badge badge-blue">Your account</span></td>
+            <td><span class="badge badge-blue">Encrypted sync only</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>How Your Data Is Used</h2>
+
+      <h3>AI Definitions</h3>
+      <p>When you look up a word, the selected text is sent to your configured AI provider (OpenAI, Anthropic, or compatible API). This is necessary to generate definitions. We do not receive, store, or have access to this data.</p>
+      <p>Your AI API key is stored locally on your device and is only used to authenticate with your chosen provider.</p>
+
+      <h3>Vocabulary Notebook</h3>
+      <p>Words you mark are stored in Chrome's local storage (chrome.storage.local). This data:</p>
+      <ul>
+        <li>Stays on your device unless you enable cloud sync</li>
+        <li>Is never shared with third parties</li>
+        <li>Can be exported or deleted at any time</li>
+      </ul>
+
+      <h3>Optional Cloud Sync</h3>
+      <p>If you enable the cloud sync feature:</p>
+      <ul>
+        <li>Your vocabulary is encrypted before transmission</li>
+        <li>Data is synced only between your own devices</li>
+        <li>You can disable sync and delete synced data anytime</li>
+      </ul>
+
+      <h2>Permissions We Request</h2>
+      <ul>
+        <li><strong>storage</strong> — To save your vocabulary and settings locally</li>
+        <li><strong>activeTab</strong> — To enable lookups only on the tab you're using</li>
+        <li><strong>alarms</strong> — To periodically sync your vocabulary (when sync is enabled)</li>
+        <li><strong>&lt;all_urls&gt;</strong> — To detect text selection on any webpage</li>
+      </ul>
+
+      <h2>Third-Party Services</h2>
+      <p>Lexis uses third-party AI services to generate definitions:</p>
+      <ul>
+        <li>OpenAI (api.openai.com)</li>
+        <li>Anthropic (api.anthropic.com)</li>
+        <li>Or any OpenAI-compatible API you configure</li>
+      </ul>
+      <p>When you use these services, their respective privacy policies apply. We recommend reviewing the privacy policies of your chosen AI provider.</p>
+
+      <h2>Children's Privacy</h2>
+      <p>Lexis is not specifically designed for children under 13. We do not knowingly collect data from children. If you believe a child has used our extension, please contact us.</p>
+
+      <h2>Your Rights</h2>
+      <p>You have full control over your data:</p>
+      <ul>
+        <li><strong>Export</strong> — Download your vocabulary as a text file anytime</li>
+        <li><strong>Delete</strong> — Remove individual words or clear your entire vocabulary</li>
+        <li><strong>Disable</strong> — Uninstall the extension to remove all local data</li>
+        <li><strong>Control</strong> — Your API key and settings can be changed or removed in Settings</li>
+      </ul>
+
+      <h2>Changes to This Policy</h2>
+      <p>We may update this privacy policy occasionally. Any changes will be posted on this page with an updated revision date. Continued use of the extension after changes constitutes acceptance of the updated policy.</p>
+
+      <h2>Contact Us</h2>
+      <p>If you have questions about this privacy policy or Lexis's data practices, please reach out:</p>
+      <p>Email: <strong>waterlee.site@gmail.com</strong></p>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p><a href="https://lexis.waterlee.site/">← Back to Lexis</a></p>
+    </div>
+  </footer>
+</body>
+</html>
