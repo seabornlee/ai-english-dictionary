@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "store-assets/*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "store-assets/generated/*",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "store-assets/sitemap.xml",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "store-assets/robots.txt",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    { "src": "/sitemap.xml", "dest": "/store-assets/sitemap.xml" },
+    { "src": "/robots.txt", "dest": "/store-assets/robots.txt" },
+    { "src": "/privacy", "dest": "/store-assets/privacy.html" },
+    { "src": "/landing-page", "dest": "/store-assets/landing-page.html" },
+    { "src": "/", "dest": "/store-assets/landing-page.html" }
+  ]
+}

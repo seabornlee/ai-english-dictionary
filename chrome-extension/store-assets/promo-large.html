@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1400, height=560">
+  <title>Large Promo 1400x560</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 1400px;
+      height: 560px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 60px 80px;
+      color: #fff;
+    }
+    .left {
+      max-width: 520px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .logo-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: #fff;
+      font-weight: 700;
+    }
+    .logo-text {
+      font-size: 28px;
+      font-weight: 700;
+    }
+    h1 {
+      font-size: 44px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .tagline {
+      font-size: 18px;
+      opacity: 0.9;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .features {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .feature {
+      background: rgba(255,255,255,0.1);
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+    .right {
+      position: relative;
+    }
+    .mockup {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+      width: 480px;
+      overflow: hidden;
+    }
+    .mockup-header {
+      background: #f5f5f5;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+    .mockup-content {
+      padding: 20px;
+      font-size: 14px;
+      color: #333;
+      line-height: 1.8;
+    }
+    .highlight {
+      background: linear-gradient(transparent 60%, #a8d8ea 60%);
+      padding: 2px 4px;
+    }
+    .tooltip {
+      position: absolute;
+      right: -24px;
+      top: 100px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      width: 300px;
+      padding: 16px;
+    }
+    .tooltip-word {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1976d2;
+      margin-bottom: 10px;
+    }
+    .tooltip-section h3 {
+      font-size: 11px;
+      color: #1976d2;
+      margin-bottom: 6px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .tooltip-section p {
+      font-size: 14px;
+      color: #444;
+      line-height: 1.7;
+    }
+    .markable {
+      background: rgba(26, 115, 232, 0.1);
+      padding: 1px 3px;
+      border-radius: 3px;
+    }
+    .markable.selected {
+      background: #ffd700;
+    }
+    .tooltip-actions {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .selection-preview {
+      font-size: 11px;
+      color: #666;
+    }
+    .confirm-btn {
+      background: #1976d2;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .vocab-bar {
+      position: absolute;
+      right: -24px;
+      top: 280px;
+      background: #e3f2fd;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 11px;
+      color: #1976d2;
+    }
+  </style>
+</head>
+<body>
+  <div class="left">
+    <div class="logo">
+      <div class="logo-icon">L</div>
+      <div class="logo-text">Lexis</div>
+    </div>
+    <h1>Learn Chinese<br>while reading</h1>
+    <p class="tagline">Select unknown words on any webpage. Get Chinese definitions. Mark difficult words for simpler explanations.</p>
+    <div class="features">
+      <div class="feature">Chinese explanations</div>
+      <div class="feature">Mark & simplify</div>
+      <div class="feature">Auto-exclusions</div>
+      <div class="feature">Vocabulary notebook</div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="mockup">
+      <div class="mockup-header">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+      </div>
+      <div class="mockup-content">
+        <p>今日大盘震荡上行，<span class="highlight">沪指</span>收涨0.8%。</p>
+      </div>
+    </div>
+    <div class="tooltip">
+      <div class="tooltip-word">沪指</div>
+      <div class="tooltip-section">
+        <h3>Basic definition</h3>
+        <p>上海证券交易所的<span class="markable selected">股票</span><span class="markable selected">价格</span><span class="markable">指数</span>，反映上海证券市场<span class="markable">整体</span>走势。</p>
+      </div>
+      <div class="tooltip-actions">
+        <span class="selection-preview">Selected: 股票、价格</span>
+        <button class="confirm-btn">Save</button>
+      </div>
+    </div>
+    <div class="vocab-bar">📚 12 words saved</div>
+  </div>
+</body>
+</html>
