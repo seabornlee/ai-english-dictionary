@@ -49,7 +49,7 @@
     "@types/node": "^20.11.0",
     "@types/sinon": "^17.0.3",
     "@types/supertest": "^6.0.2",
-    "chai": "^5.2.0",
+    "chai": "^6.2.2",
     "eslint": "^10.3.0",
     "mocha": "^11.2.2",
     "mocha-junit-reporter": "^2.2.1",
