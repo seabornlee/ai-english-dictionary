@@ -1,0 +1,7 @@
+{
+  "threshold": 10,
+  "reporters": ["html", "console"],
+  "format": ["swift"],
+  "ignore": [".build/**", "build/**", "DerivedData/**", "Package.swift"],
+  "absolutePath": true
+}

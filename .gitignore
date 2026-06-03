@@ -50,6 +50,7 @@ mac-app/Gemfile.lock
 
 # Chrome extension build artifacts
 chrome-extension/dist/
+chrome-extension/coverage/
 chrome-extension/test-results/
 chrome-extension/playwright-report/
 chrome-extension/lexis-dict-v1.0.0/

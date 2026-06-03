@@ -1,29 +1,47 @@
+import FirebaseCore
+import GoogleSignIn
 import SwiftUI
 
 @main
 struct AIDictionaryApp: App {
-    @StateObject private var wordStore = WordStore()
-    @StateObject private var networkMonitor = NetworkMonitor.shared
-    @StateObject private var clipboardManager = ClipboardManager.shared
-    @StateObject private var localizationManager = LocalizationManager.shared
-    @State private var initialSearchText: String = ""
-    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    @StateObject
+    private var wordStore = WordStore()
+    @StateObject
+    private var networkMonitor = NetworkMonitor.shared
+    @StateObject
+    private var clipboardManager = ClipboardManager.shared
+    @StateObject
+    private var localizationManager = LocalizationManager.shared
+    @StateObject
+    private var authService = AuthService.shared
+    @State
+    private var initialSearchText: String = ""
+    @NSApplicationDelegateAdaptor(AppDelegate.self)
+    private var appDelegate
 
     var body: some Scene {
         WindowGroup {
-            ContentView(initialSearchText: initialSearchText)
-                .environmentObject(wordStore)
-                .environmentObject(networkMonitor)
-                .environmentObject(clipboardManager)
-                .environmentObject(localizationManager)
-                .frame(minWidth: 800, minHeight: 600)
-                .onAppear {
-                    let text = clipboardManager.clipboardText
-                    let wordCount = text.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }.count
-                    if wordCount <= 3, TextValidation.isValidEnglishWord(text) {
-                        initialSearchText = text
+            if authService.isAuthenticated {
+                ContentView(initialSearchText: initialSearchText)
+                    .environmentObject(wordStore)
+                    .environmentObject(networkMonitor)
+                    .environmentObject(clipboardManager)
+                    .environmentObject(localizationManager)
+                    .environmentObject(authService)
+                    .frame(minWidth: 800, minHeight: 600).onAppear {
+                        let text = clipboardManager.clipboardText
+                        let wordCount = text
+                            .components(separatedBy: .whitespacesAndNewlines)
+                            .filter { !$0.isEmpty }
+                            .count
+                        if wordCount <= 3, TextValidation.isValidEnglishWord(text) {
+                            initialSearchText = text
+                        }
                     }
-                }
+            } else {
+                LoginView()
+                    .environmentObject(authService)
+            }
         }
         .commands {
             CommandGroup(after: .appInfo) {
@@ -44,14 +62,19 @@ struct AIDictionaryApp: App {
             }
         }
     }
-
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     var preferencesWindow: NSWindow?
     var mainWindow: NSWindow?
 
-    func applicationDidFinishLaunching(_: Notification) {}
+    func applicationDidFinishLaunching(_: Notification) {
+        FirebaseApp.configure()
+    }
+
+    func application(_: NSApplication, open url: URL) {
+        GIDSignIn.sharedInstance.handle(url)
+    }
 
     func openMainWindow() {
         NSApp.activate(ignoringOtherApps: true)
@@ -63,7 +86,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    @objc func openPreferences() {
+    @objc
+    func openPreferences() {
         if preferencesWindow == nil {
             let preferencesView = PreferencesView()
                 .environmentObject(LocalizationManager.shared)

@@ -13,7 +13,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         sendResponse({
           error: error.message,
           openSettings: error instanceof LexisError ? error.openSettings : false,
-        })
+        }),
       )
     return true
   }

@@ -13,8 +13,20 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
       minlength: 6,
+    },
+    authProvider: {
+      type: String,
+      enum: ['local', 'firebase'],
+      default: 'local',
+    },
+    firebaseUid: {
+      type: String,
+      sparse: true,
+      unique: true,
+    },
+    displayName: {
+      type: String,
     },
     favorites: [
       {
@@ -63,6 +75,14 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+// Require password only for local auth
+userSchema.pre('validate', function (next) {
+  if (this.authProvider === 'local' && !this.password) {
+    this.invalidate('password', 'Password is required for local auth');
+  }
+  next();
+});
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {

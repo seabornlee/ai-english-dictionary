@@ -67,7 +67,7 @@ export async function getSubscriptionStatus(sessionId, installId) {
   }
 
   const subscription = await stripeRequest(
-    `/subscriptions/${encodeURIComponent(session.subscription)}`
+    `/subscriptions/${encodeURIComponent(session.subscription)}`,
   )
   return {
     pro: ACTIVE_SUBSCRIPTION_STATUSES.has(subscription.status),
@@ -78,9 +78,7 @@ export async function getSubscriptionStatus(sessionId, installId) {
 
 export function buildDefinitionPrompt(word, excludeWords, sections) {
   const optionalSections = [
-    sections.simple
-      ? '  <h3>更简单的说法</h3>\n  <p>用更口语、更基础的中文再解释一次。</p>'
-      : '',
+    sections.simple ? '  <h3>更简单的说法</h3>\n  <p>用更口语、更基础的中文再解释一次。</p>' : '',
     sections.examples ? '  <h3>例句</h3>\n  <p><em>给一个短例句。</em></p>' : '',
     sections.collocations
       ? '  <h3>常见搭配</h3>\n  <ul><li>列出 1-3 个常见搭配，没有则写“暂无”。</li></ul>'

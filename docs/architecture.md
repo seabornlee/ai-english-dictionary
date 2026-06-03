@@ -235,3 +235,60 @@ flowchart TB
 5. **Helmet.js**: Security headers on all responses
 6. **CORS**: Configured for allowed origins
 7. **Environment Variables**: Secrets stored in `.env` (never committed)
+
+## Monitoring & Observability
+
+### Health Check
+
+The server exposes a health endpoint that returns MongoDB connection status:
+
+```bash
+curl https://ai-dic-server.fly.dev/health
+# Returns: { "status": "ok", "mongo": "connected", "state": 1 }
+```
+
+This endpoint is monitored by the Uptime Check GitHub Action every 30 minutes. If the server becomes unhealthy, an alert issue is automatically created and closed when service is restored.
+
+### Deploy Checklist
+
+Before deploying to production, verify:
+
+1. **Health check** returns `200 OK` with `"mongo": "connected"`
+2. **Feature flags** are set correctly for production (`/api/features`)
+3. **Metrics** endpoint is accessible (`/api/metrics`)
+4. **Firebase credentials** are configured in environment variables
+5. **MongoDB Atlas** connection string is valid and TLS is enabled
+6. **CORS** origins include all client domains
+
+### Logging
+
+The server uses [Pino](https://github.com/pinojs/pino) for structured logging with automatic sensitive data redaction:
+
+```javascript
+const { logger } = require('./lib/logger');
+logger.info({ userId: '123' }, 'User action completed');
+```
+
+Redacted fields: password, token, authorization, apiKey, secret, creditCard, ssn, email
+
+Log levels: `fatal`, `error`, `warn`, `info`, `debug`, `trace`
+
+### Request Tracing
+
+Every request receives an `X-Request-ID` header. If the client does not provide one, a UUID v4 is generated. This ID is:
+
+- Set as `X-Request-ID` response header
+- Available in all downstream log entries for that request
+- Useful for correlating logs across services
+
+### Feature Flags
+
+Feature flags are managed via environment variables prefixed with `FEATURE_`:
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `FEATURE_NEW_SIGNIN` | `false` | Enable Firebase Apple/Google Sign In |
+| `FEATURE_VOCABULARY_SYNC` | `false` | Enable cross-device vocabulary sync |
+| `FEATURE_EXPERIMENTAL_API` | `false` | Enable experimental API endpoints |
+
+Flags can be checked at runtime via `GET /api/features`.

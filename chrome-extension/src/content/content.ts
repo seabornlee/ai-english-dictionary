@@ -1,7 +1,11 @@
 import { getLanguageInfo, isSupportedSelection, type ExplanationLanguage } from '../lib/languages'
 import { hasMarkedWordBefore, setHasMarkedWord } from '../lib/storage'
 import { LexisError } from '../lib/llm'
-import { ensureLanguageSelected, isLanguageOnboardingTarget, setPendingSelection } from './language-onboarding'
+import {
+  ensureLanguageSelected,
+  isLanguageOnboardingTarget,
+  setPendingSelection,
+} from './language-onboarding'
 
 interface TooltipState {
   element: HTMLElement | null
@@ -231,7 +235,7 @@ function applyDragSelection(_el: HTMLElement, index: number) {
     if (state.dragVisitedIndices.has(currentIndex)) continue
 
     const el = state.element?.querySelector<HTMLElement>(
-      `.lexis-markable[data-index="${currentIndex}"]`
+      `.lexis-markable[data-index="${currentIndex}"]`,
     )
     if (el) {
       state.dragVisitedIndices.add(currentIndex)
@@ -281,26 +285,28 @@ function updateSelectionPreview() {
 function markSelectedAndRefresh() {
   const words = getSelectedTerms()
   if (words.length === 0) return
-  
+
   const contentEl = state.element?.querySelector('.lexis-tooltip-content')
   if (contentEl) {
     const texts = getLanguageInfo(state.language).ui
     contentEl.innerHTML = `<div class="lexis-tooltip-loading">${texts.markingPrefix}${words.join('、')}${texts.markingSuffix}</div>`
   }
 
-  void saveSelectedWords(words).then(async () => {
-    // Mark that user has used this feature, so we won't show the hint again
-    await setHasMarkedWord()
-    
-    chrome.runtime.sendMessage(
-      { type: 'GET_DEFINITION', word: state.currentWord },
-      (response) => {
-        handleDefinitionResponse(response)
-      }
-    )
-  }).catch((error: Error) => {
-    showError(error.message, error instanceof LexisError ? error.openSettings : false)
-  })
+  void saveSelectedWords(words)
+    .then(async () => {
+      // Mark that user has used this feature, so we won't show the hint again
+      await setHasMarkedWord()
+
+      chrome.runtime.sendMessage(
+        { type: 'GET_DEFINITION', word: state.currentWord },
+        (response) => {
+          handleDefinitionResponse(response)
+        },
+      )
+    })
+    .catch((error: Error) => {
+      showError(error.message, error instanceof LexisError ? error.openSettings : false)
+    })
 }
 
 function saveSelectedWords(words: string[]): Promise<void> {
@@ -321,7 +327,7 @@ function saveSelectedWords(words: string[]): Promise<void> {
 
 function getSelectedTerms(): string[] {
   const selectedEls = Array.from(
-    state.element?.querySelectorAll<HTMLElement>('.lexis-markable.lexis-selected') || []
+    state.element?.querySelectorAll<HTMLElement>('.lexis-markable.lexis-selected') || [],
   )
 
   const sorted = selectedEls
@@ -334,8 +340,9 @@ function getSelectedTerms(): string[] {
 
   // CJK characters (single char) should be merged when consecutive
   // Latin words (multi-char) should remain separate
-  const isSingleChar = (word: string) => word.length === 1 && /[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]/.test(word)
-  
+  const isSingleChar = (word: string) =>
+    word.length === 1 && /[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]/.test(word)
+
   const terms: string[] = []
   let current = ''
   let previousIndex = -2
@@ -391,7 +398,8 @@ function makeWordsClickable(html: string): string {
   container.innerHTML = html
   let charIndex = 0
 
-  const combinedRegex = /([\u4e00-\u9fff]|[\u3040-\u30ff]|[\uac00-\ud7af]|[a-zA-ZÀ-ÿ]+(?:[-'][a-zA-ZÀ-ÿ]+)*)/g
+  const combinedRegex =
+    /([\u4e00-\u9fff]|[\u3040-\u30ff]|[\uac00-\ud7af]|[a-zA-ZÀ-ÿ]+(?:[-'][a-zA-ZÀ-ÿ]+)*)/g
 
   function processNode(node: Node) {
     if (node.nodeType === Node.TEXT_NODE) {
@@ -413,8 +421,6 @@ function makeWordsClickable(html: string): string {
   processNode(container)
   return container.innerHTML
 }
-
-
 
 function getSelectedText(): string {
   const selection = window.getSelection()

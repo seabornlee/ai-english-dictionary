@@ -41,6 +41,7 @@ module.exports = [
       'no-console': 'off', // Allow console for server logging
       eqeqeq: ['error', 'always'],
       curly: ['error', 'multi-line'],
+      'no-warning-comments': ['warn', { terms: ['TODO', 'FIXME', 'HACK'], location: 'start' }],
       'no-var': 'error',
       'prefer-const': 'error',
 

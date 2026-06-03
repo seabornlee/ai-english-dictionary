@@ -6,7 +6,7 @@ import { getAuthState } from './auth'
 export class LexisError extends Error {
   constructor(
     message: string,
-    public readonly openSettings: boolean = false
+    public readonly openSettings: boolean = false,
   ) {
     super(message)
     this.name = 'LexisError'
@@ -31,7 +31,7 @@ function extractTextContent(value: unknown): string {
 
   if (isRecord(value)) {
     return extractTextContent(
-      value.text ?? value.content ?? value.output_text ?? value.generated_text
+      value.text ?? value.content ?? value.output_text ?? value.generated_text,
     )
   }
 
@@ -49,7 +49,9 @@ function getResponseDetail(data: UnknownRecord): string {
 
 function emptyModelResponseError(config: LLMConfig, data?: UnknownRecord): LexisError {
   const errors = getLanguageInfo(config.language).errors
-  return new LexisError(`${errors.apiRequestFailed}: empty response from model${data ? getResponseDetail(data) : ''}`)
+  return new LexisError(
+    `${errors.apiRequestFailed}: empty response from model${data ? getResponseDetail(data) : ''}`,
+  )
 }
 
 function invalidJsonResponseError(config: LLMConfig): LexisError {
@@ -60,7 +62,7 @@ function invalidJsonResponseError(config: LLMConfig): LexisError {
 export async function getDefinition(
   word: string,
   excludeWords: string[],
-  config: LLMConfig
+  config: LLMConfig,
 ): Promise<string> {
   if (config.provider === 'server') {
     const authState = await getAuthState()
@@ -79,7 +81,7 @@ export async function getDefinition(
         unknownWords: excludeWords,
         language: detectTextLanguage(word),
         explanationSections: config.explanationSections,
-      }
+      },
     )
     return serverDefinitionToHtml(response, config.language)
   }
@@ -90,12 +92,7 @@ export async function getDefinition(
   }
 
   const outputLanguage = detectTextLanguage(word)
-  const prompt = buildPrompt(
-    word,
-    excludeWords,
-    config.explanationSections,
-    outputLanguage
-  )
+  const prompt = buildPrompt(word, excludeWords, config.explanationSections, outputLanguage)
   const messages: ChatMessage[] = [{ role: 'user', content: prompt }]
 
   const modelOutput =
@@ -110,7 +107,7 @@ function buildPrompt(
   word: string,
   excludeWords: string[],
   sections: ExplanationSections,
-  language: LLMConfig['language']
+  language: LLMConfig['language'],
 ): string {
   const languageInfo = getLanguageInfo(language)
   const headings = languageInfo.headings
@@ -152,10 +149,7 @@ ${jsonFields.join(',\n')}
   return prompt
 }
 
-async function callOpenAI(
-  messages: ChatMessage[],
-  config: LLMConfig
-): Promise<string> {
+async function callOpenAI(messages: ChatMessage[], config: LLMConfig): Promise<string> {
   let lastData: UnknownRecord | undefined
   const retryMessages: ChatMessage[] = [
     ...messages,
@@ -224,10 +218,7 @@ function extractOpenAIContent(data: UnknownRecord): string {
   return extractTextContent(candidates)
 }
 
-async function callClaude(
-  messages: ChatMessage[],
-  config: LLMConfig
-): Promise<string> {
+async function callClaude(messages: ChatMessage[], config: LLMConfig): Promise<string> {
   const response = await fetch(`${config.baseUrl}/messages`, {
     method: 'POST',
     headers: {
@@ -270,7 +261,7 @@ function escapeHtml(text: string): string {
 function modelJsonToHtml(
   raw: string,
   config: LLMConfig,
-  outputLanguage: LLMConfig['language']
+  outputLanguage: LLMConfig['language'],
 ): string {
   const trimmed = raw.trim()
   if (trimmed.startsWith('<')) {
@@ -285,7 +276,11 @@ function modelJsonToHtml(
   }
 
   const headings = getLanguageInfo(outputLanguage).headings
-  const sections: string[] = ['<section>', `<h3>${headings.basic}</h3>`, `<p>${escapeHtml(basic)}</p>`]
+  const sections: string[] = [
+    '<section>',
+    `<h3>${headings.basic}</h3>`,
+    `<p>${escapeHtml(basic)}</p>`,
+  ]
 
   appendOptionalJsonSections(sections, parsed, config, outputLanguage)
   sections.push('</section>')
@@ -325,7 +320,7 @@ function appendOptionalJsonSections(
   html: string[],
   parsed: UnknownRecord,
   config: LLMConfig,
-  outputLanguage: LLMConfig['language']
+  outputLanguage: LLMConfig['language'],
 ) {
   const headings = getLanguageInfo(outputLanguage).headings
 
@@ -345,12 +340,7 @@ function appendOptionalJsonSections(
   }
 }
 
-function appendStringListSection(
-  html: string[],
-  heading: string,
-  value: unknown,
-  italic = false
-) {
+function appendStringListSection(html: string[], heading: string, value: unknown, italic = false) {
   if (!Array.isArray(value)) return
 
   const items = value.map((item) => (typeof item === 'string' ? item.trim() : '')).filter(Boolean)
@@ -388,7 +378,7 @@ function collocationToHtml(value: unknown): string {
 
 export function serverDefinitionToHtml(
   response: DefineWordResponse,
-  language: LLMConfig['language']
+  language: LLMConfig['language'],
 ): string {
   const headings = getLanguageInfo(language).headings
   const sections: string[] = ['<section>']
@@ -421,7 +411,7 @@ export function serverDefinitionToHtml(
       .slice(0, 3)
       .map(
         (c) =>
-          `<li><strong>${escapeHtml(c.phrase)}</strong>${c.meaning ? `: ${escapeHtml(c.meaning)}` : ''}</li>`
+          `<li><strong>${escapeHtml(c.phrase)}</strong>${c.meaning ? `: ${escapeHtml(c.meaning)}` : ''}</li>`,
       )
       .join('')
     sections.push(`<ul>${listItems}</ul>`)

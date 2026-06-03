@@ -57,7 +57,7 @@ function renderWords(words: WordEntry[]) {
       </div>
       <button class="delete-btn" title="×">×</button>
     </li>
-  `
+  `,
     )
     .join('')
 

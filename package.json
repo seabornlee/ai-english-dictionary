@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "AI-powered English-to-English dictionary application",
+  "workspaces": ["server", "chrome-extension"],
   "scripts": {
     "prepare": "husky",
     "lint": "npm run lint:server && npm run lint:mac",
@@ -13,7 +14,12 @@
     "format:mac": "cd mac-app && swiftformat AIDictionary --config .swiftformat",
     "typecheck": "cd server && npm run typecheck",
     "test": "cd server && npm test",
-    "dev:server": "cd server && npm run dev"
+    "dev:server": "cd server && npm run dev",
+    "lint:mac:analyze": "cd mac-app && swiftlint lint --config .swiftlint.yml --strict --reporter json > /tmp/swiftlint-report.json 2>&1 || true && cat /tmp/swiftlint-report.json",
+    "find-duplicates:mac": "cd mac-app && npx jscpd --config .jscpd.json AIDictionary",
+    "find-dead-code:chrome": "cd chrome-extension && npx knip",
+    "test:chrome": "cd chrome-extension && npm test",
+    "test:mac": "cd mac-app && swift test"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

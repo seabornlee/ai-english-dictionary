@@ -57,3 +57,67 @@ jobs:
           git add docs/
           git commit -m "docs: auto-update documentation [skip ci]" || exit 0
           git push
+
+  validate-agents-md:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate AGENTS.md commands
+        run: |
+          echo "## Validating AGENTS.md" >> $GITHUB_STEP_SUMMARY
+          PASS=true
+          
+          # Check that referenced paths exist
+          while IFS= read -r line; do
+            # Extract paths from AGENTS.md lines like "cd server" or references to directories
+            path=$(echo "$line" | grep -oP '(?<=cd )\S+' || true)
+            if [ -n "$path" ] && [ ! -d "$path" ]; then
+              echo "- ❌ Referenced directory not found: \`$path\`" >> $GITHUB_STEP_SUMMARY
+              PASS=false
+            fi
+          done < AGENTS.md
+          
+          # Check key referenced paths exist
+          for dir in mac-app server chrome-extension; do
+            if [ -d "$dir" ]; then
+              echo "- ✅ Directory exists: \`$dir\`" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- ❌ Referenced directory missing: \`$dir\`" >> $GITHUB_STEP_SUMMARY
+              PASS=false
+            fi
+          done
+          
+          # Check key referenced files exist
+          for file in server/package.json mac-app/.swiftlint.yml mac-app/.swiftformat; do
+            if [ -f "$file" ]; then
+              echo "- ✅ File exists: \`$file\`" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- ❌ Referenced file missing: \`$file\`" >> $GITHUB_STEP_SUMMARY
+              PASS=false
+            fi
+          done
+          
+          if [ "$PASS" = true ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ All AGENTS.md references validated successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "❌ Some AGENTS.md references are invalid" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+      - name: Validate documented commands
+        run: |
+          echo "## Validating Documented Commands" >> $GITHUB_STEP_SUMMARY
+          
+          # Test that npm scripts referenced in AGENTS.md exist
+          cd server
+          for script in dev test format format:check typecheck; do
+            if npm run | grep -q "$script"; then
+              echo "- ✅ Server script exists: \`npm run $script\`" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- ⚠️ Server script missing: \`npm run $script\`" >> $GITHUB_STEP_SUMMARY
+            fi
+          done

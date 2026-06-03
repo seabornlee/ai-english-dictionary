@@ -1,0 +1,7 @@
+{
+  "entry": ["src/popup.ts", "src/content.ts", "src/service-worker.ts"],
+  "project": ["src/**/*.ts", "src/**/*.tsx"],
+  "ignore": ["src/**/*.test.ts", "src/**/*.spec.ts"],
+  "ignoreExportsUsedInFile": true,
+  "ignoreDependencies": []
+}

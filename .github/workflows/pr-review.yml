@@ -1,0 +1,117 @@
+name: PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  pr-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get PR diff stats
+        id: diff
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          STATS=$(git diff --stat origin/${{ github.base_ref }}...HEAD)
+          ADDITIONS=$(git diff --numstat origin/${{ github.base_ref }}...HEAD | awk '{sum+=$1} END {print sum+0}')
+          DELETIONS=$(git diff --numstat origin/${{ github.base_ref }}...HEAD | awk '{sum+=$2} END {print sum+0}')
+          FILES_CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | wc -l | tr -d ' ')
+          echo "additions=$ADDITIONS" >> $GITHUB_OUTPUT
+          echo "deletions=$DELETIONS" >> $GITHUB_OUTPUT
+          echo "files_changed=$FILES_CHANGED" >> $GITHUB_OUTPUT
+          echo "stats<<EOF" >> $GITHUB_OUTPUT
+          echo "$STATS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Check for missing tests
+        id: tests
+        run: |
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          WARNING=""
+          SOURCE_FILES=$(echo "$CHANGED_FILES" | grep -E '\.(js|ts|swift)$' | grep -v -E '(test|spec|\.test\.|\.spec\.)' || true)
+          if [ -n "$SOURCE_FILES" ]; then
+            for FILE in $SOURCE_FILES; do
+              BASENAME=$(echo "$FILE" | sed -E 's/\.(js|ts|swift)$//')
+              DIR=$(dirname "$FILE")
+              # Check for corresponding test file
+              if ! echo "$CHANGED_FILES" | grep -qE "${BASENAME}(.test|.spec|.Tests)"; then
+                WARNING="${WARNING}- ⚠️ No test file found for: \`${FILE}\`\n"
+              fi
+            done
+          fi
+          echo "warnings<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$WARNING" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Check for large PR
+        id: size
+        run: |
+          ADDITIONS=${{ steps.diff.outputs.additions }}
+          DELETIONS=${{ steps.diff.outputs.deletions }}
+          TOTAL=$((ADDITIONS + DELETIONS))
+          if [ "$TOTAL" -gt 500 ]; then
+            echo "large=true" >> $GITHUB_OUTPUT
+          else
+            echo "large=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for sensitive files
+        id: sensitive
+        run: |
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          SENSITIVE=""
+          SENSITIVE_PATTERNS=".env .pem .key .cert .secret credentials token password"
+          for FILE in $CHANGED_FILES; do
+            for PATTERN in $SENSITIVE_PATTERNS; do
+              if echo "$FILE" | grep -qi "$PATTERN"; then
+                SENSITIVE="${SENSITIVE}- 🔴 Sensitive file detected: \`${FILE}\`\n"
+              fi
+            done
+          done
+          echo "sensitive<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$SENSITIVE" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Post PR review comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const diff = ${{ steps.diff.outputs.additions }} + ${{ steps.diff.outputs.deletions }};
+            const files = '${{ steps.diff.outputs.files_changed }}';
+            const isLarge = '${{ steps.size.outputs.large }}' === 'true';
+            const warnings = '${{ steps.tests.outputs.warnings }}';
+            const sensitive = '${{ steps.sensitive.outputs.sensitive }}';
+
+            let body = '## 📊 PR Diff Stats\n\n';
+            body += `| Metric | Value |\n|--------|-------|\n`;
+            body += `| Files changed | ${files} |\n`;
+            body += `| Additions | ${{ steps.diff.outputs.additions }} |\n`;
+            body += `| Deletions | ${{ steps.diff.outputs.deletions }} |\n`;
+
+            if (isLarge) {
+              body += '\n> ⚠️ **Large PR detected** (>500 lines changed). Consider splitting into smaller PRs.\n';
+            }
+
+            if (warnings && warnings.trim()) {
+              body += '\n## 🧪 Missing Tests\n\n' + warnings;
+            }
+
+            if (sensitive && sensitive.trim()) {
+              body += '\n## 🔐 Sensitive Files\n\n' + sensitive;
+            }
+
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });

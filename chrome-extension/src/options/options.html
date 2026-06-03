@@ -1,183 +1,185 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="page-title">Lexis - Settings</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f5f5f5;
-      color: #333;
-      line-height: 1.6;
-    }
-    .container {
-      max-width: 600px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
-    h1 {
-      font-size: 24px;
-      margin-bottom: 24px;
-      color: #1a1a1a;
-    }
-    .card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    .form-group {
-      margin-bottom: 20px;
-    }
-    label {
-      display: block;
-      font-weight: 500;
-      margin-bottom: 8px;
-      color: #555;
-    }
-    input, select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: border-color 0.2s;
-    }
-    input:focus, select:focus {
-      outline: none;
-      border-color: #1976d2;
-    }
-    fieldset {
-      border: 1px solid #e0e0e0;
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 20px;
-    }
-    legend {
-      font-weight: 600;
-      color: #333;
-      padding: 0 6px;
-    }
-    .checkbox-label {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 10px 0;
-      font-weight: 400;
-      color: #444;
-    }
-    .checkbox-label input {
-      width: auto;
-      padding: 0;
-    }
-    .hint {
-      font-size: 12px;
-      color: #888;
-      margin-top: 6px;
-    }
-    button {
-      background: #1976d2;
-      color: #fff;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    button:hover {
-      background: #1565c0;
-    }
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    .success {
-      color: #2e7d32;
-      margin-top: 12px;
-      display: none;
-    }
-    .success.show {
-      display: block;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1 id="main-title"></h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="page-title">Lexis - Settings</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #f5f5f5;
+        color: #333;
+        line-height: 1.6;
+      }
+      .container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 0 20px;
+      }
+      h1 {
+        font-size: 24px;
+        margin-bottom: 24px;
+        color: #1a1a1a;
+      }
+      .card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: #555;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.2s;
+      }
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: #1976d2;
+      }
+      fieldset {
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 20px;
+      }
+      legend {
+        font-weight: 600;
+        color: #333;
+        padding: 0 6px;
+      }
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 10px 0;
+        font-weight: 400;
+        color: #444;
+      }
+      .checkbox-label input {
+        width: auto;
+        padding: 0;
+      }
+      .hint {
+        font-size: 12px;
+        color: #888;
+        margin-top: 6px;
+      }
+      button {
+        background: #1976d2;
+        color: #fff;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      button:hover {
+        background: #1565c0;
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .success {
+        color: #2e7d32;
+        margin-top: 12px;
+        display: none;
+      }
+      .success.show {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 id="main-title"></h1>
 
-    <div class="card">
-      <form id="config-form">
-        <div class="form-group">
-          <label for="language" id="label-language"></label>
-          <select id="language">
-            <option value="" id="option-select-first"></option>
-            <option value="zh-CN">简体中文</option>
-            <option value="en">English</option>
-            <option value="ja">日本語</option>
-            <option value="ko">한국어</option>
-            <option value="es">Español</option>
-          </select>
-          <p class="hint" id="hint-language"></p>
-        </div>
+      <div class="card">
+        <form id="config-form">
+          <div class="form-group">
+            <label for="language" id="label-language"></label>
+            <select id="language">
+              <option value="" id="option-select-first"></option>
+              <option value="zh-CN">简体中文</option>
+              <option value="en">English</option>
+              <option value="ja">日本語</option>
+              <option value="ko">한국어</option>
+              <option value="es">Español</option>
+            </select>
+            <p class="hint" id="hint-language"></p>
+          </div>
 
-        <div class="form-group">
-          <label for="provider" id="label-provider"></label>
-          <select id="provider">
-            <option value="openai">OpenAI</option>
-            <option value="claude">Claude (Anthropic)</option>
-            <option value="custom" id="option-custom"></option>
-          </select>
-        </div>
+          <div class="form-group">
+            <label for="provider" id="label-provider"></label>
+            <select id="provider">
+              <option value="openai">OpenAI</option>
+              <option value="claude">Claude (Anthropic)</option>
+              <option value="custom" id="option-custom"></option>
+            </select>
+          </div>
 
-        <div id="api-key-group" class="form-group">
-          <label for="apiKey" id="label-apiKey"></label>
-          <input type="password" id="apiKey" placeholder="sk-...">
-          <p class="hint" id="hint-apiKey"></p>
-        </div>
+          <div id="api-key-group" class="form-group">
+            <label for="apiKey" id="label-apiKey"></label>
+            <input type="password" id="apiKey" placeholder="sk-..." />
+            <p class="hint" id="hint-apiKey"></p>
+          </div>
 
-        <div id="model-group" class="form-group">
-          <label for="model" id="label-model"></label>
-          <input type="text" id="model" placeholder="gpt-4o-mini">
-          <p class="hint" id="hint-model"></p>
-        </div>
+          <div id="model-group" class="form-group">
+            <label for="model" id="label-model"></label>
+            <input type="text" id="model" placeholder="gpt-4o-mini" />
+            <p class="hint" id="hint-model"></p>
+          </div>
 
-        <div id="base-url-group" class="form-group">
-          <label for="baseUrl" id="label-baseUrl"></label>
-          <input type="text" id="baseUrl" placeholder="https://api.openai.com/v1">
-          <p class="hint" id="hint-baseUrl"></p>
-        </div>
+          <div id="base-url-group" class="form-group">
+            <label for="baseUrl" id="label-baseUrl"></label>
+            <input type="text" id="baseUrl" placeholder="https://api.openai.com/v1" />
+            <p class="hint" id="hint-baseUrl"></p>
+          </div>
 
-        <fieldset>
-          <legend id="legend-content"></legend>
-          <p class="hint" id="hint-content"></p>
-          <label class="checkbox-label" for="section-simple">
-            <input type="checkbox" id="section-simple">
-            <span id="label-simple"></span>
-          </label>
-          <label class="checkbox-label" for="section-examples">
-            <input type="checkbox" id="section-examples">
-            <span id="label-examples"></span>
-          </label>
-          <label class="checkbox-label" for="section-collocations">
-            <input type="checkbox" id="section-collocations">
-            <span id="label-collocations"></span>
-          </label>
-        </fieldset>
+          <fieldset>
+            <legend id="legend-content"></legend>
+            <p class="hint" id="hint-content"></p>
+            <label class="checkbox-label" for="section-simple">
+              <input type="checkbox" id="section-simple" />
+              <span id="label-simple"></span>
+            </label>
+            <label class="checkbox-label" for="section-examples">
+              <input type="checkbox" id="section-examples" />
+              <span id="label-examples"></span>
+            </label>
+            <label class="checkbox-label" for="section-collocations">
+              <input type="checkbox" id="section-collocations" />
+              <span id="label-collocations"></span>
+            </label>
+          </fieldset>
 
-        <button type="submit" id="btn-save"></button>
-        <p class="success" id="success-msg"></p>
-      </form>
+          <button type="submit" id="btn-save"></button>
+          <p class="success" id="success-msg"></p>
+        </form>
+      </div>
     </div>
-  </div>
-  <script type="module" src="./options.ts"></script>
-</body>
+    <script type="module" src="./options.ts"></script>
+  </body>
 </html>

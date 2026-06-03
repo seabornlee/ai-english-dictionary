@@ -11,6 +11,11 @@
 		07A420494EC3138164E609B3 /* LocalizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E084DDD639121E81C37A80 /* LocalizationManager.swift */; };
 
 		07A420494EC3138164E609B4 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 64E084DDD639121E81C37A85 /* Localizable.strings */; };
+		A01 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0100000000000000000F01 /* AuthService.swift */; };
+		A02 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0200000000000000000F02 /* LoginView.swift */; };
+		A05 /* AuthServiceIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0500000000000000000F05 /* AuthServiceIntegrationTests.swift */; };
+		A06 /* FeatureFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0600000000000000000F06 /* FeatureFlags.swift */; };
+		A04 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AA0400000000000000000F04 /* GoogleService-Info.plist */; };
 		07E76B42A16E9A1BBBAD4D97 /* WordLearningContentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656EF4837B12AE8091814D27 /* WordLearningContentTests.swift */; };
 		1C1437DAB29345FD40E003AB /* TextValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9267716AFE45E0EB3921360 /* TextValidationTests.swift */; };
 		2675F759FEA4C24A8A35ADED /* ClipboardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AD33158381B9ADC9CA5D09C /* ClipboardManager.swift */; };
@@ -46,6 +51,11 @@
 		15C6F81F604EDC78F2E7CDE5 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 
 		1891C16183A2F5151A2B5BB9 /* AIDictionaryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AIDictionaryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0100000000000000000F01 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		AA0200000000000000000F02 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		AA0400000000000000000F04 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = GoogleService-Info.plist; sourceTree = "<group>"; };
+		AA0500000000000000000F05 /* AuthServiceIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthServiceIntegrationTests.swift; sourceTree = "<group>"; };
+		AA0600000000000000000F06 /* FeatureFlags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureFlags.swift; sourceTree = "<group>"; };
 		1FB8863E1E06A51290438759 /* StitchUIHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchUIHelpers.swift; sourceTree = "<group>"; };
 		213172704DD98C11590041A7 /* TextValidation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextValidation.swift; sourceTree = "<group>"; };
 		24E293B9082C24C324077145 /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
@@ -77,7 +87,9 @@
 		00858D05A138B1DEF2B3EB65 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				AA0100000000000000000F01 /* AuthService.swift */,
 				4AD33158381B9ADC9CA5D09C /* ClipboardManager.swift */,
+				AA0600000000000000000F06 /* FeatureFlags.swift */,
 				64E084DDD639121E81C37A80 /* LocalizationManager.swift */,
 				4DC3178FD3C6A6A784F1EDB4 /* NetworkMonitor.swift */,
 			);
@@ -92,7 +104,9 @@
 				44B5413F9DAF47A9C8C428AA /* APIService.swift */,
 				4A1A10FC98ABE112D4F41A3E /* Assets.xcassets */,
 				15C6F81F604EDC78F2E7CDE5 /* ContentView.swift */,
+				AA0400000000000000000F04 /* GoogleService-Info.plist */,
 				A5499B92C070036BD32496CF /* Info.plist */,
+				AA0200000000000000000F02 /* LoginView.swift */,
 				929B142B24C77257DF7550C3 /* MenuBarView.swift */,
 				24E293B9082C24C324077145 /* PreferencesView.swift */,
 				1FB8863E1E06A51290438759 /* StitchUIHelpers.swift */,
@@ -136,6 +150,7 @@
 		78408C86D65441B340164B12 /* AIDictionaryTests */ = {
 			isa = PBXGroup;
 			children = (
+				AA0500000000000000000F05 /* AuthServiceIntegrationTests.swift */,
 				D2C1419BAED78B5363CF9130 /* AIDictionaryTests.swift */,
 				8BF237F5CD699ACB5F0B503F /* Info.plist */,
 				467A78BDB55A53BAB38E43A6 /* StitchUIHelpersTests.swift */,
@@ -163,6 +178,7 @@
 			buildPhases = (
 				3CF28D95F96F0BD74F3120ED /* Sources */,
 				75E35C374F353F944B517D39 /* Resources */,
+				AA0300000000000000000F03 /* Crashlytics */,
 			);
 			buildRules = (
 			);
@@ -225,12 +241,36 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		AA0300000000000000000F03 /* Crashlytics */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(DWARF_DSYM_FOLDER_PATH)/$(DWARF_DSYM_FILE_NAME)/Contents/Resources/DWARF/$(TARGET_NAME)",
+				"$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
+			);
+			name = Crashlytics;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/FirebaseCrashlytics/run\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXResourcesBuildPhase section */
 		75E35C374F353F944B517D39 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				FDD6F29F114A91DC48764574 /* Assets.xcassets in Resources */,
+				A04 /* GoogleService-Info.plist in Resources */,
 				07A420494EC3138164E609B4 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -243,10 +283,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				07A420494EC3138164E609B2 /* AIDictionaryApp.swift in Sources */,
+				A01 /* AuthService.swift in Sources */,
 				D9FB0D9B61CD6A3386164F27 /* APIService.swift in Sources */,
 				2675F759FEA4C24A8A35ADED /* ClipboardManager.swift in Sources */,
 				CEF65D0F68A7B077498A42FE /* ContentView.swift in Sources */,
+				A06 /* FeatureFlags.swift in Sources */,
 				07A420494EC3138164E609B3 /* LocalizationManager.swift in Sources */,
+				A02 /* LoginView.swift in Sources */,
 				EB1D134B5FA7FC0C93DEB18C /* MenuBarView.swift in Sources */,
 				B6183E6A6D4B3E3DD938EA0B /* NetworkMonitor.swift in Sources */,
 				C69F8282637473FE8B3C29D9 /* OfflineIndicator.swift in Sources */,
@@ -264,6 +307,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A05 /* AuthServiceIntegrationTests.swift in Sources */,
 				80DDC74AA0D0CD2BBCD7B2AD /* AIDictionaryTests.swift in Sources */,
 				A2A4BD84BCD6722F1A6C8479 /* StitchUIHelpersTests.swift in Sources */,
 				1C1437DAB29345FD40E003AB /* TextValidationTests.swift in Sources */,

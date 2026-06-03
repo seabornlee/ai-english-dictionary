@@ -80,7 +80,7 @@
 --enable strongifiedSelf
 --enable todos
 --enable trailingClosures
---enable trailingCommas
+--disable trailingCommas
 --enable trailingSpace
 --enable typeSugar
 --enable unusedArguments

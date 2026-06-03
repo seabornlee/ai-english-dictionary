@@ -47,7 +47,7 @@ function showLanguageOnboarding(config: Awaited<ReturnType<typeof getConfig>>) {
 async function selectLanguage(
   button: HTMLButtonElement,
   config: Awaited<ReturnType<typeof getConfig>>,
-  overlay: HTMLElement
+  overlay: HTMLElement,
 ) {
   const language = button.dataset.language as ExplanationLanguage
   await saveConfig({ ...config, language })

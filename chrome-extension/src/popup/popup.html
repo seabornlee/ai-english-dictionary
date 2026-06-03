@@ -1,30 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="page-title">Lexis - Vocabulary</title>
-  <link rel="stylesheet" href="./popup.css">
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1 id="main-title"></h1>
-      <button id="settings-btn" class="icon-btn" title="">⚙️</button>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="page-title">Lexis - Vocabulary</title>
+    <link rel="stylesheet" href="./popup.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1 id="main-title"></h1>
+        <button id="settings-btn" class="icon-btn" title="">⚙️</button>
+      </header>
 
-    <div id="empty-state" class="empty-state">
-      <p id="empty-text"></p>
-      <p class="hint" id="empty-hint"></p>
+      <div id="empty-state" class="empty-state">
+        <p id="empty-text"></p>
+        <p class="hint" id="empty-hint"></p>
+      </div>
+
+      <ul id="word-list" class="word-list"></ul>
+
+      <footer>
+        <button id="export-btn" class="text-btn"></button>
+        <button id="clear-btn" class="text-btn danger"></button>
+      </footer>
     </div>
-
-    <ul id="word-list" class="word-list"></ul>
-
-    <footer>
-      <button id="export-btn" class="text-btn"></button>
-      <button id="clear-btn" class="text-btn danger"></button>
-    </footer>
-  </div>
-  <script type="module" src="./popup.ts"></script>
-</body>
+    <script type="module" src="./popup.ts"></script>
+  </body>
 </html>

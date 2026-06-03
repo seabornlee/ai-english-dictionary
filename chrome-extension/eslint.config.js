@@ -1,6 +1,7 @@
 import js from '@eslint/js'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
+import prettier from 'eslint-config-prettier'
 
 export default tseslint.config(
   {
@@ -25,7 +26,14 @@ export default tseslint.config(
     },
     rules: {
       complexity: ['error', { max: 12 }],
-      'max-lines': ['error', { max: 350, skipBlankLines: true, skipComments: true }],
+      'max-lines': ['error', { max: 500, skipBlankLines: true, skipComments: true }],
+      'no-warning-comments': [
+        'warn',
+        {
+          terms: ['TODO', 'FIXME', 'HACK'],
+          location: 'start',
+        },
+      ],
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
@@ -76,9 +84,10 @@ export default tseslint.config(
     },
   },
   {
-    files: ['src/content/content.ts', 'src/lib/languages.ts', 'src/lib/llm.ts', 'src/video/Root.tsx'],
+    // Remotion promo composition: single file with 8 inline scenes
+    files: ['src/video/Root.tsx'],
     rules: {
-      'max-lines': ['error', { max: 500, skipBlankLines: true, skipComments: true }],
+      'max-lines': ['error', { max: 800, skipBlankLines: true, skipComments: true }],
     },
   },
   {
@@ -88,8 +97,6 @@ export default tseslint.config(
         ...globals.node,
       },
     },
-    rules: {
-      'max-lines': ['error', { max: 500, skipBlankLines: true, skipComments: true }],
-    },
-  }
+  },
+  prettier,
 )

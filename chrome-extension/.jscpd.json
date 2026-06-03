@@ -1,0 +1,7 @@
+{
+  "threshold": 5,
+  "reporters": ["html", "console"],
+  "format": ["typescript"],
+  "ignore": ["dist/**", "node_modules/**", "coverage/**", "**/*.test.ts", "**/*.spec.ts"],
+  "absolutePath": true
+}

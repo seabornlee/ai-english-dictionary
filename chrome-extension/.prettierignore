@@ -1,0 +1,8 @@
+dist
+node_modules
+store-assets
+coverage
+test-results
+playwright-report
+*.zip
+.jscpd-report

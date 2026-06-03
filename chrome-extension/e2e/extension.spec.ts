@@ -1,4 +1,11 @@
-import { test, expect, chromium, type BrowserContext, type Page, type Worker } from '@playwright/test'
+import {
+  test,
+  expect,
+  chromium,
+  type BrowserContext,
+  type Page,
+  type Worker,
+} from '@playwright/test'
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
 import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -54,7 +61,13 @@ test('renders structured safe HTML explanation and supports multi-character word
     await expect(tooltip.locator('script')).toHaveCount(0)
     await expect(tooltip.locator('[onclick]')).toHaveCount(0)
     await expect(tooltip).not.toContainText('```')
-    await expect.poll(() => page.evaluate(() => Boolean((window as Window & { __LEXIS_E2E_XSS?: boolean }).__LEXIS_E2E_XSS))).toBe(false)
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          Boolean((window as Window & { __LEXIS_E2E_XSS?: boolean }).__LEXIS_E2E_XSS),
+        ),
+      )
+      .toBe(false)
 
     const tooltipContent = tooltip.locator('.lexis-tooltip-content')
     await expect(tooltipContent).toHaveCSS('max-height', 'none')
@@ -67,7 +80,9 @@ test('renders structured safe HTML explanation and supports multi-character word
     await expect(firstMarkable).toHaveCSS('background-color', 'rgba(25, 118, 210, 0.06)')
 
     await fastDragFromTextToText(page, '复', '思')
-    await expect(tooltip.locator('.lexis-selection-preview')).toHaveText('点击生成不包含复杂意思的解释')
+    await expect(tooltip.locator('.lexis-selection-preview')).toHaveText(
+      '点击生成不包含复杂意思的解释',
+    )
 
     await fastDragFromTextToText(page, '复', '思')
     await expect(tooltip.locator('.lexis-tooltip-actions')).not.toHaveClass(/lexis-visible/)
@@ -82,7 +97,9 @@ test('renders structured safe HTML explanation and supports multi-character word
 
     await dragAcrossText(page, '复杂')
     await dragAcrossText(page, '简单')
-    await expect(tooltip.locator('.lexis-selection-preview')).toHaveText('点击生成不包含复杂、简单的解释')
+    await expect(tooltip.locator('.lexis-selection-preview')).toHaveText(
+      '点击生成不包含复杂、简单的解释',
+    )
 
     await page.evaluate(() => {
       document.querySelector<HTMLElement>('.lexis-confirm-btn')?.click()
@@ -117,12 +134,7 @@ test('enables optional explanation sections from settings', async () => {
     await selectText(page, '#target-word')
 
     const tooltip = page.locator('.lexis-tooltip')
-    await expect(tooltip.locator('h3')).toHaveText([
-      '简明释义',
-      '更简单的说法',
-      '例句',
-      '常见搭配',
-    ])
+    await expect(tooltip.locator('h3')).toHaveText(['简明释义', '更简单的说法', '例句', '常见搭配'])
     expect(prompts[0]).toContain('更简单的说法')
     expect(prompts[0]).toContain('例句')
     expect(prompts[0]).toContain('常见搭配')
@@ -267,10 +279,7 @@ async function launchExtension(): Promise<{ context: BrowserContext; extensionId
   const userDataDir = await mkdtemp(path.join(tmpdir(), 'lexis-e2e-'))
   const context = await chromium.launchPersistentContext(userDataDir, {
     headless: false,
-    args: [
-      `--disable-extensions-except=${extensionPath}`,
-      `--load-extension=${extensionPath}`,
-    ],
+    args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`],
   })
   let worker = context.serviceWorkers()[0]
   if (!worker) {
@@ -284,7 +293,7 @@ async function configureApi(
   context: BrowserContext,
   extensionId: string,
   sections?: { simple?: boolean; examples?: boolean; collocations?: boolean },
-  language = 'zh-CN'
+  language = 'zh-CN',
 ) {
   const optionsPage = await context.newPage()
   await optionsPage.goto(`chrome-extension://${extensionId}/src/options/options.html`)
@@ -324,11 +333,11 @@ async function selectText(page: Page, selector: string) {
 async function dragAcrossText(page: Page, text: string) {
   await page.evaluate((targetText) => {
     const markables = Array.from(document.querySelectorAll<HTMLElement>('.lexis-markable'))
-    
+
     // For CJK text, each character is a separate element
     // For Latin text, each word is a separate element
     const isCJK = /[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]/.test(targetText)
-    
+
     if (isCJK) {
       // CJK: each character is separate
       const chars = Array.from(targetText)
@@ -354,7 +363,7 @@ async function dragAcrossText(page: Page, text: string) {
       }
       element.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
     }
-    
+
     document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
   }, text)
 }
@@ -363,10 +372,10 @@ async function fastDragFromTextToText(page: Page, startText: string, endText: st
   await page.evaluate(
     ({ startText, endText }) => {
       const markables = Array.from(document.querySelectorAll<HTMLElement>('.lexis-markable'))
-      
+
       const findElements = (text: string) => {
         const isCJK = /[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]/.test(text)
-        
+
         if (isCJK) {
           const chars = Array.from(text)
           const startIndex = markables.findIndex((_, index) => {
@@ -387,7 +396,7 @@ async function fastDragFromTextToText(page: Page, startText: string, endText: st
           return [element]
         }
       }
-      
+
       const start = findElements(startText)[0]
       const end = findElements(endText).at(-1)
 
@@ -395,7 +404,7 @@ async function fastDragFromTextToText(page: Page, startText: string, endText: st
       end?.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
       document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
     },
-    { startText, endText }
+    { startText, endText },
   )
 }
 
@@ -462,7 +471,7 @@ function buildMockDefinition(prompt: string): string {
 function getDefinitionText(
   usesEnglish: boolean,
   hasExcludedWord: boolean,
-  hasExcludedEnglishWord: boolean
+  hasExcludedEnglishWord: boolean,
 ): string {
   if (hasExcludedWord) return '重新解释后的简明释义。'
   if (hasExcludedEnglishWord) return 'Simplified explanation after marking words.'
@@ -494,7 +503,9 @@ function handleWebRequest(_req: IncomingMessage, res: ServerResponse) {
   `)
 }
 
-function startServer(handler: (req: IncomingMessage, res: ServerResponse) => void): Promise<Server> {
+function startServer(
+  handler: (req: IncomingMessage, res: ServerResponse) => void,
+): Promise<Server> {
   return new Promise((resolve) => {
     const server = createServer(handler)
     server.listen(0, '127.0.0.1', () => resolve(server))

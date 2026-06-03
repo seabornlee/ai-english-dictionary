@@ -1,0 +1,63 @@
+name: Tech Debt Scanner
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 9 * * 1'
+
+jobs:
+  scan-todo-fixme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ripgrep
+        run: |
+          if ! command -v rg &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y ripgrep
+          fi
+
+      - name: Scan for TODO comments
+        id: todo
+        run: |
+          echo "## TODO Comments" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          rg --line-number --no-heading "TODO" --type-add 'swift:*.swift' --type swift --type js --type ts --type-add 'yaml:*.yml' --type yaml || echo "No TODOs found"
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Scan for FIXME comments
+        id: fixme
+        run: |
+          echo "## FIXME Comments" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          rg --line-number --no-heading "FIXME" --type-add 'swift:*.swift' --type swift --type js --type ts --type-add 'yaml:*.yml' --type yaml || echo "No FIXMEs found"
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Scan for HACK comments
+        id: hack
+        run: |
+          echo "## HACK Comments" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          rg --line-number --no-heading "HACK" --type-add 'swift:*.swift' --type swift --type js --type ts --type-add 'yaml:*.yml' --type yaml || echo "No HACKs found"
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Count totals
+        id: counts
+        run: |
+          TODO_COUNT=$(rg -c "TODO" --type-add 'swift:*.swift' --type swift --type js --type ts --type-add 'yaml:*.yml' --type yaml 2>/dev/null | awk -F: '{sum+=$2} END {print sum+0}')
+          FIXME_COUNT=$(rg -c "FIXME" --type-add 'swift:*.swift' --type swift --type js --type ts --type-add 'yaml:*.yml' --type yaml 2>/dev/null | awk -F: '{sum+=$2} END {print sum+0}')
+          HACK_COUNT=$(rg -c "HACK" --type-add 'swift:*.swift' --type swift --type js --type ts --type-add 'yaml:*.yml' --type yaml 2>/dev/null | awk -F: '{sum+=$2} END {print sum+0}')
+          echo "## Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Type | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| TODO | $TODO_COUNT |" >> $GITHUB_STEP_SUMMARY
+          echo "| FIXME | $FIXME_COUNT |" >> $GITHUB_STEP_SUMMARY
+          echo "| HACK | $HACK_COUNT |" >> $GITHUB_STEP_SUMMARY
+          echo "todo_count=$TODO_COUNT" >> $GITHUB_OUTPUT
+          echo "fixme_count=$FIXME_COUNT" >> $GITHUB_OUTPUT
+          echo "hack_count=$HACK_COUNT" >> $GITHUB_OUTPUT

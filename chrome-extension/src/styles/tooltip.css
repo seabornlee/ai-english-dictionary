@@ -174,7 +174,9 @@
   padding: 0 2px;
   background: rgba(25, 118, 210, 0.06);
   user-select: none;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
   border-radius: 4px;
 }
 

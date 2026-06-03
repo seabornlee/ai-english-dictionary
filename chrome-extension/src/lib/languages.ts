@@ -145,7 +145,8 @@ export const LANGUAGE_OPTIONS: LanguageInfo[] = [
     settings: {
       title: '🔧 Lexis Settings',
       interfaceLanguage: 'Interface Language',
-      interfaceLanguageHint: 'Controls settings and popup language; AI explanation language follows the selected text.',
+      interfaceLanguageHint:
+        'Controls settings and popup language; AI explanation language follows the selected text.',
       selectOnFirstUse: 'Select on first use',
       provider: 'API Provider',
       apiKey: 'API Key',
@@ -155,7 +156,8 @@ export const LANGUAGE_OPTIONS: LanguageInfo[] = [
       baseUrl: 'API Base URL',
       baseUrlHint: 'Modify this if using a proxy or custom service',
       explanationContent: 'Explanation Content',
-      explanationContentHint: 'Only "Basic definition" is shown by default. Enable additional sections below.',
+      explanationContentHint:
+        'Only "Basic definition" is shown by default. Enable additional sections below.',
       simplerWording: 'Simpler wording',
       examples: 'Examples',
       collocations: 'Common collocations',
@@ -205,7 +207,8 @@ export const LANGUAGE_OPTIONS: LanguageInfo[] = [
     settings: {
       title: '🔧 Lexis 設定',
       interfaceLanguage: 'インターフェース言語',
-      interfaceLanguageHint: '設定とポップアップの言語を制御します。AI説明言語は選択テキストに従います。',
+      interfaceLanguageHint:
+        '設定とポップアップの言語を制御します。AI説明言語は選択テキストに従います。',
       selectOnFirstUse: '初回使用時に選択',
       provider: 'APIプロバイダー',
       apiKey: 'APIキー',
@@ -215,7 +218,8 @@ export const LANGUAGE_OPTIONS: LanguageInfo[] = [
       baseUrl: 'API Base URL',
       baseUrlHint: 'プロキシやカスタムサービスを使用する場合は変更してください',
       explanationContent: '説明内容',
-      explanationContentHint: 'デフォルトでは「簡潔な意味」のみ表示。以下のセクションを有効にできます。',
+      explanationContentHint:
+        'デフォルトでは「簡潔な意味」のみ表示。以下のセクションを有効にできます。',
       simplerWording: 'より簡単な言い方',
       examples: '例文',
       collocations: 'よくある組み合わせ',
@@ -265,7 +269,8 @@ export const LANGUAGE_OPTIONS: LanguageInfo[] = [
     settings: {
       title: '🔧 Lexis 설정',
       interfaceLanguage: '인터페이스 언어',
-      interfaceLanguageHint: '설정 및 팝업 언어를 제어합니다. AI 설명 언어는 선택한 텍스트를 따릅니다.',
+      interfaceLanguageHint:
+        '설정 및 팝업 언어를 제어합니다. AI 설명 언어는 선택한 텍스트를 따릅니다.',
       selectOnFirstUse: '첫 사용 시 선택',
       provider: 'API 제공자',
       apiKey: 'API 키',
@@ -275,7 +280,8 @@ export const LANGUAGE_OPTIONS: LanguageInfo[] = [
       baseUrl: 'API Base URL',
       baseUrlHint: '프록시나 커스텀 서비스를 사용하는 경우 수정하세요',
       explanationContent: '설명 내용',
-      explanationContentHint: '기본적으로 "간단한 뜻"만 표시됩니다. 아래 섹션을 활성화할 수 있습니다.',
+      explanationContentHint:
+        '기본적으로 "간단한 뜻"만 표시됩니다. 아래 섹션을 활성화할 수 있습니다.',
       simplerWording: '더 쉬운 설명',
       examples: '예문',
       collocations: '자주 쓰는 조합',
@@ -325,7 +331,8 @@ export const LANGUAGE_OPTIONS: LanguageInfo[] = [
     settings: {
       title: '🔧 Configuración de Lexis',
       interfaceLanguage: 'Idioma de interfaz',
-      interfaceLanguageHint: 'Controla el idioma de configuración y popup; el idioma de explicación AI sigue el texto seleccionado.',
+      interfaceLanguageHint:
+        'Controla el idioma de configuración y popup; el idioma de explicación AI sigue el texto seleccionado.',
       selectOnFirstUse: 'Seleccionar en el primer uso',
       provider: 'Proveedor de API',
       apiKey: 'Clave API',
@@ -335,7 +342,8 @@ export const LANGUAGE_OPTIONS: LanguageInfo[] = [
       baseUrl: 'URL base de API',
       baseUrlHint: 'Modifica esto si usas un proxy o servicio personalizado',
       explanationContent: 'Contenido de explicación',
-      explanationContentHint: 'Solo se muestra "Definición básica" por defecto. Habilita secciones adicionales abajo.',
+      explanationContentHint:
+        'Solo se muestra "Definición básica" por defecto. Habilita secciones adicionales abajo.',
       simplerWording: 'Explicación más simple',
       examples: 'Ejemplos',
       collocations: 'Combinaciones comunes',

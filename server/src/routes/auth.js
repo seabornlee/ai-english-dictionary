@@ -5,6 +5,7 @@ const { auth, generateToken } = require('../middleware/auth');
 const { license, generateLicenseToken } = require('../middleware/license');
 const { sendVerificationEmail } = require('../services/emailService');
 const { validateReceiptWithApple, extractReceiptInfo } = require('../services/receiptValidator');
+const { verifyIdToken } = require('../lib/firebaseAdmin');
 const crypto = require('crypto');
 
 const router = express.Router();
@@ -45,13 +46,11 @@ router.post('/register', async (req, res) => {
 
     const token = generateToken(user._id);
 
-    res
-      .status(201)
-      .json({
-        token,
-        user: user.toJSON(),
-        message: 'Registration successful. Please verify your email.',
-      });
+    res.status(201).json({
+      token,
+      user: user.toJSON(),
+      message: 'Registration successful. Please verify your email.',
+    });
   } catch (error) {
     console.error('Register error:', error);
     res.status(500).json({ error: 'Registration failed', code: 'REGISTER_ERROR' });
@@ -300,7 +299,12 @@ router.post('/activate-chrome', auth, async (req, res) => {
         bundleId: 'chrome-extension',
       });
 
-      return res.json({ success: true, token, licenseId: existingLicense._id, message: 'License reactivated' });
+      return res.json({
+        success: true,
+        token,
+        licenseId: existingLicense._id,
+        message: 'License reactivated',
+      });
     }
 
     let licenseId;
@@ -328,7 +332,9 @@ router.post('/activate-chrome', auth, async (req, res) => {
       bundleId: 'chrome-extension',
     });
 
-    res.status(201).json({ success: true, token, licenseId, message: 'License activated successfully' });
+    res
+      .status(201)
+      .json({ success: true, token, licenseId, message: 'License activated successfully' });
   } catch (error) {
     console.error('Chrome activation error:', error);
     res.status(500).json({ error: 'License activation failed', code: 'ACTIVATION_ERROR' });
@@ -355,6 +361,69 @@ router.get('/license-status', license, async (req, res) => {
   } catch (error) {
     console.error('License status error:', error);
     res.status(500).json({ error: 'Failed to get license status', code: 'STATUS_ERROR' });
+  }
+});
+
+// Firebase Sign In — verify Firebase ID token, find or create user, return JWT
+router.post('/firebase', async (req, res) => {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      return res.status(400).json({ error: 'idToken required', code: 'MISSING_ID_TOKEN' });
+    }
+
+    let decodedToken;
+    try {
+      decodedToken = await verifyIdToken(idToken);
+    } catch (verifyError) {
+      console.error('Firebase token verification failed:', verifyError);
+      return res
+        .status(401)
+        .json({ error: 'Invalid Firebase token', code: 'INVALID_FIREBASE_TOKEN' });
+    }
+
+    const firebaseUid = decodedToken.uid;
+    const email = decodedToken.email?.toLowerCase();
+    const displayName = decodedToken.name || null;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email required from Firebase', code: 'NO_EMAIL' });
+    }
+
+    // Find existing user by firebaseUid or email
+    let user = await User.findOne({
+      $or: [{ firebaseUid }, { email }],
+    });
+
+    if (user) {
+      // Update Firebase fields if needed
+      if (!user.firebaseUid) {
+        user.firebaseUid = firebaseUid;
+        user.authProvider = 'firebase';
+      }
+      if (displayName && !user.displayName) {
+        user.displayName = displayName;
+      }
+      await user.save();
+    } else {
+      // Create new user
+      user = new User({
+        email,
+        firebaseUid,
+        authProvider: 'firebase',
+        displayName,
+        isVerified: true, // Firebase already verified the email
+      });
+      await user.save();
+    }
+
+    const token = generateToken(user._id);
+
+    res.json({ token, user: user.toJSON() });
+  } catch (error) {
+    console.error('Firebase auth error:', error);
+    res.status(500).json({ error: 'Firebase authentication failed', code: 'FIREBASE_AUTH_ERROR' });
   }
 });
 

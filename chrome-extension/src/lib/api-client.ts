@@ -39,7 +39,7 @@ async function apiRequest<T>(
     method?: string
     token?: string | null
     body?: unknown
-  } = {}
+  } = {},
 ): Promise<T> {
   const { method = 'GET', token, body } = options
 
@@ -69,7 +69,7 @@ async function apiRequest<T>(
 
 export async function defineWord(
   auth: ServerAuth,
-  params: DefineWordParams
+  params: DefineWordParams,
 ): Promise<DefineWordResponse> {
   return apiRequest<DefineWordResponse>(auth.baseUrl, '/api/dictionary/define', {
     method: 'POST',
@@ -97,7 +97,7 @@ export interface AuthResponse {
 export async function register(
   baseUrl: string,
   email: string,
-  password: string
+  password: string,
 ): Promise<AuthResponse> {
   return apiRequest<AuthResponse>(baseUrl, '/api/auth/register', {
     method: 'POST',
@@ -108,7 +108,7 @@ export async function register(
 export async function login(
   baseUrl: string,
   email: string,
-  password: string
+  password: string,
 ): Promise<AuthResponse> {
   return apiRequest<AuthResponse>(baseUrl, '/api/auth/login', {
     method: 'POST',
@@ -126,7 +126,7 @@ export interface ActivateResponse {
 export async function activateLicense(
   baseUrl: string,
   userToken: string,
-  deviceId: string
+  deviceId: string,
 ): Promise<ActivateResponse> {
   return apiRequest<ActivateResponse>(baseUrl, '/api/auth/activate-chrome', {
     method: 'POST',
@@ -144,7 +144,7 @@ export interface LicenseStatusResponse {
 
 export async function getLicenseStatus(
   baseUrl: string,
-  licenseToken: string
+  licenseToken: string,
 ): Promise<LicenseStatusResponse> {
   return apiRequest<LicenseStatusResponse>(baseUrl, '/api/auth/license-status', {
     token: licenseToken,
@@ -162,26 +162,20 @@ export interface SyncVocabularyEntry {
 export async function syncPushVocabulary(
   baseUrl: string,
   userToken: string,
-  vocabulary: SyncVocabularyEntry[]
+  vocabulary: SyncVocabularyEntry[],
 ): Promise<{ success: boolean; count: number }> {
-  return apiRequest<{ success: boolean; count: number }>(
-    baseUrl,
-    '/api/sync/chrome/vocabulary',
-    {
-      method: 'PUT',
-      token: userToken,
-      body: { vocabulary },
-    }
-  )
+  return apiRequest<{ success: boolean; count: number }>(baseUrl, '/api/sync/chrome/vocabulary', {
+    method: 'PUT',
+    token: userToken,
+    body: { vocabulary },
+  })
 }
 
 export async function syncPullVocabulary(
   baseUrl: string,
-  userToken: string
+  userToken: string,
 ): Promise<{ vocabulary: SyncVocabularyEntry[] }> {
-  return apiRequest<{ vocabulary: SyncVocabularyEntry[] }>(
-    baseUrl,
-    '/api/sync/chrome/vocabulary',
-    { token: userToken }
-  )
+  return apiRequest<{ vocabulary: SyncVocabularyEntry[] }>(baseUrl, '/api/sync/chrome/vocabulary', {
+    token: userToken,
+  })
 }

@@ -4,12 +4,15 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
+const crypto = require('crypto');
 const dictionaryRoutes = require('./routes/dictionary');
 const authRoutes = require('./routes/auth');
 const syncRoutes = require('./routes/sync');
 const chromeSyncRoutes = require('./routes/chrome-sync');
 const { license } = require('./middleware/license');
 const { auth } = require('./middleware/auth');
+const { getAllFlags } = require('./config/featureFlags');
+const { metricsMiddleware, getAll: getMetrics } = require('./lib/metrics');
 
 const app = express();
 /** @type {number} */
@@ -78,6 +81,16 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+// X-Request-ID middleware — generate UUID if not provided
+app.use((req, res, next) => {
+  const requestId = req.headers['x-request-id'] || crypto.randomUUID();
+  req.headers['x-request-id'] = requestId;
+  res.setHeader('X-Request-ID', requestId);
+  next();
+});
+
+app.use(metricsMiddleware);
+
 // Routes
 app.use('/api/dictionary', license, dictionaryRoutes);
 app.use('/api/auth', authRoutes);
@@ -89,6 +102,16 @@ app.get('/health', (_req, res) => {
   const mongoState = mongoose.connection.readyState;
   const mongoStatus = mongoState === 1 ? 'connected' : 'disconnected';
   res.status(200).json({ status: 'ok', mongo: mongoStatus, state: mongoState });
+});
+
+// Feature flags endpoint
+app.get('/api/features', (_req, res) => {
+  res.json(getAllFlags());
+});
+
+// Metrics endpoint
+app.get('/api/metrics', (_req, res) => {
+  res.json(getMetrics());
 });
 
 /**

@@ -1,4 +1,5 @@
 import Foundation
+import os.log
 
 enum APIError: Error {
     case invalidURL
@@ -12,19 +13,24 @@ enum APIError: Error {
 class APIService {
     static let shared = APIService()
 
+    private let log = OSLog(subsystem: "site.waterlee.aidic", category: "API")
+
     private init() {}
 
     // Configurable server URL — uses production HTTPS for Release, localhost for Debug
     #if DEBUG
-    private let baseURL = "http://localhost:3000/api/dictionary"
+        private let baseURL = "http://localhost:3000/api/dictionary"
     #else
-    private let baseURL = "https://ai-dictionary-server.fly.dev/api/dictionary"
+        private let baseURL = "https://ai-dictionary-server.fly.dev/api/dictionary"
     #endif
 
     private func standardRequest(for url: URL, method: String = "GET") -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        if let token = TokenStore.token {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
         return request
     }
 
@@ -34,7 +40,7 @@ class APIService {
             "definition": word.definition,
             "pronunciation": word.pronunciation as Any,
             "partOfSpeech": word.partOfSpeech as Any,
-            "exampleSentences": word.exampleSentences,
+            "exampleSentences": word.exampleSentences
         ]
     }
 
@@ -44,13 +50,13 @@ class APIService {
 
         let body: [String: Any] = [
             "word": word,
-            "unknownWords": unknownWords,
+            "unknownWords": unknownWords
         ]
 
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
         } catch {
-            print("error: \(error)")
+            os_log("error: %{public}@", log: log, type: .error, error.localizedDescription)
             throw APIError.networkError(error)
         }
 
@@ -73,7 +79,7 @@ class APIService {
             let result = try decoder.decode(Word.self, from: data)
             return result
         } catch {
-            print("Decoding error: \(error)")
+            os_log("Decoding error: %{public}@", log: log, type: .error, error.localizedDescription)
             throw APIError.decodingError(error)
         }
     }
@@ -105,8 +111,7 @@ class APIService {
 
         do {
             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let isFavorite = json["isFavorite"] as? Bool
-            {
+               let isFavorite = json["isFavorite"] as? Bool {
                 return isFavorite
             } else {
                 throw APIError.noData
@@ -285,7 +290,7 @@ class APIService {
 
         do {
             let unknownWords = try JSONDecoder().decode([String].self, from: data)
-            print("unknownWords: \(unknownWords)")
+            os_log("unknownWords: %{public}@", log: log, type: .debug, String(describing: unknownWords))
             return unknownWords
         } catch {
             throw APIError.decodingError(error)
